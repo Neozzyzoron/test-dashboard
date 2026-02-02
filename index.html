@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Widget V31</title>
+    <title>Notion Widget V32</title>
     <style>
         :root {
             --bg-color: #FFFFFF; --text-color: #37352F; --accent-color: #E3E2E0;
@@ -203,6 +203,7 @@
             else if(b.gridType === 'month') {
                 const dim = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
                 const day = now.getDate();
+                const days = settings.weekStart==='monday' ? ['M','T','W','T','F','S','S'] : ['S','M','T','W','T','F','S'];
                 html += `<div class="grid-subline">Day ${day}/${dim}</div><div class="grid-container">`;
                 for(let i=1; i<=dim; i++) {
                     // Break every 7 days
@@ -212,9 +213,9 @@
                 parent.innerHTML = html + `</div>`; return;
             }
             else if(b.gridType === 'week') {
-                const dayIdx = (now.getDay() + (settings.weekStart==='monday'?6:0)) % 7 + 1;
-                html += `<div class="grid-subline">Day ${dayIdx}/7</div><div class="grid-container">`;
                 const days = settings.weekStart==='monday' ? ['M','T','W','T','F','S','S'] : ['S','M','T','W','T','F','S'];
+                const dayIdx = (now.getDay() + (settings.weekStart==='monday'?6:0)) % 7 + 1;
+                html += `<div class="grid-container" style="margin-bottom:2px;">`;
                 days.forEach(d => html += `<div style="width:${w}; text-align:center; font-size:0.6em; opacity:0.5;">${d}</div>`);
                 html += `</div><div class="grid-container">`;
                 for(let i=1; i<=7; i++) html += `<div class="grid-cell ${i<=dayIdx?'filled':''}" style="width:${w}; height:${h}"></div>`;
@@ -232,27 +233,13 @@
             }
             else if(b.gridType === 'life') {
                 const dob = new Date(b.dob || '1990-01-01');
-                const totalYears = parseInt(b.expectancy||80);
-                const ageYears = now.getFullYear() - dob.getFullYear();
-                
-                let totalBlocks = totalYears;
-                let filledBlocks = ageYears;
-                let unitLabel = "Years";
-                
-                if(b.lifeUnit === 'months') { totalBlocks = totalYears * 12; filledBlocks = ageYears * 12 + now.getMonth(); unitLabel="Months"; }
-                if(b.lifeUnit === 'weeks') { totalBlocks = totalYears * 52; filledBlocks = (ageYears * 52) + getWeekNumber(now); unitLabel="Weeks"; }
-                
-                html += `<div class="grid-subline">${unitLabel} ${filledBlocks} of ${totalBlocks}</div><div class="grid-container">`;
-                // CAP AT 4000 to prevent crash
-                const limit = Math.min(totalBlocks, 4000);
-                for(let i=0; i<limit; i++) {
-                    // Break every 20 items (years) or 12 items (months) or 52 (weeks)
-                    let breakPoint = 20;
-                    if(b.lifeUnit === 'months') breakPoint = 12;
-                    if(b.lifeUnit === 'weeks') breakPoint = 52;
-                    
-                    if(i>0 && i%breakPoint===0) html += `<div class="break"></div>`;
-                    html += `<div class="grid-cell ${i<filledBlocks?'filled':''}" style="width:${w}; height:${h}"></div>`;
+                const age = now.getFullYear() - dob.getFullYear();
+                const total = parseInt(b.expectancy||80);
+                html += `<div class="grid-subline">Year ${age} of ${total}</div><div class="grid-container">`;
+                for(let i=0; i<total; i++) {
+                    // Break every 20 years
+                    if(i>0 && i%20===0) html += `<div class="break"></div>`;
+                    html += `<div class="grid-cell ${i<age?'filled':''}" style="width:${w}; height:${h}"></div>`;
                 }
                 parent.innerHTML = html + `</div>`; return;
             }
@@ -435,29 +422,17 @@
                     const el = document.getElementById(`cnt-${bIdx}`);
                     if(el) {
                         let target = new Date(block.date); 
-                        if(!block.includeTime) {
-                            // Default to start of day
-                            target.setHours(0,0,0,0);
-                        } else if(block.time) { 
-                            const [h, m] = block.time.split(':'); 
-                            target.setHours(h || 0, m || 0, 0, 0); 
-                        }
-                        
+                        if(!block.includeTime) target.setHours(0,0,0,0);
+                        else if(block.time) { const [h, m] = block.time.split(':'); target.setHours(h || 0, m || 0, 0, 0); }
                         const diff = target - now;
                         if (diff <= 0) el.innerText = "Done";
                         else {
-                            // Logic: If no time set, count full days (Math.ceil)
-                            if (!block.includeTime) {
-                                const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-                                el.innerText = `${days} Days`;
-                            } else {
-                                const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-                                if (block.style === 'standard') el.innerText = `${d} Days`;
-                                else {
-                                    const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                                    if(block.style === 'precise') el.innerText = `${d}d ${h}h`;
-                                    else { const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)); el.innerText = `${d}d ${h}h ${m}m`; }
-                                }
+                            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                            if (block.style === 'standard') el.innerText = `${d+1} Days`;
+                            else {
+                                const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                if(block.style === 'precise') el.innerText = `${d}d ${h}h`;
+                                else { const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)); el.innerText = `${d}d ${h}h ${m}m`; }
                             }
                         }
                     }
