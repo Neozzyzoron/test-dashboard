@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Widget V25</title>
+    <title>Notion Widget V26</title>
     <style>
         :root {
             --bg-color: #FFFFFF; --text-color: #37352F; --accent-color: #E3E2E0;
@@ -46,9 +46,6 @@
         .grid-container { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 5px; }
         .grid-cell { background: var(--accent-color); border-radius: 1px; }
         .grid-cell.filled { background: var(--block-color, var(--text-color)); }
-        .grid-sm .grid-cell { width: 8px; height: 8px; }
-        .grid-md .grid-cell { width: 12px; height: 12px; }
-        .grid-lg .grid-cell { width: 16px; height: 16px; }
         .grid-header-cell { font-size: 0.6em; text-align: center; color: var(--text-color); opacity: 0.5; }
         .grid-subline { font-size:0.6em; opacity:0.5; margin-bottom:2px; }
         
@@ -61,8 +58,9 @@
         .seq-current, .timer-display { font-size: 2em; font-weight: 700; font-family: monospace; color: var(--block-color, inherit); text-align: center; margin: 10px 0;}
         .seq-next { font-size: 0.8em; opacity: 0.6; text-align: center; }
         .seq-list { margin-top: 10px; border-top: 1px solid var(--accent-color); padding-top: 5px; }
-        .seq-item { display: flex; justify-content: space-between; font-size: 0.85em; padding: 2px 0; opacity: 0.5; }
-        .seq-item.active { opacity: 1; font-weight: bold; color: var(--block-color, inherit); }
+        .seq-table { width: 100%; font-size: 0.8em; border-collapse: collapse; opacity: 0.7; }
+        .seq-table td { padding: 2px 0; }
+        .seq-table .active-row { font-weight: bold; opacity: 1; }
         .seq-controls, .timer-controls { display: flex; gap: 5px; margin-top: 10px; justify-content: center; }
         .seq-btn, .timer-btn { background: var(--accent-color); border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight:600; color:var(--text-color);}
         .timer-bubble { background: var(--accent-color); color: var(--text-color); padding: 15px; border-radius: var(--radius); text-align: center; }
@@ -90,6 +88,18 @@
         function getConfig() { try { return JSON.parse(atob(window.location.hash.substring(1))); } catch(e) { return null; } }
         const container = document.getElementById('dashboard');
 
+        // --- GLOBAL HELPERS (Fixed Scope) ---
+        function createBarElement(label, start, end, isCycle, parentId) {
+            let pct = 0;
+            if(!isCycle && start && end) { 
+                const now = new Date(); 
+                if(now > end) pct = 100; else if(now > start) pct = ((now - start) / (end - start)) * 100; 
+            }
+            const wrapper = document.createElement('div'); wrapper.className = 'progress-wrapper';
+            wrapper.innerHTML = `<div class="progress-meta"><span>${label}</span><span>${pct.toFixed(1)}%</span></div><div class="progress-bg"><div class="progress-fill" style="width: ${pct}%"></div></div>`;
+            return wrapper;
+        }
+
         function render() {
             const data = getConfig();
             if (!data) return;
@@ -114,7 +124,6 @@
                 if (block.width === '50') div.classList.add('half-width');
                 if (block.width === '33') div.classList.add('third-width');
                 
-                // Color Logic 2.0
                 if (block.color && block.color !== 'default') {
                     const val = block.color.startsWith('#') ? block.color : `var(--c-${block.color})`;
                     div.style.setProperty('--block-color', val);
@@ -126,7 +135,7 @@
 
                 if(block.type === 'header') div.innerHTML = `<div class="widget-header">${block.text}</div>`;
                 else if(block.type === 'empty') div.innerHTML = `&nbsp;`;
-                else if(block.type === 'spacer') div.innerHTML = `<div class="spacer-line spacer-${block.style||'solid'}" style="margin-top:${(block.height||20)/2}px; margin-bottom:${(block.height||20)/2}px; border-bottom-width:${block.thickness||'1px'}"></div>`;
+                else if(block.type === 'spacer') div.innerHTML = `<div class="spacer-line spacer-${block.style||'solid'}" style="margin-top:10px; margin-bottom:10px; border-bottom-width:${block.thickness||'1px'}"></div>`;
                 else if(block.type === 'visual_grid') renderGridBlock(block, div, s);
                 else if(block.type === 'moon_phase') renderMoonBlock(block, div);
                 else if(block.type === 'counter') renderCounterBlock(block, div, index);
@@ -180,14 +189,22 @@
                 parent.innerHTML = html + `</div>`; return;
             }
             else if(b.gridType === 'quarter') {
-               const qStart = new Date(now.getFullYear(), Math.floor(now.getMonth()/3)*3, 1);
-               const weeksPassed = Math.floor((now - qStart) / 604800000); 
-               html = `<div class="widget-header">QUARTER</div><div style="display:flex; flex-direction:column; gap:2px;">`;
+               const m = now.getMonth();
+               const q = Math.floor(m/3);
+               const mInQ = (m % 3) + 1;
+               const currentWeek = getWeekNumber(now);
+               // Approx week in Q logic: WeekNum - (13*Q)
+               const wInQ = Math.max(1, Math.min(13, currentWeek - (q * 13)));
+               
+               html = `<div class="widget-header">QUARTER</div><div class="grid-subline">M ${mInQ}/3 | W ${wInQ}/12</div><div style="display:flex; flex-direction:column; gap:2px;">`;
                for(let r=0; r<3; r++) {
-                   html += `<div style="display:flex; gap:2px; width:100%">`;
+                   html += `<div style="display:flex; gap:2px;">`;
                    for(let c=0; c<4; c++) {
                        const idx = r*4 + c;
-                       html += `<div class="grid-cell ${idx<weeksPassed?'filled':''}" style="width:${w}; height:${h}"></div>`;
+                       // Simplified fill logic for quarter grid visual
+                       // 12 blocks total. 13 weeks. Let's map approx.
+                       const filled = (idx < (wInQ-1));
+                       html += `<div class="grid-cell ${filled?'filled':''}" style="width:${w}; height:${h}"></div>`;
                    }
                    html += `</div>`;
                }
@@ -197,18 +214,18 @@
                 const dim = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
                 const day = now.getDate();
                 const days = settings.weekStart==='monday' ? ['M','T','W','T','F','S','S'] : ['S','M','T','W','T','F','S'];
-                html = `<div class="widget-header">MONTH</div><div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:2px;">`;
+                html = `<div class="widget-header">MONTH</div><div style="display:grid; grid-template-columns:repeat(7, ${w}); gap:2px;">`;
                 days.forEach(d => html += `<div class="grid-header-cell">${d}</div>`);
-                for(let i=1; i<=dim; i++) html += `<div class="grid-cell ${i<=day?'filled':''}" style="height:${h}; width:100%;"></div>`;
+                for(let i=1; i<=dim; i++) html += `<div class="grid-cell ${i<=day?'filled':''}" style="width:${w}; height:${h};"></div>`;
                 parent.innerHTML = html + `</div>`; return;
             }
             else if(b.gridType === 'week') {
                 const days = settings.weekStart==='monday' ? ['M','T','W','T','F','S','S'] : ['S','M','T','W','T','F','S'];
                 const dayIdx = (now.getDay() + (settings.weekStart==='monday'?6:0)) % 7 + 1;
                 html = `<div class="widget-header">WEEK</div><div style="display:flex; gap:2px; margin-bottom:2px;">`;
-                days.forEach(d => html += `<div style="flex:1; text-align:center; font-size:0.6em; opacity:0.5;">${d}</div>`);
+                days.forEach(d => html += `<div style="width:${w}; text-align:center; font-size:0.6em; opacity:0.5;">${d}</div>`);
                 html += `</div><div style="display:flex; gap:2px;">`;
-                for(let i=1; i<=7; i++) html += `<div class="grid-cell ${i<=dayIdx?'filled':''}" style="height:${h}; flex:1"></div>`;
+                for(let i=1; i<=7; i++) html += `<div class="grid-cell ${i<=dayIdx?'filled':''}" style="width:${w}; height:${h}"></div>`;
                 parent.innerHTML = html + `</div>`; return;
             }
             else if(b.gridType === 'day') {
@@ -216,7 +233,7 @@
                 html = `<div class="widget-header">DAY</div><div class="grid-subline">Hour ${hr}/24</div><div style="display:flex; flex-direction:column; gap:2px;">`;
                 for(let r=0; r<3; r++) {
                     html += `<div style="display:flex; gap:2px;">`;
-                    for(let c=0; c<8; c++) { const hIdx = r*8 + c; html += `<div class="grid-cell ${hIdx<hr?'filled':''}" style="width:${w}; height:${h}; flex:1"></div>`; }
+                    for(let c=0; c<8; c++) { const hIdx = r*8 + c; html += `<div class="grid-cell ${hIdx<hr?'filled':''}" style="width:${w}; height:${h};"></div>`; }
                     html += `</div>`;
                 }
                 parent.innerHTML = html + `</div>`; return;
@@ -238,8 +255,6 @@
             let state = JSON.parse(localStorage.getItem(`seq_${id}`) || '{"step":0, "active":false, "endTime":0, "loop":false}');
             const now = Date.now();
             let currentLabel = "Ready", timeLeft = "00:00";
-            
-            // Loop Toggle Logic
             const toggleLoop = `onclick="toggleSeqLoop(${id})"`;
             const loopState = state.loop ? 'checked' : '';
 
@@ -249,12 +264,8 @@
                     state.step++;
                     if(state.step >= b.steps.length) {
                         if(state.loop) {
-                            state.step = 0; // Restart
-                            state.endTime = now + (b.steps[0].duration * 60000);
-                            currentLabel = b.steps[0].label;
-                        } else {
-                            state.active = false; currentLabel = "Done"; 
-                        }
+                            state.step = 0; state.endTime = now + (b.steps[0].duration * 60000); currentLabel = b.steps[0].label;
+                        } else { state.active = false; currentLabel = "Done"; }
                     } else { 
                         state.endTime = now + (b.steps[state.step].duration * 60000); currentLabel = b.steps[state.step].label; 
                     }
@@ -270,14 +281,15 @@
             }
 
             let html = `<div class="timer-bubble"><div style="font-size:0.8em; opacity:0.8; text-transform:uppercase;">${b.label}</div><div class="timer-display">${timeLeft}</div><div class="seq-next">${currentLabel}</div>`;
-            html += `<div class="seq-list">`;
+            html += `<table class="seq-table">`;
             b.steps.forEach((s, i) => {
-                let status = i < state.step ? '✔ ' : i === state.step ? (state.active ? '▶ ' : '● ') : '○ ';
-                html += `<div class="seq-item ${i===state.step?'active':''}">${status} ${s.label} (${s.duration}m)</div>`;
+                let status = i < state.step ? '✔' : i === state.step ? (state.active ? '▶' : '●') : '○';
+                let cls = i === state.step ? 'active-row' : '';
+                html += `<tr class="${cls}"><td>${status}</td><td>${s.label}</td><td style="text-align:right">${s.duration}m</td></tr>`;
             });
-            html += `</div>`;
+            html += `</table>`;
             html += `<div class="timer-controls"><button class="timer-btn" onclick="seqAction(${id}, 'start')">▶</button><button class="timer-btn" onclick="seqAction(${id}, 'pause')">⏸</button><button class="timer-btn" onclick="seqAction(${id}, 'reset')">↻</button></div>`;
-            html += `<div style="margin-top:8px; font-size:0.75em;"><label style="cursor:pointer"><input type="checkbox" ${loopState} ${toggleLoop}> Loop Sequence</label></div>`;
+            html += `<div style="margin-top:8px; font-size:0.75em;"><label style="cursor:pointer"><input type="checkbox" ${loopState} ${toggleLoop}> Loop</label></div>`;
             html += `</div>`;
             parent.innerHTML = html;
         }
@@ -288,7 +300,48 @@
             localStorage.setItem(`seq_${id}`, JSON.stringify(state));
         };
 
-        // ... (Same helpers as V23 + Date Fix) ...
+        window.seqAction = (id, action) => {
+            let state = JSON.parse(localStorage.getItem(`seq_${id}`) || '{"step":0, "active":false}');
+            const data = getConfig().blocks[id];
+            if(action === 'reset') { state.step = 0; state.active = false; }
+            if(action === 'start' && !state.active && state.step < data.steps.length) {
+                state.active = true; state.endTime = Date.now() + (data.steps[state.step].duration * 60000);
+            }
+            if(action === 'pause') { state.active = false; } 
+            localStorage.setItem(`seq_${id}`, JSON.stringify(state)); render();
+        };
+
+        function renderCounterBlock(b, parent, id) {
+            const count = parseInt(localStorage.getItem(`cnt_${id}`) || '0');
+            parent.innerHTML = `<div class="widget-header">${b.label}</div><div class="counter-wrap"><button class="counter-btn" onclick="updateCounter(${id}, -1)">-</button><span class="counter-val">${count}</span><button class="counter-btn" onclick="updateCounter(${id}, 1)">+</button><button class="counter-btn" style="font-size:0.8em; opacity:0.5" onclick="resetCounter(${id})">↻</button></div>`;
+        }
+        window.updateCounter = (id, d) => { localStorage.setItem(`cnt_${id}`, parseInt(localStorage.getItem(`cnt_${id}`)||0)+d); render(); };
+        window.resetCounter = (id) => { localStorage.setItem(`cnt_${id}`, 0); render(); };
+
+        function renderProgress(b, parent, s) {
+            b.items.forEach(item => {
+                if(item.visible !== false) {
+                    let dates;
+                    if(item.type === 'life') {
+                        const start = new Date(item.dob || '1990-01-01');
+                        const end = new Date(start);
+                        end.setFullYear(end.getFullYear() + parseInt(item.expectancy || 80));
+                        dates = { start, end };
+                    } else { dates = getDatesForType(item.type, s.weekStart); }
+                    if(dates) parent.appendChild(createBarElement(item.label, dates.start, dates.end, false)); 
+                }
+            });
+        }
+        
+        function getDatesForType(type, weekStart = 'monday') {
+            const now = new Date(); const y = now.getFullYear(), m = now.getMonth();
+            if (type === 'day') return { start: new Date(y, m, now.getDate()), end: new Date(y, m, now.getDate(), 23, 59, 59) };
+            if (type === 'week') { const d = now.getDay(); let diff; if (weekStart === 'monday') diff = now.getDate() - d + (d === 0 ? -6 : 1); else diff = now.getDate() - d; const s = new Date(now.setDate(diff)); s.setHours(0,0,0,0); const e = new Date(s); e.setDate(s.getDate() + 7); return { start: s, end: e }; }
+            if (type === 'month') return { start: new Date(y, m, 1), end: new Date(y, m + 1, 0) };
+            if (type === 'quarter') { const q = Math.floor(m/3)*3; return { start: new Date(y, q, 1), end: new Date(y, q+3, 0) }; }
+            if (type === 'year') return { start: new Date(y, 0, 1), end: new Date(y + 1, 0, 1) };
+            return null;
+        }
         function updateDynamics(blocks, settings) {
             const now = new Date(); const use24h = settings.use24h === true;
             blocks.forEach((block, bIdx) => {
@@ -317,7 +370,6 @@
                         }
                     });
                 }
-                // Date Display Logic
                 if (block.type === 'date_display') {
                     const mEl = document.getElementById(`date-main-${bIdx}`);
                     const sEl = document.getElementById(`date-sub-${bIdx}`);
@@ -328,7 +380,6 @@
                         sEl.innerText = buildDateString(l2, now);
                     }
                 }
-                // ... (Rest of logic: Cycle, Timer, Sequence, Countdown same as V23)
                 if (block.type === 'progress_cycle') {
                     const resetMode = block.resetMode || 'auto';
                     let anchor = new Date(block.anchor);
@@ -355,10 +406,32 @@
                 }
                 if (block.type === 'sequence') { const div = document.getElementById(`block-${bIdx}`); if(div) renderSequenceBlock(block, div, bIdx); }
                 if (block.type === 'timer') updateTimerDisplay(bIdx);
+                
+                // Countdown Fix
+                if (block.type === 'countdown') {
+                    const el = document.getElementById(`cnt-${bIdx}`);
+                    if(el) {
+                        let target = new Date(block.date); 
+                        if(!block.includeTime) target.setHours(0,0,0,0);
+                        else if(block.time) { const [h, m] = block.time.split(':'); target.setHours(h || 0, m || 0, 0, 0); }
+                        const diff = target - now;
+                        if (diff <= 0) el.innerText = "Done";
+                        else {
+                            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                            if (block.style === 'standard') el.innerText = `${d+1} Days`;
+                            else {
+                                const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                if(block.style === 'precise') el.innerText = `${d}d ${h}h`;
+                                else { const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)); el.innerText = `${d}d ${h}h ${m}m`; }
+                            }
+                        }
+                    }
+                }
             });
         }
         
-        // DATE STRING BUILDER (SAFE)
+        window.resetCycle = (id) => { localStorage.setItem(`cycle_reset_${id}`, new Date().getTime()); };
+        
         function buildDateString(tokens, now) {
             if(!tokens || !Array.isArray(tokens)) return '';
             return tokens.map(t => {
@@ -381,9 +454,8 @@
                 }
             }).join('');
         }
-        // ... (Helpers: getWeekNumber, Moon logic same as V23) ...
         function getWeekNumber(d) { d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7)); const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1)); return Math.ceil((((d - yearStart) / 86400000) + 1)/7); }
-        function renderMoonBlock(b, parent) { /* Same as above renderMoonBlock logic */ 
+        function renderMoonBlock(b, parent) { 
             const now = new Date(); const newMoon = new Date(2000, 0, 6, 18, 14); const cycle = 29.53058867;
             const diffDays = (now - newMoon) / 86400000; const age = diffDays % cycle; 
             let phaseIdx = 0;
@@ -400,17 +472,14 @@
         
         window.startTimer = (id, m) => { localStorage.setItem(`notion_timer_${id}`, new Date().getTime() + (m * 60000)); updateTimerDisplay(id); };
         window.stopTimer = (id) => { localStorage.removeItem(`notion_timer_${id}`); updateTimerDisplay(id); };
-        window.seqAction = (id, action) => { /* Same as V23 seqAction */ 
-            let state = JSON.parse(localStorage.getItem(`seq_${id}`) || '{"step":0, "active":false}');
-            const data = getConfig().blocks[id];
-            if(action === 'reset') { state.step = 0; state.active = false; }
-            if(action === 'start' && !state.active && state.step < data.steps.length) { state.active = true; state.endTime = Date.now() + (data.steps[state.step].duration * 60000); }
-            if(action === 'pause') { state.active = false; } 
-            localStorage.setItem(`seq_${id}`, JSON.stringify(state)); render();
-        };
-        window.updateCounter = (id, d) => { localStorage.setItem(`cnt_${id}`, parseInt(localStorage.getItem(`cnt_${id}`)||0)+d); render(); };
-        window.resetCounter = (id) => { localStorage.setItem(`cnt_${id}`, 0); render(); };
-        window.resetCycle = (id) => { localStorage.setItem(`cycle_reset_${id.split('-')[1]}`, new Date().getTime()); };
+        function updateTimerDisplay(id) { 
+            const el = document.getElementById(`timer-display-${id}`); const end = localStorage.getItem(`notion_timer_${id}`);
+            if (!end) { el.innerText = "00:00"; return; }
+            const dist = end - new Date().getTime();
+            if (dist < 0) { el.innerText = "Done!"; localStorage.removeItem(`notion_timer_${id}`); return; }
+            const m = Math.floor(dist / 60000); const s = Math.floor((dist % 60000) / 1000);
+            el.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
 
         window.addEventListener('hashchange', render);
         render(); setInterval(() => updateDynamics(getConfig().blocks, getConfig().settings), 1000);
