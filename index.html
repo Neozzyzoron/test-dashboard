@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Widget V27</title>
+    <title>Notion Widget V28</title>
     <style>
         :root {
             --bg-color: #FFFFFF; --text-color: #37352F; --accent-color: #E3E2E0;
@@ -14,71 +14,56 @@
         
         body { margin: 0; padding: var(--pad); font-family: var(--font-stack); background: var(--bg-color); color: var(--text-color); font-size: var(--base-size); box-sizing: border-box; }
         
-        /* LAYOUT */
         #dashboard { display: flex; flex-wrap: wrap; gap: 1rem; max-width: 900px; margin: 0 auto; align-items: flex-start; }
         .widget-block { width: 100%; box-sizing: border-box; border: 1px solid transparent; border-radius: var(--radius); }
         .widget-block.half-width { width: calc(50% - 0.5rem); }
         .widget-block.third-width { width: calc(33.333% - 0.67rem); }
         
-        /* THEMES */
         .theme-card .widget-block { border-color: var(--accent-color); padding: var(--pad); }
         .theme-minimal .progress-bg { height: 4px; }
         .widget-header { font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; margin-bottom: 0.5rem; font-weight: 600; color: var(--block-color, inherit); }
         
-        /* COMPONENTS */
-        .clock-row { display: flex; justify-content: space-between; border-bottom: 1px solid var(--accent-color); padding: 4px 0; }
-        .clock-row:last-child { border: none; }
-        .clock-left { display: flex; flex-direction: column; }
-        .clock-city { font-weight: 600; font-size: 0.95em; }
-        .clock-date { font-size: 0.75em; opacity: 0.6; }
-        .clock-time { font-family: monospace; font-weight: bold; font-size: 1.1em; color: var(--block-color, inherit); }
-
+        /* GRID SYSTEM 3.0 */
+        .grid-layout { display: grid; gap: 2px; margin-top: 5px; }
+        .grid-cell { background: var(--accent-color); border-radius: 1px; }
+        .grid-cell.filled { background: var(--block-color, var(--text-color)); }
+        .grid-subline { font-size:0.6em; opacity:0.5; margin-bottom:2px; }
+        .grid-header-row { display: grid; gap: 2px; margin-bottom: 2px; width: 100%; }
+        
+        /* OTHER COMPONENTS */
         .progress-wrapper { margin-bottom: 0.5rem; }
         .progress-meta { display: flex; justify-content: space-between; font-size: 0.85em; margin-bottom: 2px; }
         .progress-bg { height: 8px; background: var(--accent-color); border-radius: 4px; overflow: hidden; }
         .progress-fill { height: 100%; background: var(--block-color, var(--text-color)); width: 0%; }
         
-        /* DATE DISPLAY */
+        .clock-row { display: flex; justify-content: space-between; border-bottom: 1px solid var(--accent-color); padding: 4px 0; }
+        .clock-row:last-child { border: none; }
+        .clock-city { font-weight: 600; font-size: 0.95em; }
+        .clock-time { font-family: monospace; font-weight: bold; font-size: 1.1em; color: var(--block-color, inherit); }
+        
         .date-display { font-size: 1.5em; font-weight: 700; color: var(--block-color, inherit); line-height: 1.2; }
         .date-sub { font-size: 0.9em; opacity: 0.6; margin-top: 4px; font-weight: 500; }
-
-        /* GRID 3.0 */
-        .grid-container { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 5px; }
-        .grid-cell { background: var(--accent-color); border-radius: 1px; }
-        .grid-cell.filled { background: var(--block-color, var(--text-color)); }
-        .grid-header-cell { font-size: 0.6em; text-align: center; color: var(--text-color); opacity: 0.5; }
-        .grid-subline { font-size:0.6em; opacity:0.5; margin-bottom:2px; }
         
-        /* MOON */
         .moon-display { display: flex; align-items: center; gap: 15px; }
         .moon-icon { font-size: 2.5em; line-height: 1; }
-        .moon-details { font-size: 0.9em; line-height: 1.4; }
         
-        /* SEQUENCE & TIMER */
-        .seq-current, .timer-display { font-size: 2em; font-weight: 700; font-family: monospace; color: var(--block-color, inherit); text-align: center; margin: 10px 0;}
-        .seq-next { font-size: 0.8em; opacity: 0.6; text-align: center; }
-        .seq-list { margin-top: 10px; border-top: 1px solid var(--accent-color); padding-top: 5px; }
-        .seq-table { width: 100%; font-size: 0.8em; border-collapse: collapse; opacity: 0.7; }
-        .seq-table td { padding: 2px 0; }
-        .seq-table .active-row { font-weight: bold; opacity: 1; }
-        .seq-controls, .timer-controls { display: flex; gap: 5px; margin-top: 10px; justify-content: center; }
-        .seq-btn, .timer-btn { background: var(--accent-color); border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight:600; color:var(--text-color);}
         .timer-bubble { background: var(--accent-color); color: var(--text-color); padding: 15px; border-radius: var(--radius); text-align: center; }
+        .timer-display { font-size: 2.5em; font-weight: 700; font-family: monospace; margin: 10px 0;}
+        .timer-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 0.8em; font-weight:600; color:inherit; }
         
-        /* COUNTER */
+        .seq-table { width: 100%; font-size: 0.8em; border-collapse: collapse; opacity: 0.7; text-align: left; }
+        .seq-table .active-row { font-weight: bold; opacity: 1; }
+        
         .counter-wrap { display: flex; align-items: center; justify-content: space-between; background: var(--accent-color); padding: 5px 10px; border-radius: var(--radius); }
         .counter-btn { border: none; background: transparent; cursor: pointer; font-size: 1.2em; color: var(--text-color); }
         .counter-val { font-weight: bold; font-family: monospace; font-size: 1.2em; color: var(--block-color, inherit); }
         
-        /* SPACER */
-        .spacer-line { width: 100%; border-bottom-color: var(--accent-color); opacity: 0.5; }
-        .spacer-dashed { border-bottom-style: dashed; } .spacer-dotted { border-bottom-style: dotted; } .spacer-solid { border-bottom-style: solid; }
-        
-        /* COUNTDOWN */
         .countdown-line { display: flex; justify-content: space-between; align-items: baseline; font-size: 1.1em; }
         .countdown-val { font-weight: bold; color: var(--block-color, inherit); }
         
-        /* CYCLE */
+        .spacer-line { width: 100%; border-bottom-color: var(--accent-color); opacity: 0.5; }
+        .spacer-dashed { border-bottom-style: dashed; } .spacer-dotted { border-bottom-style: dotted; } .spacer-solid { border-bottom-style: solid; }
+        
         .cycle-reset-btn { background:var(--accent-color); border:none; color:var(--text-color); font-size:0.7em; padding:2px 8px; border-radius:4px; cursor:pointer; margin-left:8px; pointer-events:auto; font-weight:bold;}
     </style>
 </head>
@@ -88,15 +73,15 @@
         function getConfig() { try { return JSON.parse(atob(window.location.hash.substring(1))); } catch(e) { return null; } }
         const container = document.getElementById('dashboard');
 
-        // --- GLOBAL HELPERS (Fixed Scope) ---
-        function createBarElement(label, start, end, isCycle, parentId) {
+        // --- GLOBAL HELPERS (MUST BE FIRST) ---
+        function createBarElement(label, start, end, isCycle) {
             let pct = 0;
             if(!isCycle && start && end) { 
                 const now = new Date(); 
-                if(now > end) pct = 100; else if(now > start) pct = ((now - start) / (end - start)) * 100; 
+                if(now > end) pct = 100; else if(now > start) pct = Math.max(0, ((now - start) / (end - start)) * 100); 
             }
             const wrapper = document.createElement('div'); wrapper.className = 'progress-wrapper';
-            wrapper.innerHTML = `<div class="progress-meta"><span>${label}</span><span>${pct.toFixed(1)}%</span></div><div class="progress-bg"><div class="progress-fill" style="width: ${pct}%"></div></div>`;
+            wrapper.innerHTML = `<div class="progress-meta"><span>${label || 'Progress'}</span><span>${pct.toFixed(1)}%</span></div><div class="progress-bg"><div class="progress-fill" style="width: ${pct}%"></div></div>`;
             return wrapper;
         }
 
@@ -124,6 +109,7 @@
                 if (block.width === '50') div.classList.add('half-width');
                 if (block.width === '33') div.classList.add('third-width');
                 
+                // Color Logic
                 if (block.color && block.color !== 'default') {
                     const val = block.color.startsWith('#') ? block.color : `var(--c-${block.color})`;
                     div.style.setProperty('--block-color', val);
@@ -133,7 +119,7 @@
                     div.style.color = tVal;
                 }
 
-                if(block.type === 'header') div.innerHTML = `<div class="widget-header">${block.text}</div>`;
+                if(block.type === 'header') div.innerHTML = `<div class="widget-header" style="font-size:1.2em; opacity:1;">${block.text}</div>`;
                 else if(block.type === 'empty') div.innerHTML = `&nbsp;`;
                 else if(block.type === 'spacer') div.innerHTML = `<div class="spacer-line spacer-${block.style||'solid'}" style="margin-top:10px; margin-bottom:10px; border-bottom-width:${block.thickness||'1px'}"></div>`;
                 else if(block.type === 'visual_grid') renderGridBlock(block, div, s);
@@ -141,8 +127,13 @@
                 else if(block.type === 'counter') renderCounterBlock(block, div, index);
                 else if(block.type === 'sequence') renderSequenceBlock(block, div, index);
                 else if(block.type === 'progress_group') renderProgress(block, div, s);
-                else if(block.type === 'progress_custom') div.appendChild(createBarElement(block.label, new Date(block.start), new Date(block.end), false));
-                else if(block.type === 'progress_cycle') { const wrap = createBarElement(block.label, null, null, true, `block-${index}`); div.appendChild(wrap); }
+                else if(block.type === 'progress_custom') {
+                    // Safe Date parsing
+                    const s = new Date(block.start); const e = new Date(block.end);
+                    if(!isNaN(s) && !isNaN(e)) div.appendChild(createBarElement(block.label, s, e, false));
+                    else div.innerHTML = `<div style="color:red; font-size:0.8em">Invalid Dates</div>`;
+                }
+                else if(block.type === 'progress_cycle') { const wrap = createBarElement(block.label, null, null, true); wrap.id=`cycle-${index}`; div.appendChild(wrap); }
                 
                 else if (block.type === 'world_clock') {
                     block.locations.forEach((loc, i) => {
@@ -158,8 +149,7 @@
                     div.innerHTML = `<div class="countdown-line"><span>${block.label}</span><span class="countdown-val" id="cnt-${index}">--</span></div>`; 
                 }
                 else if (block.type === 'timer') {
-                    const hrs = parseInt(block.hours)||0; const mins = parseInt(block.minutes)||0; const total = (hrs*60)+mins; const label = hrs>0 ? `${hrs}h ${mins}m` : `${mins}m`;
-                    div.innerHTML = `<div class="timer-bubble"><div style="font-size:0.8em; opacity:0.8; text-transform:uppercase; letter-spacing:1px;">${block.label||'TIMER'}</div><div class="timer-display" id="timer-display-${index}">00:00</div><div class="timer-controls"><button class="timer-btn" onclick="startTimer(${index}, ${total})">Start</button><button class="timer-btn" onclick="stopTimer(${index})">Stop</button></div></div>`;
+                    div.innerHTML = `<div class="timer-bubble"><div style="font-size:0.8em; opacity:0.8; text-transform:uppercase; letter-spacing:1px;">${block.label||'TIMER'}</div><div class="timer-display" id="timer-display-${index}">00:00</div><div class="timer-controls"><button class="timer-btn" onclick="startTimer(${index}, ${(parseInt(block.hours)||0)*60 + (parseInt(block.minutes)||0)})">Start</button><button class="timer-btn" onclick="stopTimer(${index})">Stop</button></div></div>`;
                 }
                 
                 container.appendChild(div);
@@ -167,24 +157,21 @@
             updateDynamics(data.blocks, s);
         }
 
-        // --- GRID 3.0 ---
+        // --- GRID 3.0 (CSS GRID IMPLEMENTATION) ---
         function renderGridBlock(b, parent, settings) {
-            let html = `<div class="widget-header">${b.gridType.toUpperCase()}</div><div class="grid-container">`;
+            let html = `<div class="widget-header">${b.gridType.toUpperCase()}</div>`;
             const now = new Date();
+            
+            // PIXEL MATH
             let px = b.blockSize==='24px'?24 : b.blockSize==='16px'?16 : 12;
             let wMult = b.shape==='wide'?2 : b.shape==='ultrawide'?3 : 1;
             let w = `${px*wMult}px`; let h = `${px}px`;
             
             if(b.gridType === 'year') { 
                 const currentWeek = getWeekNumber(now);
-                html = `<div class="widget-header">YEAR</div><div class="grid-subline">Week ${currentWeek} of 52</div><div style="display:flex; flex-direction:column; gap:2px;">`;
-                for(let r=0; r<4; r++) {
-                    html += `<div style="display:flex; gap:2px;">`;
-                    for(let c=0; c<13; c++) {
-                        const weekNum = r*13 + c + 1;
-                        html += `<div class="grid-cell ${weekNum<=currentWeek?'filled':''}" style="width:${w}; height:${h}"></div>`;
-                    }
-                    html += `</div>`;
+                html += `<div class="grid-subline">Week ${currentWeek} of 52</div><div class="grid-layout" style="grid-template-columns: repeat(13, ${w});">`;
+                for(let i=1; i<=52; i++) {
+                    html += `<div class="grid-cell ${i<=currentWeek?'filled':''}" style="width:${w}; height:${h}"></div>`;
                 }
                 parent.innerHTML = html + `</div>`; return;
             }
@@ -193,20 +180,15 @@
                const q = Math.floor(m/3);
                const mInQ = (m % 3) + 1;
                const currentWeek = getWeekNumber(now);
-               // Approx week in Q logic: WeekNum - (13*Q)
                const wInQ = Math.max(1, Math.min(13, currentWeek - (q * 13)));
                
-               html = `<div class="widget-header">QUARTER</div><div class="grid-subline">M ${mInQ}/3 | W ${wInQ}/12</div><div style="display:flex; flex-direction:column; gap:2px;">`;
-               for(let r=0; r<3; r++) {
-                   html += `<div style="display:flex; gap:2px;">`;
-                   for(let c=0; c<4; c++) {
-                       const idx = r*4 + c;
-                       // Simplified fill logic for quarter grid visual
-                       // 12 blocks total. 13 weeks. Let's map approx.
-                       const filled = (idx < (wInQ-1));
-                       html += `<div class="grid-cell ${filled?'filled':''}" style="width:${w}; height:${h}"></div>`;
-                   }
-                   html += `</div>`;
+               html += `<div class="grid-subline">M ${mInQ}/3 | W ${wInQ}/12</div><div class="grid-layout" style="grid-template-columns: repeat(4, ${w});">`;
+               // 12 blocks total (3 rows x 4 cols)
+               for(let i=0; i<12; i++) {
+                   // Logic: 13 weeks in a quarter, but 12 blocks. Map wInQ 1-13 to 0-11
+                   // If week is 1, fill 0. If week is 13, fill all.
+                   const filled = i < (wInQ-1); 
+                   html += `<div class="grid-cell ${filled?'filled':''}" style="width:${w}; height:${h}"></div>`;
                }
                parent.innerHTML = html + `</div>`; return;
             }
@@ -214,40 +196,51 @@
                 const dim = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
                 const day = now.getDate();
                 const days = settings.weekStart==='monday' ? ['M','T','W','T','F','S','S'] : ['S','M','T','W','T','F','S'];
-                html = `<div class="widget-header">MONTH</div><div style="display:grid; grid-template-columns:repeat(7, ${w}); gap:2px;">`;
+                html += `<div class="grid-header-row" style="grid-template-columns: repeat(7, ${w});">`;
                 days.forEach(d => html += `<div class="grid-header-cell">${d}</div>`);
+                html += `</div><div class="grid-layout" style="grid-template-columns: repeat(7, ${w});">`;
                 for(let i=1; i<=dim; i++) html += `<div class="grid-cell ${i<=day?'filled':''}" style="width:${w}; height:${h};"></div>`;
                 parent.innerHTML = html + `</div>`; return;
             }
             else if(b.gridType === 'week') {
                 const days = settings.weekStart==='monday' ? ['M','T','W','T','F','S','S'] : ['S','M','T','W','T','F','S'];
                 const dayIdx = (now.getDay() + (settings.weekStart==='monday'?6:0)) % 7 + 1;
-                html = `<div class="widget-header">WEEK</div><div style="display:flex; gap:2px; margin-bottom:2px;">`;
-                days.forEach(d => html += `<div style="flex:1; text-align:center; font-size:0.6em; opacity:0.5;">${d}</div>`);
-                html += `</div><div style="display:flex; gap:2px;">`;
+                html += `<div class="grid-header-row" style="grid-template-columns: repeat(7, ${w});">`;
+                days.forEach(d => html += `<div class="grid-header-cell">${d}</div>`);
+                html += `</div><div class="grid-layout" style="grid-template-columns: repeat(7, ${w});">`;
                 for(let i=1; i<=7; i++) html += `<div class="grid-cell ${i<=dayIdx?'filled':''}" style="width:${w}; height:${h}"></div>`;
                 parent.innerHTML = html + `</div>`; return;
             }
             else if(b.gridType === 'day') {
                 const hr = now.getHours();
-                html = `<div class="widget-header">DAY</div><div class="grid-subline">Hour ${hr}/24</div><div style="display:flex; flex-direction:column; gap:2px;">`;
-                for(let r=0; r<3; r++) {
-                    html += `<div style="display:flex; gap:2px;">`;
-                    for(let c=0; c<8; c++) { const hIdx = r*8 + c; html += `<div class="grid-cell ${hIdx<hr?'filled':''}" style="width:${w}; height:${h};"></div>`; }
-                    html += `</div>`;
-                }
+                html += `<div class="grid-subline">Hour ${hr}/24</div><div class="grid-layout" style="grid-template-columns: repeat(8, ${w});">`;
+                for(let i=0; i<24; i++) html += `<div class="grid-cell ${i<hr?'filled':''}" style="width:${w}; height:${h}"></div>`;
                 parent.innerHTML = html + `</div>`; return;
             }
             else if(b.gridType === 'life') {
-                const age = now.getFullYear() - new Date(b.dob||'1990').getFullYear();
+                const dob = new Date(b.dob || '1990-01-01');
+                const age = now.getFullYear() - dob.getFullYear();
                 const total = parseInt(b.expectancy||80);
-                html = `<div class="widget-header">LIFE</div><div class="grid-subline">Year ${age} of ${total}</div><div class="grid-container" style="gap:2px;">`;
-                for(let i=0; i<total; i++) {
-                    if(i>0 && i%20===0) html += `<div style="flex-basis:100%; height:0;"></div>`;
-                    html += `<div class="grid-cell ${i<age?'filled':''}" style="width:${w}; height:${h}"></div>`;
-                }
+                html += `<div class="grid-subline">Year ${age} of ${total}</div><div class="grid-layout" style="grid-template-columns: repeat(20, ${w});">`;
+                for(let i=0; i<total; i++) html += `<div class="grid-cell ${i<age?'filled':''}" style="width:${w}; height:${h}"></div>`;
                 parent.innerHTML = html + `</div>`; return;
             }
+            parent.innerHTML = html;
+        }
+
+        // --- OTHER RENDERERS (Same as V27, Scope Fixed) ---
+        function renderMoonBlock(b, parent) { 
+            const now = new Date(); const newMoon = new Date(2000, 0, 6, 18, 14); const cycle = 29.53058867;
+            const diffDays = (now - newMoon) / 86400000; const age = diffDays % cycle; 
+            let phaseIdx = 0;
+            if (age > 28.5 || age < 1) phaseIdx = 0; else if (age < 6.4) phaseIdx = 1; else if (age < 8.4) phaseIdx = 2; else if (age < 13.8) phaseIdx = 3; else if (age < 15.8) phaseIdx = 4; else if (age < 21.1) phaseIdx = 5; else if (age < 23.1) phaseIdx = 6; else phaseIdx = 7;
+            if (age > 14.26 && age < 15.26) phaseIdx = 4; 
+            const icons = ['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'];
+            const names = ['New Moon','Waxing Crescent','First Quarter','Waxing Gibbous','Full Moon','Waning Gibbous','Last Quarter','Waning Crescent'];
+            const monthNames = ["Wolf","Snow","Worm","Pink","Flower","Strawberry","Buck","Sturgeon","Harvest","Hunter","Beaver","Cold"];
+            let html = `<div class="moon-display"><span class="moon-icon">${icons[phaseIdx]}</span><div class="moon-details"><div style="font-weight:bold">${names[phaseIdx]}</div>`;
+            if(phaseIdx===4) html += `<div style="color:var(--block-color)">${monthNames[now.getMonth()]} Moon</div>`;
+            html += `<div style="opacity:0.6">${Math.floor(age)} days old</div></div></div>`;
             parent.innerHTML = html;
         }
 
@@ -263,12 +256,9 @@
                 if(diff <= 0) {
                     state.step++;
                     if(state.step >= b.steps.length) {
-                        if(state.loop) {
-                            state.step = 0; state.endTime = now + (b.steps[0].duration * 60000); currentLabel = b.steps[0].label;
-                        } else { state.active = false; currentLabel = "Done"; }
-                    } else { 
-                        state.endTime = now + (b.steps[state.step].duration * 60000); currentLabel = b.steps[state.step].label; 
-                    }
+                        if(state.loop) { state.step = 0; state.endTime = now + (b.steps[0].duration * 60000); currentLabel = b.steps[0].label; } 
+                        else { state.active = false; currentLabel = "Done"; }
+                    } else { state.endTime = now + (b.steps[state.step].duration * 60000); currentLabel = b.steps[state.step].label; }
                     localStorage.setItem(`seq_${id}`, JSON.stringify(state));
                 } else {
                     currentLabel = b.steps[state.step].label;
@@ -289,8 +279,7 @@
             });
             html += `</table>`;
             html += `<div class="timer-controls"><button class="timer-btn" onclick="seqAction(${id}, 'start')">▶</button><button class="timer-btn" onclick="seqAction(${id}, 'pause')">⏸</button><button class="timer-btn" onclick="seqAction(${id}, 'reset')">↻</button></div>`;
-            html += `<div style="margin-top:8px; font-size:0.75em;"><label style="cursor:pointer"><input type="checkbox" ${loopState} ${toggleLoop}> Loop</label></div>`;
-            html += `</div>`;
+            html += `<div style="margin-top:8px; font-size:0.75em;"><label style="cursor:pointer"><input type="checkbox" ${loopState} ${toggleLoop}> Loop</label></div></div>`;
             parent.innerHTML = html;
         }
 
@@ -345,7 +334,6 @@
         function updateDynamics(blocks, settings) {
             const now = new Date(); const use24h = settings.use24h === true;
             blocks.forEach((block, bIdx) => {
-                // ... (World Clock same as V23)
                 if (block.type === 'world_clock') {
                     block.locations.forEach((loc, lIdx) => {
                         const timeEl = document.getElementById(`clock-${bIdx}-${lIdx}`);
@@ -380,6 +368,7 @@
                         sEl.innerText = buildDateString(l2, now);
                     }
                 }
+                // Progress Cycle Logic
                 if (block.type === 'progress_cycle') {
                     const resetMode = block.resetMode || 'auto';
                     let anchor = new Date(block.anchor);
@@ -396,8 +385,8 @@
                         if (resetMode === 'auto') pct = ((elapsed % duration) / duration) * 100;
                         else { if (elapsed >= duration) { pct = 100; isDone = true; } else { pct = (elapsed / duration) * 100; } }
                     }
-                    const bar = document.querySelector(`#block-${bIdx} .progress-fill`);
-                    const txt = document.querySelector(`#block-${bIdx} .progress-meta span:last-child`);
+                    const bar = document.querySelector(`#cycle-${bIdx} .progress-fill`);
+                    const txt = document.querySelector(`#cycle-${bIdx} .progress-meta span:last-child`);
                     if(bar && txt) { 
                         bar.style.width = `${pct}%`; 
                         if(isDone) txt.innerHTML = `Done <button class="cycle-reset-btn" onclick="resetCycle('block-${bIdx}')">↻</button>`;
@@ -407,7 +396,6 @@
                 if (block.type === 'sequence') { const div = document.getElementById(`block-${bIdx}`); if(div) renderSequenceBlock(block, div, bIdx); }
                 if (block.type === 'timer') updateTimerDisplay(bIdx);
                 
-                // Countdown Fix
                 if (block.type === 'countdown') {
                     const el = document.getElementById(`cnt-${bIdx}`);
                     if(el) {
@@ -430,7 +418,7 @@
             });
         }
         
-        window.resetCycle = (id) => { localStorage.setItem(`cycle_reset_${id}`, new Date().getTime()); };
+        window.resetCycle = (id) => { localStorage.setItem(`cycle_reset_${id.split('-')[1]}`, new Date().getTime()); };
         
         function buildDateString(tokens, now) {
             if(!tokens || !Array.isArray(tokens)) return '';
@@ -455,30 +443,16 @@
             }).join('');
         }
         function getWeekNumber(d) { d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7)); const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1)); return Math.ceil((((d - yearStart) / 86400000) + 1)/7); }
-        function renderMoonBlock(b, parent) { 
-            const now = new Date(); const newMoon = new Date(2000, 0, 6, 18, 14); const cycle = 29.53058867;
-            const diffDays = (now - newMoon) / 86400000; const age = diffDays % cycle; 
-            let phaseIdx = 0;
-            if (age > 28.5 || age < 1) phaseIdx = 0; else if (age < 6.4) phaseIdx = 1; else if (age < 8.4) phaseIdx = 2; else if (age < 13.8) phaseIdx = 3; else if (age < 15.8) phaseIdx = 4; else if (age < 21.1) phaseIdx = 5; else if (age < 23.1) phaseIdx = 6; else phaseIdx = 7;
-            if (age > 14.26 && age < 15.26) phaseIdx = 4; 
-            const icons = ['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'];
-            const names = ['New Moon','Waxing Crescent','First Quarter','Waxing Gibbous','Full Moon','Waning Gibbous','Last Quarter','Waning Crescent'];
-            const monthNames = ["Wolf","Snow","Worm","Pink","Flower","Strawberry","Buck","Sturgeon","Harvest","Hunter","Beaver","Cold"];
-            let html = `<div class="moon-display"><span class="moon-icon">${icons[phaseIdx]}</span><div class="moon-details"><div style="font-weight:bold">${names[phaseIdx]}</div>`;
-            if(phaseIdx===4) html += `<div style="color:var(--block-color)">${monthNames[now.getMonth()]} Moon</div>`;
-            html += `<div style="opacity:0.6">${Math.floor(age)} days old</div></div></div>`;
-            parent.innerHTML = html;
-        }
         
         window.startTimer = (id, m) => { localStorage.setItem(`notion_timer_${id}`, new Date().getTime() + (m * 60000)); updateTimerDisplay(id); };
         window.stopTimer = (id) => { localStorage.removeItem(`notion_timer_${id}`); updateTimerDisplay(id); };
         function updateTimerDisplay(id) { 
             const el = document.getElementById(`timer-display-${id}`); const end = localStorage.getItem(`notion_timer_${id}`);
-            if (!end) { el.innerText = "00:00"; return; }
+            if (!end) { if(el) el.innerText = "00:00"; return; }
             const dist = end - new Date().getTime();
-            if (dist < 0) { el.innerText = "Done!"; localStorage.removeItem(`notion_timer_${id}`); return; }
+            if (dist < 0) { if(el) el.innerText = "Done!"; localStorage.removeItem(`notion_timer_${id}`); return; }
             const m = Math.floor(dist / 60000); const s = Math.floor((dist % 60000) / 1000);
-            el.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            if(el) el.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
         }
 
         window.addEventListener('hashchange', render);
