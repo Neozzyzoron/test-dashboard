@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Widget V24</title>
+    <title>Notion Widget V25</title>
     <style>
         :root {
             --bg-color: #FFFFFF; --text-color: #37352F; --accent-color: #E3E2E0;
@@ -46,24 +46,26 @@
         .grid-container { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 5px; }
         .grid-cell { background: var(--accent-color); border-radius: 1px; }
         .grid-cell.filled { background: var(--block-color, var(--text-color)); }
-        .grid-header-row { display: flex; gap: 2px; margin-bottom: 2px; width: 100%; }
+        .grid-sm .grid-cell { width: 8px; height: 8px; }
+        .grid-md .grid-cell { width: 12px; height: 12px; }
+        .grid-lg .grid-cell { width: 16px; height: 16px; }
         .grid-header-cell { font-size: 0.6em; text-align: center; color: var(--text-color); opacity: 0.5; }
+        .grid-subline { font-size:0.6em; opacity:0.5; margin-bottom:2px; }
         
         /* MOON */
         .moon-display { display: flex; align-items: center; gap: 15px; }
         .moon-icon { font-size: 2.5em; line-height: 1; }
         .moon-details { font-size: 0.9em; line-height: 1.4; }
         
-        /* SEQUENCE & TIMER (BUBBLE STYLE) */
-        .timer-bubble { background: var(--block-color, var(--accent-color)); color: var(--bg-color); padding: 15px; border-radius: var(--radius); text-align: center; }
-        .timer-display { font-size: 2.5em; font-weight: 700; font-family: monospace; margin: 10px 0;}
-        .seq-next { font-size: 0.9em; opacity: 0.8; margin-bottom:10px;}
-        .seq-list { margin-top: 15px; text-align: left; background: rgba(0,0,0,0.1); padding: 10px; border-radius: 4px; }
-        .seq-item { display: flex; justify-content: space-between; font-size: 0.8em; padding: 3px 0; opacity: 0.6; }
-        .seq-item.active { opacity: 1; font-weight: bold; }
-        .timer-controls { display: flex; gap: 10px; justify-content: center; margin-top:10px;}
-        .timer-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 0.8em; font-weight:600; color:inherit; }
-        .timer-btn:hover { background: rgba(255,255,255,0.3); }
+        /* SEQUENCE & TIMER */
+        .seq-current, .timer-display { font-size: 2em; font-weight: 700; font-family: monospace; color: var(--block-color, inherit); text-align: center; margin: 10px 0;}
+        .seq-next { font-size: 0.8em; opacity: 0.6; text-align: center; }
+        .seq-list { margin-top: 10px; border-top: 1px solid var(--accent-color); padding-top: 5px; }
+        .seq-item { display: flex; justify-content: space-between; font-size: 0.85em; padding: 2px 0; opacity: 0.5; }
+        .seq-item.active { opacity: 1; font-weight: bold; color: var(--block-color, inherit); }
+        .seq-controls, .timer-controls { display: flex; gap: 5px; margin-top: 10px; justify-content: center; }
+        .seq-btn, .timer-btn { background: var(--accent-color); border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight:600; color:var(--text-color);}
+        .timer-bubble { background: var(--accent-color); color: var(--text-color); padding: 15px; border-radius: var(--radius); text-align: center; }
         
         /* COUNTER */
         .counter-wrap { display: flex; align-items: center; justify-content: space-between; background: var(--accent-color); padding: 5px 10px; border-radius: var(--radius); }
@@ -112,25 +114,17 @@
                 if (block.width === '50') div.classList.add('half-width');
                 if (block.width === '33') div.classList.add('third-width');
                 
-                // COLOR LOGIC 2.0 (Last Wins)
-                // 1. Set Accent (Affects everything by default)
+                // Color Logic 2.0
                 if (block.color && block.color !== 'default') {
                     const val = block.color.startsWith('#') ? block.color : `var(--c-${block.color})`;
                     div.style.setProperty('--block-color', val);
-                    // Also set text color to accent initially
-                    div.style.color = val; 
                 }
-                // 2. Set Text Color (Overrides ONLY text if set)
                 if (block.textColor && block.textColor !== 'default') {
                     const tVal = block.textColor.startsWith('#') ? block.textColor : `var(--c-${block.textColor})`;
                     div.style.color = tVal;
-                } else if (!block.color || block.color === 'default') {
-                    // Reset to theme default if no colors set
-                    div.style.color = 'var(--text-color)';
                 }
 
-                // Renderers
-                if(block.type === 'header') div.innerHTML = `<div class="widget-header" style="font-size:1.2em; opacity:1;">${block.text}</div>`;
+                if(block.type === 'header') div.innerHTML = `<div class="widget-header">${block.text}</div>`;
                 else if(block.type === 'empty') div.innerHTML = `&nbsp;`;
                 else if(block.type === 'spacer') div.innerHTML = `<div class="spacer-line spacer-${block.style||'solid'}" style="margin-top:${(block.height||20)/2}px; margin-bottom:${(block.height||20)/2}px; border-bottom-width:${block.thickness||'1px'}"></div>`;
                 else if(block.type === 'visual_grid') renderGridBlock(block, div, s);
@@ -155,7 +149,7 @@
                     div.innerHTML = `<div class="countdown-line"><span>${block.label}</span><span class="countdown-val" id="cnt-${index}">--</span></div>`; 
                 }
                 else if (block.type === 'timer') {
-                    const hrs = parseInt(block.hours)||0; const mins = parseInt(block.minutes)||0; const total = (hrs*60)+mins;
+                    const hrs = parseInt(block.hours)||0; const mins = parseInt(block.minutes)||0; const total = (hrs*60)+mins; const label = hrs>0 ? `${hrs}h ${mins}m` : `${mins}m`;
                     div.innerHTML = `<div class="timer-bubble"><div style="font-size:0.8em; opacity:0.8; text-transform:uppercase; letter-spacing:1px;">${block.label||'TIMER'}</div><div class="timer-display" id="timer-display-${index}">00:00</div><div class="timer-controls"><button class="timer-btn" onclick="startTimer(${index}, ${total})">Start</button><button class="timer-btn" onclick="stopTimer(${index})">Stop</button></div></div>`;
                 }
                 
@@ -168,15 +162,13 @@
         function renderGridBlock(b, parent, settings) {
             let html = `<div class="widget-header">${b.gridType.toUpperCase()}</div><div class="grid-container">`;
             const now = new Date();
-            
-            // Width/Height logic
             let px = b.blockSize==='24px'?24 : b.blockSize==='16px'?16 : 12;
             let wMult = b.shape==='wide'?2 : b.shape==='ultrawide'?3 : 1;
             let w = `${px*wMult}px`; let h = `${px}px`;
             
             if(b.gridType === 'year') { 
                 const currentWeek = getWeekNumber(now);
-                html = `<div class="widget-header">YEAR <span style="font-weight:400; opacity:0.6; margin-left:5px;">Week ${currentWeek} of 52</span></div><div style="display:flex; flex-direction:column; gap:2px;">`;
+                html = `<div class="widget-header">YEAR</div><div class="grid-subline">Week ${currentWeek} of 52</div><div style="display:flex; flex-direction:column; gap:2px;">`;
                 for(let r=0; r<4; r++) {
                     html += `<div style="display:flex; gap:2px;">`;
                     for(let c=0; c<13; c++) {
@@ -187,30 +179,61 @@
                 }
                 parent.innerHTML = html + `</div>`; return;
             }
+            else if(b.gridType === 'quarter') {
+               const qStart = new Date(now.getFullYear(), Math.floor(now.getMonth()/3)*3, 1);
+               const weeksPassed = Math.floor((now - qStart) / 604800000); 
+               html = `<div class="widget-header">QUARTER</div><div style="display:flex; flex-direction:column; gap:2px;">`;
+               for(let r=0; r<3; r++) {
+                   html += `<div style="display:flex; gap:2px; width:100%">`;
+                   for(let c=0; c<4; c++) {
+                       const idx = r*4 + c;
+                       html += `<div class="grid-cell ${idx<weeksPassed?'filled':''}" style="width:${w}; height:${h}"></div>`;
+                   }
+                   html += `</div>`;
+               }
+               parent.innerHTML = html + `</div>`; return;
+            }
+            else if(b.gridType === 'month') {
+                const dim = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+                const day = now.getDate();
+                const days = settings.weekStart==='monday' ? ['M','T','W','T','F','S','S'] : ['S','M','T','W','T','F','S'];
+                html = `<div class="widget-header">MONTH</div><div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:2px;">`;
+                days.forEach(d => html += `<div class="grid-header-cell">${d}</div>`);
+                for(let i=1; i<=dim; i++) html += `<div class="grid-cell ${i<=day?'filled':''}" style="height:${h}; width:100%;"></div>`;
+                parent.innerHTML = html + `</div>`; return;
+            }
             else if(b.gridType === 'week') {
                 const days = settings.weekStart==='monday' ? ['M','T','W','T','F','S','S'] : ['S','M','T','W','T','F','S'];
                 const dayIdx = (now.getDay() + (settings.weekStart==='monday'?6:0)) % 7 + 1;
                 html = `<div class="widget-header">WEEK</div><div style="display:flex; gap:2px; margin-bottom:2px;">`;
-                days.forEach(d => html += `<div style="width:${w}; text-align:center; font-size:0.6em; opacity:0.5;">${d}</div>`);
+                days.forEach(d => html += `<div style="flex:1; text-align:center; font-size:0.6em; opacity:0.5;">${d}</div>`);
                 html += `</div><div style="display:flex; gap:2px;">`;
-                for(let i=1; i<=7; i++) html += `<div class="grid-cell ${i<=dayIdx?'filled':''}" style="width:${w}; height:${h}"></div>`;
+                for(let i=1; i<=7; i++) html += `<div class="grid-cell ${i<=dayIdx?'filled':''}" style="height:${h}; flex:1"></div>`;
                 parent.innerHTML = html + `</div>`; return;
             }
-            // ... (Other Grids similar structure, forcing pixel sizes)
             else if(b.gridType === 'day') {
                 const hr = now.getHours();
-                html = `<div class="widget-header">DAY <span style="font-weight:400; opacity:0.6;">${hr}/24</span></div><div style="display:flex; flex-direction:column; gap:2px;">`;
+                html = `<div class="widget-header">DAY</div><div class="grid-subline">Hour ${hr}/24</div><div style="display:flex; flex-direction:column; gap:2px;">`;
                 for(let r=0; r<3; r++) {
                     html += `<div style="display:flex; gap:2px;">`;
-                    for(let c=0; c<8; c++) { const hIdx = r*8 + c; html += `<div class="grid-cell ${hIdx<hr?'filled':''}" style="width:${w}; height:${h}"></div>`; }
+                    for(let c=0; c<8; c++) { const hIdx = r*8 + c; html += `<div class="grid-cell ${hIdx<hr?'filled':''}" style="width:${w}; height:${h}; flex:1"></div>`; }
                     html += `</div>`;
                 }
                 parent.innerHTML = html + `</div>`; return;
             }
-            parent.innerHTML = html; 
+            else if(b.gridType === 'life') {
+                const age = now.getFullYear() - new Date(b.dob||'1990').getFullYear();
+                const total = parseInt(b.expectancy||80);
+                html = `<div class="widget-header">LIFE</div><div class="grid-subline">Year ${age} of ${total}</div><div class="grid-container" style="gap:2px;">`;
+                for(let i=0; i<total; i++) {
+                    if(i>0 && i%20===0) html += `<div style="flex-basis:100%; height:0;"></div>`;
+                    html += `<div class="grid-cell ${i<age?'filled':''}" style="width:${w}; height:${h}"></div>`;
+                }
+                parent.innerHTML = html + `</div>`; return;
+            }
+            parent.innerHTML = html;
         }
 
-        // --- SEQUENCE 2.0 + LOOP ---
         function renderSequenceBlock(b, parent, id) {
             let state = JSON.parse(localStorage.getItem(`seq_${id}`) || '{"step":0, "active":false, "endTime":0, "loop":false}');
             const now = Date.now();
@@ -265,21 +288,11 @@
             localStorage.setItem(`seq_${id}`, JSON.stringify(state));
         };
 
-        window.seqAction = (id, action) => {
-            let state = JSON.parse(localStorage.getItem(`seq_${id}`) || '{"step":0, "active":false}');
-            const data = getConfig().blocks[id];
-            if(action === 'reset') { state.step = 0; state.active = false; }
-            if(action === 'start' && !state.active && state.step < data.steps.length) {
-                state.active = true; state.endTime = Date.now() + (data.steps[state.step].duration * 60000);
-            }
-            if(action === 'pause') { state.active = false; } 
-            localStorage.setItem(`seq_${id}`, JSON.stringify(state)); render();
-        };
-
-        // ... (Counter, Timer, Progress logic same as V23, ensuring Cycle Fix and Time Zone display)
+        // ... (Same helpers as V23 + Date Fix) ...
         function updateDynamics(blocks, settings) {
             const now = new Date(); const use24h = settings.use24h === true;
             blocks.forEach((block, bIdx) => {
+                // ... (World Clock same as V23)
                 if (block.type === 'world_clock') {
                     block.locations.forEach((loc, lIdx) => {
                         const timeEl = document.getElementById(`clock-${bIdx}-${lIdx}`);
@@ -287,14 +300,11 @@
                         const dateEl = document.getElementById(`date-${bIdx}-${lIdx}`);
                         if(timeEl) {
                             const tz = (loc.timezone && loc.timezone !== 'local') ? loc.timezone : undefined;
-                            // Time
                             const tOpts = { hour: use24h?'2-digit':'numeric', minute:'2-digit', hour12: !use24h }; if(tz) tOpts.timeZone = tz;
                             let tStr = now.toLocaleTimeString([], tOpts); if(!use24h) tStr = tStr.replace(' ', '');
                             timeEl.innerText = tStr;
-                            // Date
                             const dOpts = { weekday: 'short', month: 'short', day: '2-digit' }; if(tz) dOpts.timeZone = tz;
                             if(dateEl) dateEl.innerText = now.toLocaleDateString([], dOpts);
-                            // Offset
                             if(abbrEl && loc.timezone) {
                                 try {
                                     const dateInTz = new Date(now.toLocaleString('en-US', { timeZone: loc.timezone }));
@@ -307,7 +317,18 @@
                         }
                     });
                 }
-                // ... (Rest of logic same as V23)
+                // Date Display Logic
+                if (block.type === 'date_display') {
+                    const mEl = document.getElementById(`date-main-${bIdx}`);
+                    const sEl = document.getElementById(`date-sub-${bIdx}`);
+                    if(mEl) {
+                        const l1 = block.line1 || ['day_name_full', 'space', 'date_num'];
+                        const l2 = block.line2 || ['month_full', 'space', 'year'];
+                        mEl.innerText = buildDateString(l1, now);
+                        sEl.innerText = buildDateString(l2, now);
+                    }
+                }
+                // ... (Rest of logic: Cycle, Timer, Sequence, Countdown same as V23)
                 if (block.type === 'progress_cycle') {
                     const resetMode = block.resetMode || 'auto';
                     let anchor = new Date(block.anchor);
@@ -324,16 +345,12 @@
                         if (resetMode === 'auto') pct = ((elapsed % duration) / duration) * 100;
                         else { if (elapsed >= duration) { pct = 100; isDone = true; } else { pct = (elapsed / duration) * 100; } }
                     }
-                    // Fix manual stop logic
                     const bar = document.querySelector(`#block-${bIdx} .progress-fill`);
                     const txt = document.querySelector(`#block-${bIdx} .progress-meta span:last-child`);
                     if(bar && txt) { 
                         bar.style.width = `${pct}%`; 
-                        if(isDone) {
-                            txt.innerHTML = `Done <button class="cycle-reset-btn" onclick="resetCycle('block-${bIdx}')">↻</button>`;
-                        } else {
-                            txt.innerText = `${pct.toFixed(1)}%`; 
-                        }
+                        if(isDone) txt.innerHTML = `Done <button class="cycle-reset-btn" onclick="resetCycle('block-${bIdx}')">↻</button>`;
+                        else txt.innerText = `${pct.toFixed(1)}%`; 
                     }
                 }
                 if (block.type === 'sequence') { const div = document.getElementById(`block-${bIdx}`); if(div) renderSequenceBlock(block, div, bIdx); }
@@ -341,12 +358,59 @@
             });
         }
         
-        window.resetCycle = (id) => {
-            localStorage.setItem(`cycle_reset_${id}`, new Date().getTime());
-        };
+        // DATE STRING BUILDER (SAFE)
+        function buildDateString(tokens, now) {
+            if(!tokens || !Array.isArray(tokens)) return '';
+            return tokens.map(t => {
+                const type = (typeof t === 'string') ? t : t.type;
+                switch(type) {
+                    case 'day_name_full': return now.toLocaleDateString([], {weekday:'long'});
+                    case 'day_name_short': return now.toLocaleDateString([], {weekday:'short'});
+                    case 'month_full': return now.toLocaleDateString([], {month:'long'});
+                    case 'month_short': return now.toLocaleDateString([], {month:'short'});
+                    case 'month_num': return (now.getMonth() + 1).toString().padStart(2, '0');
+                    case 'date_num': return now.getDate().toString().padStart(2,'0');
+                    case 'year': return now.getFullYear();
+                    case 'week_num': return `Week ${getWeekNumber(now)}`;
+                    case 'day_year': const start = new Date(now.getFullYear(), 0, 0); const diff = now - start; return `Day ${Math.floor(diff / 86400000)}`;
+                    case 'quarter': return `Q${Math.floor((now.getMonth() + 3) / 3)}`;
+                    case 'separator': return '|';
+                    case 'space': return ' ';
+                    case 'slash': return '/';
+                    default: return '';
+                }
+            }).join('');
+        }
+        // ... (Helpers: getWeekNumber, Moon logic same as V23) ...
+        function getWeekNumber(d) { d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7)); const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1)); return Math.ceil((((d - yearStart) / 86400000) + 1)/7); }
+        function renderMoonBlock(b, parent) { /* Same as above renderMoonBlock logic */ 
+            const now = new Date(); const newMoon = new Date(2000, 0, 6, 18, 14); const cycle = 29.53058867;
+            const diffDays = (now - newMoon) / 86400000; const age = diffDays % cycle; 
+            let phaseIdx = 0;
+            if (age > 28.5 || age < 1) phaseIdx = 0; else if (age < 6.4) phaseIdx = 1; else if (age < 8.4) phaseIdx = 2; else if (age < 13.8) phaseIdx = 3; else if (age < 15.8) phaseIdx = 4; else if (age < 21.1) phaseIdx = 5; else if (age < 23.1) phaseIdx = 6; else phaseIdx = 7;
+            if (age > 14.26 && age < 15.26) phaseIdx = 4; 
+            const icons = ['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'];
+            const names = ['New Moon','Waxing Crescent','First Quarter','Waxing Gibbous','Full Moon','Waning Gibbous','Last Quarter','Waning Crescent'];
+            const monthNames = ["Wolf","Snow","Worm","Pink","Flower","Strawberry","Buck","Sturgeon","Harvest","Hunter","Beaver","Cold"];
+            let html = `<div class="moon-display"><span class="moon-icon">${icons[phaseIdx]}</span><div class="moon-details"><div style="font-weight:bold">${names[phaseIdx]}</div>`;
+            if(phaseIdx===4) html += `<div style="color:var(--block-color)">${monthNames[now.getMonth()]} Moon</div>`;
+            html += `<div style="opacity:0.6">${Math.floor(age)} days old</div></div></div>`;
+            parent.innerHTML = html;
+        }
         
-        function buildDateString(tokens, now) { /* ... V23 logic ... */ return tokens.map(t => { const type = (typeof t === 'string') ? t : t.type; if(type==='space') return ' '; if(type==='slash') return '/'; /* ... rest ... */ return ''; }).join(''); }
-        // ... (Remaining helpers) ...
+        window.startTimer = (id, m) => { localStorage.setItem(`notion_timer_${id}`, new Date().getTime() + (m * 60000)); updateTimerDisplay(id); };
+        window.stopTimer = (id) => { localStorage.removeItem(`notion_timer_${id}`); updateTimerDisplay(id); };
+        window.seqAction = (id, action) => { /* Same as V23 seqAction */ 
+            let state = JSON.parse(localStorage.getItem(`seq_${id}`) || '{"step":0, "active":false}');
+            const data = getConfig().blocks[id];
+            if(action === 'reset') { state.step = 0; state.active = false; }
+            if(action === 'start' && !state.active && state.step < data.steps.length) { state.active = true; state.endTime = Date.now() + (data.steps[state.step].duration * 60000); }
+            if(action === 'pause') { state.active = false; } 
+            localStorage.setItem(`seq_${id}`, JSON.stringify(state)); render();
+        };
+        window.updateCounter = (id, d) => { localStorage.setItem(`cnt_${id}`, parseInt(localStorage.getItem(`cnt_${id}`)||0)+d); render(); };
+        window.resetCounter = (id) => { localStorage.setItem(`cnt_${id}`, 0); render(); };
+        window.resetCycle = (id) => { localStorage.setItem(`cycle_reset_${id.split('-')[1]}`, new Date().getTime()); };
 
         window.addEventListener('hashchange', render);
         render(); setInterval(() => updateDynamics(getConfig().blocks, getConfig().settings), 1000);
