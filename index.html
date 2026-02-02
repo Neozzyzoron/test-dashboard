@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Widget V26</title>
+    <title>Notion Widget V27</title>
     <style>
         :root {
             --bg-color: #FFFFFF; --text-color: #37352F; --accent-color: #E3E2E0;
@@ -223,7 +223,7 @@
                 const days = settings.weekStart==='monday' ? ['M','T','W','T','F','S','S'] : ['S','M','T','W','T','F','S'];
                 const dayIdx = (now.getDay() + (settings.weekStart==='monday'?6:0)) % 7 + 1;
                 html = `<div class="widget-header">WEEK</div><div style="display:flex; gap:2px; margin-bottom:2px;">`;
-                days.forEach(d => html += `<div style="width:${w}; text-align:center; font-size:0.6em; opacity:0.5;">${d}</div>`);
+                days.forEach(d => html += `<div style="flex:1; text-align:center; font-size:0.6em; opacity:0.5;">${d}</div>`);
                 html += `</div><div style="display:flex; gap:2px;">`;
                 for(let i=1; i<=7; i++) html += `<div class="grid-cell ${i<=dayIdx?'filled':''}" style="width:${w}; height:${h}"></div>`;
                 parent.innerHTML = html + `</div>`; return;
