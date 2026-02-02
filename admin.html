@@ -2,11 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Widget Admin V29</title>
+    <title>Widget Admin V30</title>
     <style>
-        /* CORE */
+        /* CORE & RESET */
         * { box-sizing: border-box; }
         html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f7f7f5; color: #37352f; }
+        
+        /* LAYOUT */
         .main-container { display: flex; flex-direction: row; width: 100%; height: 100vh; overflow: hidden; }
         .panel-left { width: 50%; height: 100%; background: #fff; border-right: 1px solid #e0e0e0; display: flex; flex-direction: column; min-width: 450px; position: relative; }
         .panel-right { width: 50%; height: 100%; background: #eef0f2; padding: 20px; display: flex; flex-direction: column; min-width: 320px; }
@@ -31,25 +33,27 @@
 
         /* UI ELEMENTS */
         .dark-section { background: #34495e; padding: 15px; border-radius: 6px; color: white; flex-shrink: 0; font-size: 0.85rem;}
-        .dark-section h3 { margin: 0 0 10px 0; font-size: 0.9em; text-transform: uppercase; color: rgba(255,255,255,0.7); border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px; }
         .settings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 0.75rem; color: #555;}
         .dark-section label { color: rgba(255,255,255,0.9); }
-        input, select, textarea { width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.85rem; box-sizing: border-box; background: #fff; }
+        input, select { width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.85rem; box-sizing: border-box; background: #fff; }
         
+        /* BUTTONS */
         .btn-action { padding: 6px 10px; font-size: 0.75rem; color: white; border-radius: 4px; border:none; cursor: pointer; font-weight: 600; white-space: nowrap; flex-shrink: 0;}
         .btn-refresh { background: #3498db; } .btn-copy { background: #27ae60; } .btn-open { background: #7f8c8d; }
         
         .btn-row { display: flex; gap: 6px; flex-wrap: wrap; }
-        button.menu-btn { padding: 8px 10px; border: none; border-radius: 4px; font-weight: 600; font-size: 0.75rem; cursor: pointer; flex-grow: 1; text-align: center; color: #fff; text-shadow: 0 1px 1px rgba(0,0,0,0.1); transition: transform 0.1s; }
+        button.menu-btn { padding: 8px 10px; border: none; border-radius: 4px; font-weight: 600; font-size: 0.75rem; cursor: pointer; flex-grow: 1; text-align: center; color: #fff; transition: transform 0.1s; }
         button.menu-btn:hover { transform: translateY(-1px); opacity: 0.9; }
         
+        /* COLORS FOR MENU */
         .btn-header { background: #95a5a6; } .btn-date { background: #27ae60; } .btn-time { background: #16a085; }
         .btn-grid { background: #2980b9; } .btn-auto { background: #d35400; } .btn-custom { background: #f39c12; }
         .btn-cycle { background: #8e44ad; } .btn-count { background: #3498db; } .btn-timer { background: #c0392b; }
         .btn-seq { background: #9b59b6; } .btn-cnt { background: #e67e22; } .btn-moon { background: #34495e; }
         .btn-util { background: #7f8c8d; }
 
+        /* BLOCK CARD */
         .block-card { background: white; border: 1px solid #e0e0e0; border-radius: 6px; margin-bottom: 0; border-left: 4px solid #999; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .block-header { padding: 10px 15px; cursor: pointer; display: flex; align-items: center; gap: 10px; background: #fbfbfa; user-select: none; border-bottom: 1px solid transparent; }
         .block-header:hover { background: #f2f2f2; }
@@ -95,7 +99,7 @@
             <h1 class="header-title">Widget Builder</h1>
             <div class="action-area">
                 <div class="link-box" id="result-url">Generate...</div>
-                <button class="btn-action btn-refresh" onclick="refreshPreview()">↻</button>
+                <button class="btn-action btn-refresh" onclick="refreshPreview()">Refresh</button>
                 <button class="btn-action btn-copy" id="btn-copy" onclick="copyLink()">Copy</button>
                 <button class="btn-action btn-open" onclick="window.open(generateLink(), '_blank')">Open</button>
             </div>
@@ -103,7 +107,6 @@
 
         <div class="scroll-content" id="scroll-container">
             <div class="dark-section">
-                <h3>General Settings</h3>
                 <div class="settings-grid">
                     <div><label>Time Format</label><select id="set-time" onchange="updateState()"><option value="12">12 Hour</option><option value="24">24 Hour</option></select></div>
                     <div><label>Week Start</label><select id="set-week" onchange="updateState()"><option value="monday">Monday</option><option value="sunday">Sunday</option></select></div>
@@ -152,30 +155,12 @@
     let settings = { use24h: false, weekStart: 'monday', theme: 'standard', textSize: 'medium', padding:'comfortable' };
     let blocks = [];
     
-    // CITY DATABASE
+    // CITY DB & CONSTANTS
     const cityDB = [
 {name:"Abidjan",tz:"Africa/Abidjan"},{name:"Abu Dhabi",tz:"Asia/Dubai"},{name:"Abuja",tz:"Africa/Lagos"},{name:"Accra",tz:"Africa/Accra"},{name:"Adak",tz:"America/Adak"},{name:"Addis Ababa",tz:"Africa/Addis_Ababa"},{name:"Adelaide",tz:"Australia/Adelaide"},{name:"Algiers",tz:"Africa/Algiers"},{name:"Alice Springs",tz:"Australia/Darwin"},{name:"Almaty",tz:"Asia/Almaty"},{name:"Amman",tz:"Asia/Amman"},{name:"Amsterdam",tz:"Europe/Amsterdam"},{name:"Anchorage",tz:"America/Anchorage"},{name:"Ankara",tz:"Europe/Istanbul"},{name:"Antananarivo",tz:"Indian/Antananarivo"},{name:"Apia",tz:"Pacific/Apia"},{name:"Athens",tz:"Europe/Athens"},{name:"Atlanta",tz:"America/New_York"},{name:"Auckland",tz:"Pacific/Auckland"},{name:"Austin",tz:"America/Chicago"},{name:"Baghdad",tz:"Asia/Baghdad"},{name:"Baku",tz:"Asia/Baku"},{name:"Bangkok",tz:"Asia/Bangkok"},{name:"Barcelona",tz:"Europe/Madrid"},{name:"Beijing",tz:"Asia/Shanghai"},{name:"Beirut",tz:"Asia/Beirut"},{name:"Belgrade",tz:"Europe/Belgrade"},{name:"Bengaluru",tz:"Asia/Kolkata"},{name:"Berlin",tz:"Europe/Berlin"},{name:"Bogota",tz:"America/Bogota"},{name:"Boston",tz:"America/New_York"},{name:"Brasilia",tz:"America/Sao_Paulo"},{name:"Brisbane",tz:"Australia/Brisbane"},{name:"Brussels",tz:"Europe/Brussels"},{name:"Bucharest",tz:"Europe/Bucharest"},{name:"Budapest",tz:"Europe/Budapest"},{name:"Buenos Aires",tz:"America/Argentina/Buenos_Aires"},{name:"Cairo",tz:"Africa/Cairo"},{name:"Calgary",tz:"America/Edmonton"},{name:"Canberra",tz:"Australia/Sydney"},{name:"Cape Town",tz:"Africa/Johannesburg"},{name:"Caracas",tz:"America/Caracas"},{name:"Casablanca",tz:"Africa/Casablanca"},{name:"Chennai",tz:"Asia/Kolkata"},{name:"Chicago",tz:"America/Chicago"},{name:"Copenhagen",tz:"Europe/Copenhagen"},{name:"Dakar",tz:"Africa/Dakar"},{name:"Dallas",tz:"America/Chicago"},{name:"Dar es Salaam",tz:"Africa/Dar_es_Salaam"},{name:"Darwin",tz:"Australia/Darwin"},{name:"Denver",tz:"America/Denver"},{name:"Detroit",tz:"America/Detroit"},{name:"Dhaka",tz:"Asia/Dhaka"},{name:"Doha",tz:"Asia/Qatar"},{name:"Dubai",tz:"Asia/Dubai"},{name:"Dublin",tz:"Europe/Dublin"},{name:"Edmonton",tz:"America/Edmonton"},{name:"Frankfurt",tz:"Europe/Berlin"},{name:"Guatemala City",tz:"America/Guatemala"},{name:"Halifax",tz:"America/Halifax"},{name:"Hanoi",tz:"Asia/Ho_Chi_Minh"},{name:"Harare",tz:"Africa/Harare"},{name:"Havana",tz:"America/Havana"},{name:"Helsinki",tz:"Europe/Helsinki"},{name:"Hong Kong",tz:"Asia/Hong_Kong"},{name:"Honolulu",tz:"Pacific/Honolulu"},{name:"Houston",tz:"America/Chicago"},{name:"Indianapolis",tz:"America/Indiana/Indianapolis"},{name:"Islamabad",tz:"Asia/Karachi"},{name:"Istanbul",tz:"Europe/Istanbul"},{name:"Jakarta",tz:"Asia/Jakarta"},{name:"Jerusalem",tz:"Asia/Jerusalem"},{name:"Johannesburg",tz:"Africa/Johannesburg"},{name:"Kabul",tz:"Asia/Kabul"},{name:"Kampala",tz:"Africa/Kampala"},{name:"Karachi",tz:"Asia/Karachi"},{name:"Kathmandu",tz:"Asia/Kathmandu"},{name:"Khartoum",tz:"Africa/Khartoum"},{name:"Kingston",tz:"America/Jamaica"},{name:"Kinshasa",tz:"Africa/Kinshasa"},{name:"Kolkata",tz:"Asia/Kolkata"},{name:"Kuala Lumpur",tz:"Asia/Kuala_Lumpur"},{name:"Kuwait City",tz:"Asia/Kuwait"},{name:"Kyiv",tz:"Europe/Kyiv"},{name:"Lagos",tz:"Africa/Lagos"},{name:"Lahore",tz:"Asia/Karachi"},{name:"Las Vegas",tz:"America/Los_Angeles"},{name:"Lima",tz:"America/Lima"},{name:"Lisbon",tz:"Europe/Lisbon"},{name:"London",tz:"Europe/London"},{name:"Los Angeles",tz:"America/Los_Angeles"},{name:"Luanda",tz:"Africa/Luanda"},{name:"Madrid",tz:"Europe/Madrid"},{name:"Manila",tz:"Asia/Manila"},{name:"Melbourne",tz:"Australia/Melbourne"},{name:"Mexico City",tz:"America/Mexico_City"},{name:"Miami",tz:"America/New_York"},{name:"Minneapolis",tz:"America/Chicago"},{name:"Minsk",tz:"Europe/Minsk"},{name:"Montevideo",tz:"America/Montevideo"},{name:"Montreal",tz:"America/Toronto"},{name:"Moscow",tz:"Europe/Moscow"},{name:"Mumbai",tz:"Asia/Kolkata"},{name:"Muscat",tz:"Asia/Muscat"},{name:"Nairobi",tz:"Africa/Nairobi"},{name:"New Delhi",tz:"Asia/Kolkata"},{name:"New Orleans",tz:"America/Chicago"},{name:"New York",tz:"America/New_York"},{name:"Oslo",tz:"Europe/Oslo"},{name:"Ottawa",tz:"America/Toronto"},{name:"Paris",tz:"Europe/Paris"},{name:"Perth",tz:"Australia/Perth"},{name:"Philadelphia",tz:"America/New_York"},{name:"Phoenix",tz:"America/Phoenix"},{name:"Prague",tz:"Europe/Prague"},{name:"Pune",tz:"Asia/Kolkata"},{name:"Pyongyang",tz:"Asia/Pyongyang"},{name:"Quito",tz:"America/Guayaquil"},{name:"Reykjavik",tz:"Atlantic/Reykjavik"},{name:"Rio de Janeiro",tz:"America/Sao_Paulo"},{name:"Riyadh",tz:"Asia/Riyadh"},{name:"Rome",tz:"Europe/Rome"},{name:"Salt Lake City",tz:"America/Denver"},{name:"San Francisco",tz:"America/Los_Angeles"},{name:"San Juan",tz:"America/Puerto_Rico"},{name:"Santiago",tz:"America/Santiago"},{name:"Sao Paulo",tz:"America/Sao_Paulo"},{name:"Seattle",tz:"America/Los_Angeles"},{name:"Seoul",tz:"Asia/Seoul"},{name:"Shanghai",tz:"Asia/Shanghai"},{name:"Singapore",tz:"Asia/Singapore"},{name:"Sofia",tz:"Europe/Sofia"},{name:"Stockholm",tz:"Europe/Stockholm"},{name:"Sydney",tz:"Australia/Sydney"},{name:"Taipei",tz:"Asia/Taipei"},{name:"Tallinn",tz:"Europe/Tallinn"},{name:"Tashkent",tz:"Asia/Tashkent"},{name:"Tehran",tz:"Asia/Tehran"},{name:"Tel Aviv",tz:"Asia/Jerusalem"},{name:"Tokyo",tz:"Asia/Tokyo"},{name:"Toronto",tz:"America/Toronto"},{name:"Tunis",tz:"Africa/Tunis"},{name:"Vancouver",tz:"America/Vancouver"},{name:"Vienna",tz:"Europe/Vienna"},{name:"Vladivostok",tz:"Asia/Vladivostok"},{name:"Warsaw",tz:"Europe/Warsaw"},{name:"Washington DC",tz:"America/New_York"},{name:"Wellington",tz:"Pacific/Auckland"},{name:"Winnipeg",tz:"America/Winnipeg"},{name:"Yangon",tz:"Asia/Yangon"},{name:"Yerevan",tz:"Asia/Yerevan"},{name:"Zagreb",tz:"Europe/Zagreb"},{name:"Zurich",tz:"Europe/Zurich"}
     ];
-
-    const dateTokens = [
-        {val: 'day_name_full', txt: 'Day Name (Monday)'}, {val: 'day_name_short', txt: 'Day (Mon)'},
-        {val: 'date_num', txt: 'Date (28)'}, {val: 'month_full', txt: 'Month Name'},
-        {val: 'month_short', txt: 'Month (Jan)'}, {val: 'month_num', txt: 'Month (01)'},
-        {val: 'year', txt: 'Year'}, {val: 'week_num', txt: 'Week #'},
-        {val: 'day_year', txt: 'Day of Year'}, {val: 'quarter', txt: 'Quarter'},
-        {val: 'separator', txt: 'Separator (|)'}, {val: 'space', txt: 'Space'}, {val: 'slash', txt: '/'}
-    ];
-    
-    const colorPalette = [
-        {val:'default', hex:'#000000', name:'Default'},
-        {val:'dark-grey', hex:'#5b5b5b', name:'Dark Grey'}, {val:'light-grey', hex:'#bcbcbc', name:'Light Grey'},
-        {val:'pale-yellow', hex:'#fff68f', name:'Pale Yellow'}, {val:'yellow', hex:'#ffff00', name:'Yellow'}, {val:'gold', hex:'#ffd700', name:'Gold'}, {val:'amber', hex:'#ffcc5c', name:'Amber'},
-        {val:'orange', hex:'#f37736', name:'Orange'}, {val:'red', hex:'#f44336', name:'Red'}, {val:'light-red', hex:'#ff3333', name:'Light Red'}, {val:'dark-red', hex:'#cc0000', name:'Dark Red'},
-        {val:'lime', hex:'#8fce00', name:'Lime'}, {val:'green', hex:'#6aa84f', name:'Green'}, {val:'dark-green', hex:'#38761d', name:'Dark Green'},
-        {val:'cyan', hex:'#00ffff', name:'Cyan'}, {val:'light-blue', hex:'#6eb8fc', name:'Light Blue'}, {val:'blue', hex:'#2986cc', name:'Blue'}, {val:'dark-blue', hex:'#16537e', name:'Dark Blue'},
-        {val:'magenta', hex:'#c90076', name:'Magenta'}, {val:'pink', hex:'#ffb6c1', name:'Pink'}, {val:'purple', hex:'#800080', name:'Purple'},
-        {val:'brown', hex:'#b45f06', name:'Brown'}, {val:'dark-brown', hex:'#783f04', name:'Dark Brown'}
-    ];
+    const dateTokens = [{val:'day_name_full',txt:'Day Name'},{val:'date_num',txt:'Date (01)'},{val:'month_full',txt:'Month Name'},{val:'year',txt:'Year'},{val:'separator',txt:'Separator (|)'},{val:'space',txt:'Space'},{val:'slash',txt:'/'}];
+    const colorPalette = [{val:'default',hex:'#000000',name:'Default'},{val:'gray',hex:'#5b5b5b',name:'Gray'},{val:'red',hex:'#f44336',name:'Red'},{val:'blue',hex:'#2986cc',name:'Blue'},{val:'green',hex:'#6aa84f',name:'Green'},{val:'yellow',hex:'#ffff00',name:'Yellow'},{val:'purple',hex:'#800080',name:'Purple'},{val:'pink',hex:'#ffb6c1',name:'Pink'},{val:'orange',hex:'#f37736',name:'Orange'}];
 
     function init() {
         try {
@@ -225,7 +210,7 @@
             const headerTitle = document.querySelector(`.block-card[data-index="${i}"] .block-label-preview`);
             if(headerTitle) headerTitle.innerText = v;
         }
-        if(k === 'gridType') { renderBlocks(true, i); } // Re-render for Grid changes
+        if(k === 'gridType') { renderBlocks(true, i); }
         updateState(); 
     };
     
@@ -238,7 +223,6 @@
 
     window.addBlock = (t) => {
         let b = { type: t, width: '100' };
-        // DEFAULT DATA
         if(t=='header') b.text='Title';
         if(t=='world_clock') b.locations=[{label:'London',timezone:'Europe/London', _searchVal:'London'}];
         if(t=='date_display') { b.line1=['day_name_full', 'space', 'date_num']; b.line2=['month_full', 'space', 'year']; }
@@ -252,7 +236,6 @@
         if(t=='progress_cycle') { b.label='Cycle'; b.anchor='2026-01-01'; b.days='28'; }
         if(t=='countdown') { b.label='Event'; b.date='2026-12-31'; b.style='standard'; b.includeTime=false; }
         if(t=='timer') { b.label='Focus'; b.hours=0; b.minutes=25; }
-        if(t=='empty') { b.label='Empty'; }
         
         blocks.push(b); 
         const newIndex = blocks.length - 1;
@@ -263,12 +246,9 @@
     
     window.removeBlock = (i) => { blocks.splice(i, 1); renderBlocks(); updateState(); };
 
-    // --- COLOR HELPERS ---
     function getColorOptions(selected) {
         let html = '';
-        colorPalette.forEach(c => {
-            html += `<option value="${c.hex}" ${selected===c.hex?'selected':''}>${c.name}</option>`;
-        });
+        colorPalette.forEach(c => { html += `<option value="${c.hex}" ${selected===c.hex?'selected':''}>${c.name}</option>`; });
         return html;
     }
 
@@ -303,7 +283,6 @@
                 <div class="block-content">
             `;
 
-            // RENDER INPUTS BASED ON TYPE
             if (block.type === 'header') html += `<label>Text</label><input type="text" value="${block.text}" oninput="updateBlock(${index}, 'text', this.value)">`;
             else if (block.type === 'world_clock') { html += `<div class="sub-list" id="sub-list-${index}"></div><button class="sub-btn-add" onclick="addSubItem(${index}, 'locations')">+ Add City</button>`; }
             else if (block.type === 'date_display') { html += `<label>Line 1 (Bold)</label><div class="sub-list" id="sub-list-l1-${index}"></div><button class="sub-btn-add" onclick="addDateItem(${index}, 'line1')">+ Element</button><div style="margin-top:10px;"><label>Line 2 (Small)</label><div class="sub-list" id="sub-list-l2-${index}"></div><button class="sub-btn-add" onclick="addDateItem(${index}, 'line2')">+ Element</button></div>`; }
@@ -314,7 +293,7 @@
                 <div class="col"><label>Shape</label><select onchange="updateBlock(${index}, 'shape', this.value)"><option value="square" ${block.shape=='square'?'selected':''}>Square</option><option value="wide" ${block.shape=='wide'?'selected':''}>Wide</option><option value="ultrawide" ${block.shape=='ultrawide'?'selected':''}>Ultra</option></select></div></div>`;
                 if(block.gridType === 'life') html += `<div style="display:flex; gap:5px; margin-top:5px; align-items:center;"><label>DOB</label><input type="date" value="${block.dob || '1990-01-01'}" oninput="updateBlock(${index}, 'dob', this.value)"><label>Exp</label><input type="number" placeholder="80" value="${block.expectancy || 80}" oninput="updateBlock(${index}, 'expectancy', this.value)" style="width:60px"></div>`;
             }
-            else if (block.type === 'moon_phase') { html += `<div style="font-size:0.8rem; color:#888;">Moon Phase Display</div>`; }
+            else if (block.type === 'moon_phase') { html += `<div style="font-size:0.8rem; color:#888;">Standard Moon Phase</div>`; }
             else if (block.type === 'sequence') { html += `<label>Label</label><input value="${block.label}" oninput="updateBlock(${index}, 'label', this.value)"><div class="sub-list" id="sub-list-${index}"></div><button class="sub-btn-add" onclick="addSubItem(${index}, 'steps')">+ Step</button>`; }
             else if (block.type === 'counter') { html += `<label>Label</label><input value="${block.label}" oninput="updateBlock(${index}, 'label', this.value)">`; }
             else if (block.type === 'spacer') { html += `<div class="row"><div class="col"><label>Style</label><select onchange="updateBlock(${index}, 'style', this.value)"><option value="solid" ${block.style=='solid'?'selected':''}>Solid</option><option value="dotted" ${block.style=='dotted'?'selected':''}>Dotted</option><option value="dashed" ${block.style=='dashed'?'selected':''}>Dashed</option><option value="none" ${block.style=='none'?'selected':''}>None</option></select></div><div class="col"><label>Thickness</label><select onchange="updateBlock(${index}, 'thickness', this.value)"><option value="1px" ${block.thickness=='1px'?'selected':''}>Thin</option><option value="2px" ${block.thickness=='2px'?'selected':''}>Medium</option><option value="4px" ${block.thickness=='4px'?'selected':''}>Thick</option></select></div></div>`; }
@@ -329,7 +308,6 @@
             else if (block.type === 'progress_custom') html += `<label>Label</label><input value="${block.label}" oninput="updateBlock(${index}, 'label', this.value)"><div class="row"><div class="col"><input type="date" value="${block.start}" oninput="updateBlock(${index}, 'start', this.value)"></div><div class="col"><input type="date" value="${block.end}" oninput="updateBlock(${index}, 'end', this.value)"></div></div>`;
             else if (block.type === 'progress_cycle') html += `<label>Label</label><input value="${block.label}" oninput="updateBlock(${index}, 'label', this.value)"><div class="row"><div class="col"><input type="date" value="${block.anchor}" oninput="updateBlock(${index}, 'anchor', this.value)"></div><div class="col"><input type="number" value="${block.days}" oninput="updateBlock(${index}, 'days', this.value)"></div></div><select onchange="updateBlock(${index}, 'resetMode', this.value)"><option value="auto" ${block.resetMode!='manual'?'selected':''}>Auto Loop</option><option value="manual" ${block.resetMode=='manual'?'selected':''}>Manual Reset</option></select>`;
 
-            // COLOR ENGINE
             html += `<div class="viz-controls"><div class="viz-row">
             <div class="col"><label>Accent Color</label><div style="display:flex;gap:5px;"><select onchange="updateBlock(${index}, 'color', this.value)" style="flex:1">${getColorOptions(block.color)}</select><input type="color" value="${block.color && block.color.startsWith('#')?block.color:'#000000'}" onchange="updateBlock(${index}, 'color', this.value)" style="width:30px;height:32px;cursor:pointer;"></div></div>
             <div class="col"><label>Text Color</label><div style="display:flex;gap:5px;"><select onchange="updateBlock(${index}, 'textColor', this.value)" style="flex:1">${getColorOptions(block.textColor)}</select><input type="color" value="${block.textColor && block.textColor.startsWith('#')?block.textColor:'#37352f'}" onchange="updateBlock(${index}, 'textColor', this.value)" style="width:30px;height:32px;cursor:pointer;"></div></div>
@@ -346,7 +324,7 @@
         });
     }
     
-    // ... (Helpers: renderCityList, renderAutoProgressList, renderSequenceList, renderDateList, etc. - Identical to V27) ...
+    // ... (Helpers identical to V29) ...
     function renderCityList(bIdx, array) { const container = document.getElementById(`sub-list-${bIdx}`); if(!container) return; container.innerHTML = ''; array.forEach((item, iIdx) => { const row = document.createElement('div'); row.className = 'sub-item'; const wrapper = document.createElement('div'); wrapper.style.cssText = 'display:flex;width:100%;gap:8px;align-items:flex-start;'; const searchWrap = document.createElement('div'); searchWrap.className = 'city-search-wrapper'; searchWrap.style.flex = '1'; const input = document.createElement('input'); input.placeholder = "🔍 Search..."; input.value = item._searchVal || ''; if(item.label && !item._searchVal) input.placeholder = item.label; input.oninput = (e) => showCitySuggestions(e.target, bIdx, iIdx); const results = document.createElement('div'); results.className = 'city-results'; searchWrap.append(input, results); const lbl = document.createElement('input'); lbl.style.flex = '1'; lbl.value = item.label || ''; lbl.oninput = (e) => { blocks[bIdx].locations[iIdx].label = e.target.value; updateState(); }; const up = `<button class="sub-btn-mov" onclick="moveItem(${bIdx}, 'locations', ${iIdx}, -1)">↑</button>`; const down = `<button class="sub-btn-mov" onclick="moveItem(${bIdx}, 'locations', ${iIdx}, 1)">↓</button>`; const del = `<button class="sub-btn-rem" onclick="removeSubItem(${bIdx}, 'locations', ${iIdx})">×</button>`; wrapper.append(searchWrap, lbl); wrapper.insertAdjacentHTML('beforeend', up+down+del); row.appendChild(wrapper); container.appendChild(row); }); }
     function showCitySuggestions(input, bIdx, iIdx) { const val = input.value.toLowerCase(); const results = input.nextElementSibling; results.innerHTML = ''; if(val.length < 2) { results.style.display = 'none'; return; } const matches = cityDB.filter(c => c.name.toLowerCase().includes(val)).slice(0, 5); if(matches.length === 0) { results.style.display = 'none'; return; } matches.forEach(city => { const div = document.createElement('div'); div.className = 'city-result-item'; div.innerText = city.name; div.onclick = () => { blocks[bIdx].locations[iIdx]._searchVal = city.name; blocks[bIdx].locations[iIdx].label = city.name.split(',')[0]; blocks[bIdx].locations[iIdx].timezone = city.tz; updateState(); renderBlocks(true, bIdx); }; results.appendChild(div); }); results.style.display = 'block'; document.addEventListener('click', function close(e) { if(!input.contains(e.target)) { results.style.display = 'none'; document.removeEventListener('click', close); }}); }
     function renderAutoProgressList(bIdx, array) { const container = document.getElementById(`sub-list-${bIdx}`); if(!container) return; container.innerHTML = ''; array.forEach((item, iIdx) => { const row = document.createElement('div'); row.className = 'sub-item'; const mainRow = document.createElement('div'); mainRow.style.cssText = 'display:flex;width:100%;align-items:center;gap:8px;'; const check = document.createElement('input'); check.type = 'checkbox'; check.style.width='auto'; check.margin='0'; check.checked = item.visible !== false; check.onchange = (e) => { blocks[bIdx].items[iIdx].visible = e.target.checked; updateState(); }; const lbl = document.createElement('input'); lbl.style.flex='1'; lbl.value = item.label; lbl.oninput = (e) => { blocks[bIdx].items[iIdx].label = e.target.value; updateState(); }; const up = `<button class="sub-btn-mov" onclick="moveItem(${bIdx}, 'items', ${iIdx}, -1)">↑</button>`; const down = `<button class="sub-btn-mov" onclick="moveItem(${bIdx}, 'items', ${iIdx}, 1)">↓</button>`; mainRow.append(check, lbl); mainRow.insertAdjacentHTML('beforeend', up+down); row.appendChild(mainRow); if(item.type === 'life') { const lifeRow = document.createElement('div'); lifeRow.style.cssText = 'display:flex;width:100%;gap:10px;margin-top:8px;padding-left:24px;align-items:center;'; lifeRow.innerHTML = `<label style="font-size:0.7rem">DOB:</label><input type="date" value="${item.dob||'1990-01-01'}" oninput="updateSubItem(${bIdx}, 'items', ${iIdx}, 'dob', this.value)" style="width:110px"><label style="font-size:0.7rem">Exp:</label><input type="number" value="${item.expectancy||80}" oninput="updateSubItem(${bIdx}, 'items', ${iIdx}, 'expectancy', this.value)" style="width:50px;">`; row.appendChild(lifeRow); } container.appendChild(row); }); }
