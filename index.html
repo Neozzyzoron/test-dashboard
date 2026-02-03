@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Widget V37</title>
+    <title>Notion Widget V38</title>
     <style>
         :root {
             --bg-color: #FFFFFF; --text-color: #37352F; --accent-color: #E3E2E0;
@@ -22,7 +22,7 @@
         .theme-card .widget-block { border-color: var(--accent-color); padding: var(--pad); }
         .theme-minimal .progress-bg { height: 4px; }
         
-        /* COLOR LOGIC V37: SMART CONTRAST & FALLBACKS */
+        /* COLOR LOGIC V38: DEFAULT TO NOTION BLACK IF NO COLOR SET */
         .widget-header { font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-color, inherit); }
         
         /* GRID 3.0 */
@@ -54,16 +54,17 @@
         .moon-icon { font-size: 2.5em; line-height: 1; color: var(--block-color, #37352F); }
         .moon-details { font-size: 0.9em; line-height: 1.4; color: var(--text-color, inherit); }
         
-        /* BUBBLES: Use Text Color if set, else Smart Contrast */
-        .timer-bubble { background: var(--block-color, #37352F); color: var(--text-color, var(--contrast-color)); padding: 15px; border-radius: var(--radius); text-align: center; } 
+        /* TIMERS & CARDS - DEFAULT TO LIGHT GREY BG / BLACK TEXT */
+        .timer-bubble { background: var(--block-color, #e0e0e0); color: var(--text-color, #37352F); padding: 15px; border-radius: var(--radius); text-align: center; } 
         .timer-display { font-size: 2.5em; font-weight: 700; font-family: monospace; margin: 10px 0;}
-        .timer-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 0.8em; font-weight:600; color:inherit; }
+        .timer-btn { background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 0.8em; font-weight:600; color:inherit; }
+        .timer-btn:hover { background: rgba(0,0,0,0.1); }
         
-        .seq-table { width: 100%; font-size: 0.8em; border-collapse: collapse; opacity: 0.7; text-align: left; margin-top:10px; color:inherit; }
+        .seq-table { width: 100%; font-size: 0.8em; border-collapse: collapse; opacity: 0.8; text-align: left; margin-top:10px; color:inherit; }
         .seq-table td { padding: 2px 0; }
         .seq-table .active-row { font-weight: bold; opacity: 1; }
         
-        .counter-wrap { display: flex; align-items: center; justify-content: space-between; background: var(--block-color, #37352F); padding: 5px 10px; border-radius: var(--radius); color: var(--text-color, var(--contrast-color)); }
+        .counter-wrap { display: flex; align-items: center; justify-content: space-between; background: var(--block-color, #e0e0e0); padding: 5px 10px; border-radius: var(--radius); color: var(--text-color, #37352F); }
         .counter-btn { border: none; background: transparent; cursor: pointer; font-size: 1.2em; color: inherit; }
         .counter-val { font-weight: bold; font-family: monospace; font-size: 1.2em; color: inherit; }
         
@@ -97,28 +98,21 @@
         function getConfig() { try { return JSON.parse(atob(window.location.hash.substring(1))); } catch(e) { return null; } }
         const container = document.getElementById('dashboard');
 
-        // --- GLOBAL HELPERS ---
+        // --- GLOBAL HELPER (Must be first) ---
         function createBarElement(label, start, end, isCycle) {
             let pct = 0;
             if(!isCycle && start && end) { 
                 const now = new Date(); 
-                if(now > end) pct = 100; else if(now > start) pct = Math.max(0, ((now - start) / (end - start)) * 100); 
+                if(now > end) pct = 100; else if(now > start) {
+                    pct = Math.max(0, ((now - start) / (end - start)) * 100); 
+                }
             }
+            if(isNaN(pct)) pct = 0; // Safety check
             const wrapper = document.createElement('div'); wrapper.className = 'progress-wrapper';
-            wrapper.innerHTML = `<div class="progress-meta"><span>${label || 'Progress'}</span><span>${pct.toFixed(1)}%</span></div><div class="progress-bg"><div class="progress-fill" style="width: ${pct}%"></div></div>`;
+            // V38 FIX: Inject style directly for fail-safe rendering
+            const safeColor = 'var(--block-color, #37352F)';
+            wrapper.innerHTML = `<div class="progress-meta"><span>${label || 'Progress'}</span><span>${pct.toFixed(1)}%</span></div><div class="progress-bg" style="background-color:${safeColor}"><div class="progress-fill" style="width: ${pct}%; background-color:${safeColor}"></div></div>`;
             return wrapper;
-        }
-
-        // YIQ Contrast Calculator (Hex -> Black/White)
-        function getContrastColor(hex) {
-            if (!hex || hex === 'default') return '#ffffff'; // Default to white text on unknown
-            if(hex.startsWith('#')) hex = hex.slice(1);
-            if(hex.length === 3) hex = hex.split('').map(c => c + c).join('');
-            const r = parseInt(hex.substr(0,2),16);
-            const g = parseInt(hex.substr(2,2),16);
-            const b = parseInt(hex.substr(4,2),16);
-            const yiq = ((r*299)+(g*587)+(b*114))/1000;
-            return (yiq >= 128) ? '#000000' : '#ffffff';
         }
 
         function render() {
@@ -146,20 +140,12 @@
                 if (block.width === '50') div.classList.add('half-width');
                 if (block.width === '33') div.classList.add('third-width');
                 
-                // Color Logic V37: Explicit Strategy
+                // Color Logic V38:
                 if (block.color && block.color !== 'default') {
                     const val = block.color.startsWith('#') ? block.color : `var(--c-${block.color})`;
                     div.style.setProperty('--block-color', val);
-                    // Calculate smart contrast if using Hex
-                    if(val.startsWith('#')) {
-                        div.style.setProperty('--contrast-color', getContrastColor(val));
-                    } else {
-                        div.style.setProperty('--contrast-color', '#ffffff'); // Fallback white
-                    }
                 } else {
-                    // Default Case: Set Notion Black explicitly
-                    div.style.setProperty('--block-color', '#37352F');
-                    div.style.setProperty('--contrast-color', '#ffffff');
+                    div.style.removeProperty('--block-color');
                 }
                 
                 if (block.textColor && block.textColor !== 'default') {
@@ -443,7 +429,7 @@
                         bar.style.width = `${pct}%`; 
                         if(isDone) {
                             if(!txt.innerHTML.includes('cycle-reset-btn')) {
-                                // V37 FIX: STRING ID FOR RESET
+                                // V38 FIX: STRING ID FOR RESET
                                 txt.innerHTML = `Done <button class="cycle-reset-btn" onclick="resetCycle('${bIdx}')">↻</button>`;
                             }
                         }
@@ -475,7 +461,7 @@
             });
         }
         
-        // V37 FIX: Convert to string to avoid 0 being falsy
+        // V38 FIX: Convert to string to avoid 0 being falsy
         window.resetCycle = (idx) => { 
             const sIdx = String(idx);
             if(sIdx && sIdx !== 'undefined' && sIdx !== 'null') {
