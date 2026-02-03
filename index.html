@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Widget V35</title>
+    <title>Notion Widget V36</title>
     <style>
         :root {
             --bg-color: #FFFFFF; --text-color: #37352F; --accent-color: #E3E2E0;
@@ -22,12 +22,12 @@
         .theme-card .widget-block { border-color: var(--accent-color); padding: var(--pad); }
         .theme-minimal .progress-bg { height: 4px; }
         
-        /* COLOR LOGIC V35: DEFAULT TO NOTION BLACK IF NO COLOR SET */
+        /* COLOR LOGIC V36: FALLBACKS */
         .widget-header { font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-color, inherit); }
         
         /* GRID 3.0 */
         .grid-container { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 5px; }
-        /* Default Grid color is explicitly #37352F if not set */
+        /* Explicit fallback to #37352F (Notion Black) if var is missing */
         .grid-cell { background: var(--block-color, #37352F); border-radius: 1px; flex-shrink: 0; opacity: 0.2; } 
         .grid-cell.filled { opacity: 1; }
         .grid-subline { font-size:0.6em; opacity:0.5; margin-bottom:2px; color: var(--text-color, inherit); }
@@ -54,8 +54,8 @@
         .moon-icon { font-size: 2.5em; line-height: 1; color: var(--block-color, #37352F); }
         .moon-details { font-size: 0.9em; line-height: 1.4; color: var(--text-color, inherit); }
         
-        /* TIMERS & CARDS - ACCENT BACKGROUND */
-        .timer-bubble { background: var(--block-color, #37352F); color: var(--bg-color); padding: 15px; border-radius: var(--radius); text-align: center; } 
+        /* BUBBLES: Use Text Color if set, else Contrast */
+        .timer-bubble { background: var(--block-color, #37352F); color: var(--text-color, #ffffff); padding: 15px; border-radius: var(--radius); text-align: center; } 
         .timer-display { font-size: 2.5em; font-weight: 700; font-family: monospace; margin: 10px 0;}
         .timer-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 0.8em; font-weight:600; color:inherit; }
         
@@ -63,7 +63,7 @@
         .seq-table td { padding: 2px 0; }
         .seq-table .active-row { font-weight: bold; opacity: 1; }
         
-        .counter-wrap { display: flex; align-items: center; justify-content: space-between; background: var(--block-color, #37352F); padding: 5px 10px; border-radius: var(--radius); color: var(--bg-color); }
+        .counter-wrap { display: flex; align-items: center; justify-content: space-between; background: var(--block-color, #37352F); padding: 5px 10px; border-radius: var(--radius); color: var(--text-color, #ffffff); }
         .counter-btn { border: none; background: transparent; cursor: pointer; font-size: 1.2em; color: inherit; }
         .counter-val { font-weight: bold; font-family: monospace; font-size: 1.2em; color: inherit; }
         
@@ -73,7 +73,7 @@
         .spacer-line { width: 100%; border-bottom-color: var(--block-color, #37352F); opacity: 0.5; }
         .spacer-dashed { border-bottom-style: dashed; } .spacer-dotted { border-bottom-style: dotted; } .spacer-solid { border-bottom-style: solid; }
         
-        /* RESET BUTTON STYLE */
+        /* RESET BUTTON */
         .cycle-reset-btn { 
             background: rgba(255,255,255,0.9); 
             border: 1px solid #ccc; 
@@ -89,7 +89,6 @@
             position: relative; 
             box-shadow: 0 1px 2px rgba(0,0,0,0.2); 
         }
-        .cycle-reset-btn:hover { background: #fff; }
     </style>
 </head>
 <body>
@@ -135,7 +134,7 @@
                 if (block.width === '50') div.classList.add('half-width');
                 if (block.width === '33') div.classList.add('third-width');
                 
-                // Color Logic V35:
+                // Color Logic V36:
                 if (block.color && block.color !== 'default') {
                     const val = block.color.startsWith('#') ? block.color : `var(--c-${block.color})`;
                     div.style.setProperty('--block-color', val);
@@ -146,6 +145,8 @@
                 if (block.textColor && block.textColor !== 'default') {
                     const tVal = block.textColor.startsWith('#') ? block.textColor : `var(--c-${block.textColor})`;
                     div.style.setProperty('--text-color', tVal);
+                } else {
+                    div.style.removeProperty('--text-color');
                 }
 
                 if(block.type === 'header') div.innerHTML = `<div class="widget-header" style="font-size:1.2em; opacity:1;">${block.text}</div>`;
@@ -206,8 +207,11 @@
                 parent.innerHTML = html + `</div>`; return;
             }
             else if(b.gridType === 'quarter') {
-               const m = now.getMonth(); const q = Math.floor(m/3); const mInQ = (m % 3) + 1;
-               const currentWeek = getWeekNumber(now); const wInQ = Math.max(1, Math.min(12, currentWeek - (q * 13)));
+               const m = now.getMonth();
+               const q = Math.floor(m/3);
+               const mInQ = (m % 3) + 1;
+               const currentWeek = getWeekNumber(now);
+               const wInQ = Math.max(1, Math.min(12, currentWeek - (q * 13)));
                html += `<div class="grid-subline">M ${mInQ}/3 | W ${wInQ}/12</div><div class="grid-container">`;
                for(let i=0; i<12; i++) {
                    if(i>0 && i%4===0) html += `<div class="break"></div>`;
@@ -217,7 +221,8 @@
                parent.innerHTML = html + `</div>`; return;
             }
             else if(b.gridType === 'month') {
-                const dim = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate(); const day = now.getDate();
+                const dim = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+                const day = now.getDate();
                 html += `<div class="grid-subline">Day ${day}/${dim}</div><div class="grid-container">`;
                 for(let i=1; i<=dim; i++) {
                     if((i-1)%7===0 && i>1) html += `<div class="break"></div>`;
@@ -244,7 +249,9 @@
                 parent.innerHTML = html + `</div>`; return;
             }
             else if(b.gridType === 'life') {
-                const dob = new Date(b.dob || '1990-01-01'); const age = now.getFullYear() - dob.getFullYear(); const total = parseInt(b.expectancy||80);
+                const dob = new Date(b.dob || '1990-01-01');
+                const age = now.getFullYear() - dob.getFullYear();
+                const total = parseInt(b.expectancy||80);
                 html += `<div class="grid-subline">Year ${age} of ${total}</div><div class="grid-container">`;
                 for(let i=0; i<total; i++) {
                     if(i>0 && i%20===0) html += `<div class="break"></div>`;
@@ -255,7 +262,6 @@
             parent.innerHTML = html;
         }
 
-        // --- RESTORED LOGIC ---
         function renderMoonBlock(b, parent) { 
             const now = new Date(); const newMoon = new Date(2000, 0, 6, 18, 14); const cycle = 29.53058867;
             const diffDays = (now - newMoon) / 86400000; const age = diffDays % cycle; 
@@ -421,8 +427,8 @@
                     if(bar && txt) { 
                         bar.style.width = `${pct}%`; 
                         if(isDone) {
-                            // Fix: Ensure we don't clear the button on every tick
                             if(!txt.innerHTML.includes('cycle-reset-btn')) {
+                                // V36 FIX: STRING ID
                                 txt.innerHTML = `Done <button class="cycle-reset-btn" onclick="resetCycle('${bIdx}')">↻</button>`;
                             }
                         }
@@ -454,9 +460,8 @@
             });
         }
         
-        // FIX: Ensure ID exists (handle 0 as string)
+        // V36 FIX: Convert to string to avoid 0 being falsy
         window.resetCycle = (idx) => { 
-            // Convert to string to safely handle '0'
             const sIdx = String(idx);
             if(sIdx && sIdx !== 'undefined' && sIdx !== 'null') {
                 localStorage.setItem(`cycle_reset_block-${sIdx}`, new Date().getTime()); 
