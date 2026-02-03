@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Widget V47</title>
+    <title>Notion Widget V48</title>
     <style>
         :root {
             --bg-color: #FFFFFF; --text-color: #37352F; --accent-color: #E3E2E0;
@@ -22,10 +22,10 @@
         .theme-card .widget-block { border-color: var(--accent-color); padding: var(--pad); }
         .theme-minimal .progress-bg { height: 4px; }
         
-        /* COLOR LOGIC V47 */
+        /* COLOR LOGIC V48: CSS FALLBACKS */
         .widget-header { font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-color, inherit); }
         
-        /* GRID 3.0 */
+        /* GRID 3.0: Falls back to BLACK if var undefined */
         .grid-container { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 5px; }
         .grid-cell { background: var(--block-color, #37352F); border-radius: 1px; flex-shrink: 0; opacity: 0.2; } 
         .grid-cell.filled { opacity: 1; }
@@ -38,7 +38,8 @@
         .progress-meta { display: flex; justify-content: space-between; font-size: 0.85em; margin-bottom: 2px; color: var(--text-color, inherit); }
         
         .progress-bg { height: 8px; background: rgba(128,128,128, 0.2); border-radius: 4px; overflow: hidden; } 
-        .progress-fill { height: 100%; width: 0%; transition: width 0.5s ease-in-out; } 
+        /* V48: Progress Fill Falls back to BLACK */
+        .progress-fill { height: 100%; width: 0%; transition: width 0.5s ease-in-out; background-color: var(--block-color, #37352F); } 
         
         .clock-row { display: flex; justify-content: space-between; border-bottom: 1px solid var(--block-color, #37352F); padding: 4px 0; }
         .clock-row:last-child { border: none; }
@@ -54,7 +55,7 @@
         .moon-icon { font-size: 2.5em; line-height: 1; color: var(--block-color, #37352F); }
         .moon-details { font-size: 0.9em; line-height: 1.4; color: var(--text-color, inherit); }
         
-        /* TIMERS & CARDS */
+        /* TIMERS & CARDS: Falls back to GREY BG / BLACK TEXT if var undefined */
         .timer-bubble { background: var(--block-color, #e0e0e0); color: var(--text-color, #37352F); padding: 15px; border-radius: var(--radius); text-align: center; } 
         .timer-display { font-size: 2.5em; font-weight: 700; font-family: monospace; margin: 10px 0;}
         .timer-btn { background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 0.8em; font-weight:600; color:inherit; }
@@ -74,7 +75,7 @@
         .spacer-line { width: 100%; border-bottom-color: var(--block-color, #37352F); opacity: 0.5; }
         .spacer-dashed { border-bottom-style: dashed; } .spacer-dotted { border-bottom-style: dotted; } .spacer-solid { border-bottom-style: solid; }
         
-        /* RESET BUTTON - V47: ALWAYS VISIBLE (Inline Block) */
+        /* RESET BUTTON */
         .cycle-reset-btn { 
             background: rgba(255,255,255,0.9); 
             border: 1px solid #ccc; 
@@ -99,7 +100,6 @@
         function getConfig() { 
             try { 
                 const config = JSON.parse(atob(window.location.hash.substring(1))); 
-                // V47: Safety backfill IDs for rendering old links
                 if(config.blocks) {
                     config.blocks.forEach((b, i) => {
                         if(!b.id) b.id = 'blk_legacy_' + i; 
@@ -110,20 +110,18 @@
         }
         const container = document.getElementById('dashboard');
 
-        // --- GLOBAL HELPER (Must be first) ---
+        // --- GLOBAL HELPER ---
         function createBarElement(label, start, end, isCycle, cycleId, daysForCycle, resetMode) {
             let pct = 0;
             let isDone = false;
             let valText = "0.0%";
 
-            // Standard Progress
             if(!isCycle && start && end) { 
                 const now = new Date(); 
                 if(now > end) pct = 100; else if(now > start) pct = Math.max(0, ((now - start) / (end - start)) * 100); 
                 valText = `${pct.toFixed(1)}%`;
             }
             
-            // Cycle Calculation
             if(isCycle && start && daysForCycle) {
                 const now = new Date();
                 const duration = parseFloat(daysForCycle) * 86400000;
@@ -149,6 +147,7 @@
             if(isNaN(pct)) pct = 0;
 
             const wrapper = document.createElement('div'); wrapper.className = 'progress-wrapper';
+            // V48: Rely on CSS fallback for variable
             const safeColor = 'var(--block-color, #37352F)';
             
             let resetBtn = '';
@@ -172,7 +171,6 @@
             return wrapper;
         }
 
-        // V47: ENSURE GLOBAL SCOPE
         window.resetCycle = (id) => { 
             if(id) {
                 localStorage.setItem(`cycle_reset_${id}`, new Date().getTime()); 
@@ -205,14 +203,11 @@
                 if (block.width === '50') div.classList.add('half-width');
                 if (block.width === '33') div.classList.add('third-width');
                 
-                // V47: Restored Explicit Default for Grid Visibility
+                // V48: Remove forced defaults. Let CSS handle it.
                 if (block.color && block.color !== 'default') {
                     const val = block.color.startsWith('#') ? block.color : `var(--c-${block.color})`;
                     div.style.setProperty('--block-color', val);
-                } else { 
-                    // Explicit fallback to ensure Grid is visible
-                    div.style.setProperty('--block-color', '#37352F'); 
-                }
+                } else { div.style.removeProperty('--block-color'); }
                 
                 if (block.textColor && block.textColor !== 'default') {
                     const tVal = block.textColor.startsWith('#') ? block.textColor : `var(--c-${block.textColor})`;
@@ -222,7 +217,10 @@
                 if(block.type === 'header') div.innerHTML = `<div class="widget-header" style="font-size:1.2em; opacity:1;">${block.text}</div>`;
                 else if(block.type === 'empty') div.innerHTML = `&nbsp;`;
                 else if(block.type === 'spacer') div.innerHTML = `<div class="spacer-line spacer-${block.style||'solid'}" style="margin-top:10px; margin-bottom:10px; border-bottom-width:${block.thickness||'1px'}"></div>`;
-                else if(block.type === 'visual_grid') renderGridBlock(block, div, s);
+                else if(block.type === 'visual_grid') {
+                    // V48: TRY-CATCH for Grid Safety
+                    try { renderGridBlock(block, div, s); } catch(e) { console.error("Grid Error", e); div.innerHTML = "Grid Error"; }
+                }
                 else if(block.type === 'moon_phase') renderMoonBlock(block, div);
                 else if(block.type === 'counter') renderCounterBlock(block, div, block.id);
                 else if(block.type === 'sequence') renderSequenceBlock(block, div, block.id);
@@ -234,13 +232,10 @@
                 else if(block.type === 'progress_cycle') { 
                     let anchor = new Date(block.anchor);
                     if (block.resetMode === 'manual') {
-                        // V47: Using UUID
                         const restartTs = localStorage.getItem(`cycle_reset_${block.id}`);
                         if(restartTs) anchor = new Date(parseInt(restartTs));
                     }
                     if(isNaN(anchor.getTime())) anchor = new Date();
-
-                    // V47: USING UUID FOR ID
                     const wrap = createBarElement(block.label, anchor, null, true, block.id, block.days, block.resetMode); 
                     wrap.id=`cycle-wrap-${block.id}`; 
                     div.appendChild(wrap); 
@@ -252,6 +247,7 @@
                         div.appendChild(row);
                     });
                 }
+                // V48: Logic to ensure Date Display renders
                 else if (block.type === 'date_display') { 
                     div.innerHTML = `<div class="date-display" id="date-main-${index}"></div><div class="date-sub" id="date-sub-${index}"></div>`; 
                 }
@@ -276,8 +272,17 @@
             let wMult = b.shape==='wide'?2 : b.shape==='ultrawide'?3 : 1;
             let w = `${px*wMult}px`; let h = `${px}px`;
             
+            // V48: Standard ISO Week Calculation
+            const getWeek = (date) => {
+                const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+                const dayNum = d.getUTCDay() || 7;
+                d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+                const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+                return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+            };
+
             if(b.gridType === 'year') { 
-                const currentWeek = getWeekNumber(now);
+                const currentWeek = getWeek(now);
                 html += `<div class="grid-subline">Week ${currentWeek} of 52</div><div class="grid-container">`;
                 for(let i=1; i<=52; i++) {
                     if((i-1)%13===0 && i>1) html += `<div class="break"></div>`;
@@ -285,6 +290,7 @@
                 }
                 parent.innerHTML = html + `</div>`; return;
             }
+            // ... (Rest of Grid Types identical to V47) ...
             else if(b.gridType === 'month') {
                 const dim = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate(); const day = now.getDate();
                 html += `<div class="grid-subline">Day ${day}/${dim}</div><div class="grid-container">`;
@@ -426,6 +432,7 @@
             });
         }
         
+        // V48: Standard ISO Week Calculation inside loop
         function getDatesForType(type, weekStart = 'monday') {
             const now = new Date(); const y = now.getFullYear(), m = now.getMonth();
             if (type === 'day') return { start: new Date(y, m, now.getDate()), end: new Date(y, m, now.getDate(), 23, 59, 59) };
@@ -438,7 +445,6 @@
         function updateDynamics(blocks, settings) {
             const now = new Date(); const use24h = settings.use24h === true;
             blocks.forEach((block, bIdx) => {
-                // V47: Logic for Cycle Updates (Use UUID)
                 if (block.type === 'progress_cycle') {
                     const resetMode = block.resetMode || 'manual'; 
                     let anchor = new Date(block.anchor);
@@ -476,11 +482,9 @@
                     }
                 }
                 
-                // V47 FIX: Syntax Error in Selector (Added quotes)
                 if (block.type === 'progress_group') {
                     block.items.forEach((item, iIdx) => {
                         const uniqueId = `prog-${bIdx}-${iIdx}`;
-                        // V47: ADDED QUOTES to selector string
                         const bar = document.querySelector(`#${uniqueId} .progress-fill`);
                         const txt = document.querySelector(`#${uniqueId} .progress-meta span:last-child span`);
                         if(bar && txt) {
@@ -503,7 +507,6 @@
                     });
                 }
 
-                // ... (Other blocks V46 logic preserved)
                 if (block.type === 'world_clock') {
                     block.locations.forEach((loc, lIdx) => {
                         const timeEl = document.getElementById(`clock-${bIdx}-${lIdx}`);
@@ -561,6 +564,46 @@
                     }
                 }
             });
+        }
+        
+        function buildDateString(tokens, now) {
+            if(!tokens || !Array.isArray(tokens)) return '';
+            return tokens.map(t => {
+                const type = (typeof t === 'string') ? t : t.type;
+                switch(type) {
+                    case 'day_name_full': return now.toLocaleDateString([], {weekday:'long'});
+                    case 'day_name_short': return now.toLocaleDateString([], {weekday:'short'});
+                    case 'month_full': return now.toLocaleDateString([], {month:'long'});
+                    case 'month_short': return now.toLocaleDateString([], {month:'short'});
+                    case 'month_num': return (now.getMonth() + 1).toString().padStart(2, '0');
+                    case 'date_num': return now.getDate().toString().padStart(2,'0');
+                    case 'year': return now.getFullYear();
+                    case 'week_num': return `Week ${getWeekNumber(now)}`;
+                    case 'day_year': const start = new Date(now.getFullYear(), 0, 0); const diff = now - start; return `Day ${Math.floor(diff / 86400000)}`;
+                    case 'quarter': return `Q${Math.floor((now.getMonth() + 3) / 3)}`;
+                    case 'separator': return '|';
+                    case 'space': return ' ';
+                    case 'slash': return '/';
+                    default: return '';
+                }
+            }).join('');
+        }
+        // V48: Standard ISO Week Calc
+        function getWeekNumber(d) { d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7)); const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1)); return Math.ceil((((d - yearStart) / 86400000) + 1)/7); }
+        
+        function renderMoonBlock(b, parent) { 
+            const now = new Date(); const newMoon = new Date(2000, 0, 6, 18, 14); const cycle = 29.53058867;
+            const diffDays = (now - newMoon) / 86400000; const age = diffDays % cycle; 
+            let phaseIdx = 0;
+            if (age > 28.5 || age < 1) phaseIdx = 0; else if (age < 6.4) phaseIdx = 1; else if (age < 8.4) phaseIdx = 2; else if (age < 13.8) phaseIdx = 3; else if (age < 15.8) phaseIdx = 4; else if (age < 21.1) phaseIdx = 5; else if (age < 23.1) phaseIdx = 6; else phaseIdx = 7;
+            if (age > 14.26 && age < 15.26) phaseIdx = 4; 
+            const icons = ['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'];
+            const names = ['New Moon','Waxing Crescent','First Quarter','Waxing Gibbous','Full Moon','Waning Gibbous','Last Quarter','Waning Crescent'];
+            const monthNames = ["Wolf","Snow","Worm","Pink","Flower","Strawberry","Buck","Sturgeon","Harvest","Hunter","Beaver","Cold"];
+            let html = `<div class="moon-display"><span class="moon-icon">${icons[phaseIdx]}</span><div class="moon-details"><div style="font-weight:bold">${names[phaseIdx]}</div>`;
+            if(phaseIdx===4) html += `<div style="color:var(--block-color, var(--text-color))">${monthNames[now.getMonth()]} Moon</div>`;
+            html += `<div style="opacity:0.6">${Math.floor(age)} days old</div></div></div>`;
+            parent.innerHTML = html;
         }
         
         window.startTimer = (id, m) => { localStorage.setItem(`notion_timer_${id}`, new Date().getTime() + (m * 60000)); updateTimerDisplay(id); };
