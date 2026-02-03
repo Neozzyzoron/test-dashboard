@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Widget V32</title>
+    <title>Notion Widget V33</title>
     <style>
         :root {
             --bg-color: #FFFFFF; --text-color: #37352F; --accent-color: #E3E2E0;
@@ -21,55 +21,56 @@
         
         .theme-card .widget-block { border-color: var(--accent-color); padding: var(--pad); }
         .theme-minimal .progress-bg { height: 4px; }
-        .widget-header { font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; margin-bottom: 0.5rem; font-weight: 600; color: var(--block-color, inherit); }
+        .widget-header { font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-color); }
         
         /* GRID 3.0 (FLEXBOX BACKPORT) */
         .grid-container { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 5px; }
         .grid-cell { background: var(--accent-color); border-radius: 1px; flex-shrink: 0; }
         .grid-cell.filled { background: var(--block-color, var(--text-color)); }
-        .grid-subline { font-size:0.6em; opacity:0.5; margin-bottom:2px; }
+        .grid-subline { font-size:0.6em; opacity:0.5; margin-bottom:2px; color: var(--text-color); }
         
         .break { flex-basis: 100%; height: 0; }
         
         /* COMPONENTS */
         .progress-wrapper { margin-bottom: 0.5rem; }
-        .progress-meta { display: flex; justify-content: space-between; font-size: 0.85em; margin-bottom: 2px; }
-        .progress-bg { height: 8px; background: var(--accent-color); border-radius: 4px; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--block-color, var(--text-color)); width: 0%; }
+        .progress-meta { display: flex; justify-content: space-between; font-size: 0.85em; margin-bottom: 2px; color: var(--text-color); }
+        .progress-bg { height: 8px; background: var(--accent-color); border-radius: 4px; overflow: hidden; opacity: 0.3; } /* Accents often lighter bg */
+        .progress-fill { height: 100%; background: var(--block-color, var(--accent-color)); width: 0%; } /* Actual fill is accent */
         
         .clock-row { display: flex; justify-content: space-between; border-bottom: 1px solid var(--accent-color); padding: 4px 0; }
         .clock-row:last-child { border: none; }
         .clock-left { display: flex; flex-direction: column; }
-        .clock-city { font-weight: 600; font-size: 0.95em; }
-        .clock-date { font-size: 0.75em; opacity: 0.6; }
-        .clock-time { font-family: monospace; font-weight: bold; font-size: 1.1em; color: var(--block-color, inherit); }
+        .clock-city { font-weight: 600; font-size: 0.95em; color: var(--text-color); }
+        .clock-date { font-size: 0.75em; opacity: 0.6; color: var(--text-color); }
+        .clock-time { font-family: monospace; font-weight: bold; font-size: 1.1em; color: var(--text-color); }
         
-        .date-display { font-size: 1.5em; font-weight: 700; color: var(--block-color, inherit); line-height: 1.2; }
-        .date-sub { font-size: 0.9em; opacity: 0.6; margin-top: 4px; font-weight: 500; }
+        .date-display { font-size: 1.5em; font-weight: 700; color: var(--text-color); line-height: 1.2; }
+        .date-sub { font-size: 0.9em; opacity: 0.6; margin-top: 4px; font-weight: 500; color: var(--text-color); }
         
         .moon-display { display: flex; align-items: center; gap: 15px; }
-        .moon-icon { font-size: 2.5em; line-height: 1; }
-        .moon-details { font-size: 0.9em; line-height: 1.4; }
+        .moon-icon { font-size: 2.5em; line-height: 1; color: var(--block-color, var(--accent-color)); }
+        .moon-details { font-size: 0.9em; line-height: 1.4; color: var(--text-color); }
         
-        .timer-bubble { background: var(--accent-color); color: var(--text-color); padding: 15px; border-radius: var(--radius); text-align: center; }
+        /* TIMERS & CARDS - ACCENT BACKGROUND */
+        .timer-bubble { background: var(--block-color, var(--accent-color)); color: var(--bg-color); padding: 15px; border-radius: var(--radius); text-align: center; } /* Contrast text */
         .timer-display { font-size: 2.5em; font-weight: 700; font-family: monospace; margin: 10px 0;}
         .timer-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 0.8em; font-weight:600; color:inherit; }
         
         .seq-table { width: 100%; font-size: 0.8em; border-collapse: collapse; opacity: 0.7; text-align: left; margin-top:10px;}
         .seq-table td { padding: 2px 0; }
-        .seq-table .active-row { font-weight: bold; opacity: 1; color: var(--block-color); }
+        .seq-table .active-row { font-weight: bold; opacity: 1; color: inherit; }
         
-        .counter-wrap { display: flex; align-items: center; justify-content: space-between; background: var(--accent-color); padding: 5px 10px; border-radius: var(--radius); }
-        .counter-btn { border: none; background: transparent; cursor: pointer; font-size: 1.2em; color: var(--text-color); }
-        .counter-val { font-weight: bold; font-family: monospace; font-size: 1.2em; color: var(--block-color, inherit); }
+        .counter-wrap { display: flex; align-items: center; justify-content: space-between; background: var(--block-color, var(--accent-color)); padding: 5px 10px; border-radius: var(--radius); color: var(--bg-color); }
+        .counter-btn { border: none; background: transparent; cursor: pointer; font-size: 1.2em; color: inherit; }
+        .counter-val { font-weight: bold; font-family: monospace; font-size: 1.2em; color: inherit; }
         
         .countdown-line { display: flex; justify-content: space-between; align-items: baseline; font-size: 1.1em; }
-        .countdown-val { font-weight: bold; color: var(--block-color, inherit); }
+        .countdown-val { font-weight: bold; color: var(--block-color, var(--accent-color)); } /* Value gets accent */
         
-        .spacer-line { width: 100%; border-bottom-color: var(--accent-color); opacity: 0.5; }
+        .spacer-line { width: 100%; border-bottom-color: var(--block-color, var(--accent-color)); opacity: 0.5; }
         .spacer-dashed { border-bottom-style: dashed; } .spacer-dotted { border-bottom-style: dotted; } .spacer-solid { border-bottom-style: solid; }
         
-        .cycle-reset-btn { background:var(--accent-color); border:none; color:var(--text-color); font-size:0.7em; padding:2px 8px; border-radius:4px; cursor:pointer; margin-left:8px; pointer-events:auto; font-weight:bold;}
+        .cycle-reset-btn { background:rgba(255,255,255,0.3); border:1px solid rgba(255,255,255,0.5); color:inherit; font-size:0.7em; padding:2px 8px; border-radius:4px; cursor:pointer; margin-left:8px; pointer-events:auto; font-weight:bold;}
     </style>
 </head>
 <body>
@@ -115,14 +116,21 @@
                 if (block.width === '50') div.classList.add('half-width');
                 if (block.width === '33') div.classList.add('third-width');
                 
-                // Color Logic
+                // Color Logic 3.0: STRICT SEPARATION
+                // Accent -> --block-color (Graphics)
                 if (block.color && block.color !== 'default') {
                     const val = block.color.startsWith('#') ? block.color : `var(--c-${block.color})`;
                     div.style.setProperty('--block-color', val);
+                } else {
+                    div.style.removeProperty('--block-color'); // Reset to default accent
                 }
+                
+                // Text -> --text-color (Typography)
                 if (block.textColor && block.textColor !== 'default') {
                     const tVal = block.textColor.startsWith('#') ? block.textColor : `var(--c-${block.textColor})`;
-                    div.style.color = tVal;
+                    div.style.setProperty('--text-color', tVal);
+                } else {
+                    div.style.setProperty('--text-color', 'var(--text-main)'); // Default theme text
                 }
 
                 if(block.type === 'header') div.innerHTML = `<div class="widget-header" style="font-size:1.2em; opacity:1;">${block.text}</div>`;
@@ -257,7 +265,7 @@
             const names = ['New Moon','Waxing Crescent','First Quarter','Waxing Gibbous','Full Moon','Waning Gibbous','Last Quarter','Waning Crescent'];
             const monthNames = ["Wolf","Snow","Worm","Pink","Flower","Strawberry","Buck","Sturgeon","Harvest","Hunter","Beaver","Cold"];
             let html = `<div class="moon-display"><span class="moon-icon">${icons[phaseIdx]}</span><div class="moon-details"><div style="font-weight:bold">${names[phaseIdx]}</div>`;
-            if(phaseIdx===4) html += `<div style="color:var(--block-color)">${monthNames[now.getMonth()]} Moon</div>`;
+            if(phaseIdx===4) html += `<div style="color:var(--block-color, var(--text-color))">${monthNames[now.getMonth()]} Moon</div>`;
             html += `<div style="opacity:0.6">${Math.floor(age)} days old</div></div></div>`;
             parent.innerHTML = html;
         }
@@ -440,7 +448,12 @@
             });
         }
         
-        window.resetCycle = (id) => { localStorage.setItem(`cycle_reset_${id.split('-')[1]}`, new Date().getTime()); };
+        // FIX: Ensure ID exists (handle 0)
+        window.resetCycle = (id) => { 
+            if(id !== undefined && id !== null) {
+                localStorage.setItem(`cycle_reset_${id.split('-')[1]}`, new Date().getTime()); 
+            }
+        };
         
         function buildDateString(tokens, now) {
             if(!tokens || !Array.isArray(tokens)) return '';
@@ -475,7 +488,7 @@
             const names = ['New Moon','Waxing Crescent','First Quarter','Waxing Gibbous','Full Moon','Waning Gibbous','Last Quarter','Waning Crescent'];
             const monthNames = ["Wolf","Snow","Worm","Pink","Flower","Strawberry","Buck","Sturgeon","Harvest","Hunter","Beaver","Cold"];
             let html = `<div class="moon-display"><span class="moon-icon">${icons[phaseIdx]}</span><div class="moon-details"><div style="font-weight:bold">${names[phaseIdx]}</div>`;
-            if(phaseIdx===4) html += `<div style="color:var(--block-color)">${monthNames[now.getMonth()]} Moon</div>`;
+            if(phaseIdx===4) html += `<div style="color:var(--block-color, var(--text-color))">${monthNames[now.getMonth()]} Moon</div>`;
             html += `<div style="opacity:0.6">${Math.floor(age)} days old</div></div></div>`;
             parent.innerHTML = html;
         }
