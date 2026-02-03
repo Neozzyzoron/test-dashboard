@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Widget V34</title>
+    <title>Notion Widget V35</title>
     <style>
         :root {
             --bg-color: #FFFFFF; --text-color: #37352F; --accent-color: #E3E2E0;
@@ -22,16 +22,14 @@
         .theme-card .widget-block { border-color: var(--accent-color); padding: var(--pad); }
         .theme-minimal .progress-bg { height: 4px; }
         
-        /* V34 Color Logic:
-           --text-color is applied to typography
-           --block-color (accent) is applied to graphics
-        */
+        /* COLOR LOGIC V35: DEFAULT TO NOTION BLACK IF NO COLOR SET */
         .widget-header { font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-color, inherit); }
         
-        /* GRID 3.0 (FLEXBOX BACKPORT) */
+        /* GRID 3.0 */
         .grid-container { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 5px; }
-        .grid-cell { background: var(--block-color, var(--accent-color)); border-radius: 1px; flex-shrink: 0; opacity: 0.2; } /* Empty cells light */
-        .grid-cell.filled { opacity: 1; } /* Filled cells full accent */
+        /* Default Grid color is explicitly #37352F if not set */
+        .grid-cell { background: var(--block-color, #37352F); border-radius: 1px; flex-shrink: 0; opacity: 0.2; } 
+        .grid-cell.filled { opacity: 1; }
         .grid-subline { font-size:0.6em; opacity:0.5; margin-bottom:2px; color: var(--text-color, inherit); }
         
         .break { flex-basis: 100%; height: 0; }
@@ -39,10 +37,10 @@
         /* COMPONENTS */
         .progress-wrapper { margin-bottom: 0.5rem; }
         .progress-meta { display: flex; justify-content: space-between; font-size: 0.85em; margin-bottom: 2px; color: var(--text-color, inherit); }
-        .progress-bg { height: 8px; background: var(--block-color, var(--accent-color)); border-radius: 4px; overflow: hidden; opacity: 0.3; } 
-        .progress-fill { height: 100%; background: var(--block-color, var(--accent-color)); width: 0%; opacity: 1; } 
+        .progress-bg { height: 8px; background: var(--block-color, #37352F); border-radius: 4px; overflow: hidden; opacity: 0.3; } 
+        .progress-fill { height: 100%; background: var(--block-color, #37352F); width: 0%; opacity: 1; } 
         
-        .clock-row { display: flex; justify-content: space-between; border-bottom: 1px solid var(--block-color, var(--accent-color)); padding: 4px 0; }
+        .clock-row { display: flex; justify-content: space-between; border-bottom: 1px solid var(--block-color, #37352F); padding: 4px 0; }
         .clock-row:last-child { border: none; }
         .clock-left { display: flex; flex-direction: column; }
         .clock-city { font-weight: 600; font-size: 0.95em; color: var(--text-color, inherit); }
@@ -53,11 +51,11 @@
         .date-sub { font-size: 0.9em; opacity: 0.6; margin-top: 4px; font-weight: 500; color: var(--text-color, inherit); }
         
         .moon-display { display: flex; align-items: center; gap: 15px; }
-        .moon-icon { font-size: 2.5em; line-height: 1; color: var(--block-color, var(--accent-color)); }
+        .moon-icon { font-size: 2.5em; line-height: 1; color: var(--block-color, #37352F); }
         .moon-details { font-size: 0.9em; line-height: 1.4; color: var(--text-color, inherit); }
         
         /* TIMERS & CARDS - ACCENT BACKGROUND */
-        .timer-bubble { background: var(--block-color, var(--accent-color)); color: var(--bg-color); padding: 15px; border-radius: var(--radius); text-align: center; } /* Text contrasts bg */
+        .timer-bubble { background: var(--block-color, #37352F); color: var(--bg-color); padding: 15px; border-radius: var(--radius); text-align: center; } 
         .timer-display { font-size: 2.5em; font-weight: 700; font-family: monospace; margin: 10px 0;}
         .timer-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 0.8em; font-weight:600; color:inherit; }
         
@@ -65,17 +63,33 @@
         .seq-table td { padding: 2px 0; }
         .seq-table .active-row { font-weight: bold; opacity: 1; }
         
-        .counter-wrap { display: flex; align-items: center; justify-content: space-between; background: var(--block-color, var(--accent-color)); padding: 5px 10px; border-radius: var(--radius); color: var(--bg-color); }
+        .counter-wrap { display: flex; align-items: center; justify-content: space-between; background: var(--block-color, #37352F); padding: 5px 10px; border-radius: var(--radius); color: var(--bg-color); }
         .counter-btn { border: none; background: transparent; cursor: pointer; font-size: 1.2em; color: inherit; }
         .counter-val { font-weight: bold; font-family: monospace; font-size: 1.2em; color: inherit; }
         
         .countdown-line { display: flex; justify-content: space-between; align-items: baseline; font-size: 1.1em; color: var(--text-color, inherit); }
-        .countdown-val { font-weight: bold; color: var(--block-color, var(--accent-color)); } 
+        .countdown-val { font-weight: bold; color: var(--block-color, #37352F); } 
         
-        .spacer-line { width: 100%; border-bottom-color: var(--block-color, var(--accent-color)); opacity: 0.5; }
+        .spacer-line { width: 100%; border-bottom-color: var(--block-color, #37352F); opacity: 0.5; }
         .spacer-dashed { border-bottom-style: dashed; } .spacer-dotted { border-bottom-style: dotted; } .spacer-solid { border-bottom-style: solid; }
         
-        .cycle-reset-btn { background:transparent; border:1px solid currentColor; color:inherit; font-size:0.7em; padding:2px 8px; border-radius:4px; cursor:pointer; margin-left:8px; pointer-events:auto; font-weight:bold;}
+        /* RESET BUTTON STYLE */
+        .cycle-reset-btn { 
+            background: rgba(255,255,255,0.9); 
+            border: 1px solid #ccc; 
+            color: #333; 
+            font-size: 0.75em; 
+            padding: 2px 8px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            margin-left: 8px; 
+            pointer-events: auto; 
+            font-weight: bold; 
+            z-index: 100; 
+            position: relative; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2); 
+        }
+        .cycle-reset-btn:hover { background: #fff; }
     </style>
 </head>
 <body>
@@ -84,7 +98,7 @@
         function getConfig() { try { return JSON.parse(atob(window.location.hash.substring(1))); } catch(e) { return null; } }
         const container = document.getElementById('dashboard');
 
-        // --- GLOBAL HELPER (Must be first) ---
+        // --- GLOBAL HELPER ---
         function createBarElement(label, start, end, isCycle) {
             let pct = 0;
             if(!isCycle && start && end) { 
@@ -121,14 +135,14 @@
                 if (block.width === '50') div.classList.add('half-width');
                 if (block.width === '33') div.classList.add('third-width');
                 
-                // V33 STRICT COLOR LOGIC
-                // --block-color = Graphics/Accent
+                // Color Logic V35:
                 if (block.color && block.color !== 'default') {
                     const val = block.color.startsWith('#') ? block.color : `var(--c-${block.color})`;
                     div.style.setProperty('--block-color', val);
+                } else {
+                    div.style.removeProperty('--block-color');
                 }
                 
-                // --text-color = Typography
                 if (block.textColor && block.textColor !== 'default') {
                     const tVal = block.textColor.startsWith('#') ? block.textColor : `var(--c-${block.textColor})`;
                     div.style.setProperty('--text-color', tVal);
@@ -174,7 +188,7 @@
             updateDynamics(data.blocks, s);
         }
 
-        // --- GRID 3.0 (FLEXBOX BACKPORT) ---
+        // --- GRID 3.0 ---
         function renderGridBlock(b, parent, settings) {
             let html = `<div class="widget-header">${b.gridType.toUpperCase()}</div>`;
             const now = new Date();
@@ -186,22 +200,15 @@
                 const currentWeek = getWeekNumber(now);
                 html += `<div class="grid-subline">Week ${currentWeek} of 52</div><div class="grid-container">`;
                 for(let i=1; i<=52; i++) {
-                    // Break every 13
                     if((i-1)%13===0 && i>1) html += `<div class="break"></div>`;
                     html += `<div class="grid-cell ${i<=currentWeek?'filled':''}" style="width:${w}; height:${h}"></div>`;
                 }
                 parent.innerHTML = html + `</div>`; return;
             }
             else if(b.gridType === 'quarter') {
-               // 12 Weeks Logic
-               const m = now.getMonth();
-               const q = Math.floor(m/3);
-               const mInQ = (m % 3) + 1;
-               const currentWeek = getWeekNumber(now);
-               const wInQ = Math.max(1, Math.min(12, currentWeek - (q * 13))); // Cap at 12
-               
+               const m = now.getMonth(); const q = Math.floor(m/3); const mInQ = (m % 3) + 1;
+               const currentWeek = getWeekNumber(now); const wInQ = Math.max(1, Math.min(12, currentWeek - (q * 13)));
                html += `<div class="grid-subline">M ${mInQ}/3 | W ${wInQ}/12</div><div class="grid-container">`;
-               // 12 blocks total. Break every 4 to make 3 rows.
                for(let i=0; i<12; i++) {
                    if(i>0 && i%4===0) html += `<div class="break"></div>`;
                    const filled = i < wInQ; 
@@ -210,11 +217,9 @@
                parent.innerHTML = html + `</div>`; return;
             }
             else if(b.gridType === 'month') {
-                const dim = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
-                const day = now.getDate();
+                const dim = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate(); const day = now.getDate();
                 html += `<div class="grid-subline">Day ${day}/${dim}</div><div class="grid-container">`;
                 for(let i=1; i<=dim; i++) {
-                    // Break every 7 days
                     if((i-1)%7===0 && i>1) html += `<div class="break"></div>`;
                     html += `<div class="grid-cell ${i<=day?'filled':''}" style="width:${w}; height:${h};"></div>`;
                 }
@@ -233,19 +238,15 @@
                 const hr = now.getHours();
                 html += `<div class="grid-subline">Hour ${hr}/24</div><div class="grid-container">`;
                 for(let i=0; i<24; i++) {
-                    // Break every 8 hours
                     if(i>0 && i%8===0) html += `<div class="break"></div>`;
                     html += `<div class="grid-cell ${i<hr?'filled':''}" style="width:${w}; height:${h};"></div>`;
                 }
                 parent.innerHTML = html + `</div>`; return;
             }
             else if(b.gridType === 'life') {
-                const dob = new Date(b.dob || '1990-01-01');
-                const age = now.getFullYear() - dob.getFullYear();
-                const total = parseInt(b.expectancy||80);
+                const dob = new Date(b.dob || '1990-01-01'); const age = now.getFullYear() - dob.getFullYear(); const total = parseInt(b.expectancy||80);
                 html += `<div class="grid-subline">Year ${age} of ${total}</div><div class="grid-container">`;
                 for(let i=0; i<total; i++) {
-                    // Break every 20 years
                     if(i>0 && i%20===0) html += `<div class="break"></div>`;
                     html += `<div class="grid-cell ${i<age?'filled':''}" style="width:${w}; height:${h}"></div>`;
                 }
@@ -254,6 +255,7 @@
             parent.innerHTML = html;
         }
 
+        // --- RESTORED LOGIC ---
         function renderMoonBlock(b, parent) { 
             const now = new Date(); const newMoon = new Date(2000, 0, 6, 18, 14); const cycle = 29.53058867;
             const diffDays = (now - newMoon) / 86400000; const age = diffDays % cycle; 
@@ -418,7 +420,12 @@
                     const txt = document.querySelector(`#cycle-${bIdx} .progress-meta span:last-child`);
                     if(bar && txt) { 
                         bar.style.width = `${pct}%`; 
-                        if(isDone) txt.innerHTML = `Done <button class="cycle-reset-btn" onclick="resetCycle(${bIdx})">↻</button>`;
+                        if(isDone) {
+                            // Fix: Ensure we don't clear the button on every tick
+                            if(!txt.innerHTML.includes('cycle-reset-btn')) {
+                                txt.innerHTML = `Done <button class="cycle-reset-btn" onclick="resetCycle('${bIdx}')">↻</button>`;
+                            }
+                        }
                         else txt.innerText = `${pct.toFixed(1)}%`; 
                     }
                 }
@@ -447,10 +454,12 @@
             });
         }
         
-        // FIX: Ensure ID handles 0 correctly
+        // FIX: Ensure ID exists (handle 0 as string)
         window.resetCycle = (idx) => { 
-            if(idx !== undefined && idx !== null) {
-                localStorage.setItem(`cycle_reset_block-${idx}`, new Date().getTime()); 
+            // Convert to string to safely handle '0'
+            const sIdx = String(idx);
+            if(sIdx && sIdx !== 'undefined' && sIdx !== 'null') {
+                localStorage.setItem(`cycle_reset_block-${sIdx}`, new Date().getTime()); 
             }
         };
         
