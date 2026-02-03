@@ -2,22 +2,34 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Widget Admin V33</title>
+    <title>Widget Admin V34</title>
     <style>
         /* CORE */
         * { box-sizing: border-box; }
         html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f7f7f5; color: #37352f; }
+        
+        /* LAYOUT */
         .main-container { display: flex; flex-direction: row; width: 100%; height: 100vh; overflow: hidden; }
         .panel-left { width: 50%; height: 100%; background: #fff; border-right: 1px solid #e0e0e0; display: flex; flex-direction: column; min-width: 460px; position: relative; }
         .panel-right { width: 50%; height: 100%; background: #eef0f2; padding: 20px; display: flex; flex-direction: column; min-width: 320px; }
         
-        /* HEADER */
-        .sticky-header { padding: 15px 20px; background: white; border-bottom: 1px solid #f0f0f0; flex-shrink: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 15px; }
+        /* HEADER (Expanded for V34) */
+        .sticky-header { background: white; border-bottom: 1px solid #f0f0f0; flex-shrink: 0; z-index: 100; display: flex; flex-direction: column; }
+        .header-top { padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; gap: 15px; }
         .header-title { font-size: 1.1rem; font-weight: 700; margin: 0; white-space: nowrap; }
         .action-area { display: flex; gap: 8px; align-items: center; flex-grow: 1; min-width: 0; justify-content: flex-end; }
         .link-box { background: #f0f0f0; padding: 8px 10px; border-radius: 4px; font-family: monospace; font-size: 0.75rem; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; border: 1px solid #e0e0e0; max-width: 300px; }
         
-        /* SCROLL */
+        /* COLLAPSIBLE SETTINGS */
+        .settings-toggle { padding: 8px 20px; background: #f8f9fa; border-top: 1px solid #eee; cursor: pointer; font-size: 0.8rem; font-weight: 600; color: #555; display: flex; align-items: center; gap: 5px; user-select: none; }
+        .settings-toggle:hover { background: #f0f0f0; }
+        .settings-panel { padding: 15px 20px; background: #fff; border-bottom: 1px solid #e0e0e0; display: none; }
+        .settings-panel.active { display: block; animation: slideDown 0.2s ease-out; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .global-settings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        
+        /* CONTENT */
         .scroll-content { padding: 20px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
         
         /* FOOTER */
@@ -29,13 +41,11 @@
         .preview-toolbar { padding: 5px; background: #dfe1e6; border-bottom: 1px solid #ccc; display: flex; justify-content: center; align-items: center; height: 25px; flex-shrink: 0; }
         iframe { flex-grow: 1; width: 100%; border: none; background: white; display: block; }
 
-        /* UI ELEMENTS */
-        .dark-section { background: #34495e; padding: 15px; border-radius: 6px; color: white; flex-shrink: 0; font-size: 0.85rem;}
-        .settings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        /* INPUTS */
         label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 0.75rem; color: #555;}
-        .dark-section label { color: rgba(255,255,255,0.9); }
         input, select { width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.85rem; box-sizing: border-box; background: #fff; }
         
+        /* BUTTONS */
         .btn-action { padding: 6px 10px; font-size: 0.75rem; color: white; border-radius: 4px; border:none; cursor: pointer; font-weight: 600; white-space: nowrap; flex-shrink: 0;}
         .btn-refresh { background: #3498db; } .btn-copy { background: #27ae60; } .btn-open { background: #7f8c8d; }
         
@@ -57,7 +67,6 @@
         .block-label-preview { font-weight: 400; font-size: 0.85rem; color: #888; margin-left: 10px; text-transform: none; }
         .block-content { padding: 15px; border-top: 1px solid #f0f0f0; display: none; }
         .block-card.open .block-content { display: block; }
-        
         .btn-del { background: #fadbd8; color: #c0392b; border: 1px solid #e6b0aa; padding: 4px 8px; font-size: 0.7rem; border-radius: 4px; font-weight: bold; cursor: pointer; }
         
         .sub-list { margin-bottom: 10px; border: 1px solid #eee; padding: 10px; border-radius: 4px; background: #fafafa; }
@@ -77,6 +86,7 @@
         .city-result-item { padding: 8px; cursor: pointer; font-size: 0.8rem; border-bottom: 1px solid #f0f0f0; }
         .city-result-item:hover { background: #f0f0f0; }
         
+        /* Type colors */
         .type-header { border-left-color: #95a5a6; } .type-date_display { border-left-color: #27ae60; }
         .type-world_clock { border-left-color: #16a085; } .type-visual_grid { border-left-color: #2980b9; }
         .type-progress_group { border-left-color: #d35400; } .type-progress_custom { border-left-color: #f39c12; }
@@ -91,19 +101,21 @@
 <div class="main-container">
     <div class="panel-left">
         <div class="sticky-header">
-            <h1 class="header-title">Widget Builder</h1>
-            <div class="action-area">
-                <div class="link-box" id="result-url">Generate...</div>
-                <button class="btn-action btn-refresh" onclick="refreshPreview()">Refresh</button>
-                <button class="btn-action btn-copy" id="btn-copy" onclick="copyLink()">Copy</button>
-                <button class="btn-action btn-open" onclick="window.open(generateLink(), '_blank')">Open</button>
+            <div class="header-top">
+                <h1 class="header-title">Widget Builder</h1>
+                <div class="action-area">
+                    <div class="link-box" id="result-url">Generate...</div>
+                    <button class="btn-action btn-refresh" onclick="refreshPreview()">↻</button>
+                    <button class="btn-action btn-copy" id="btn-copy" onclick="copyLink()">Copy</button>
+                    <button class="btn-action btn-open" onclick="window.open(generateLink(), '_blank')">Open</button>
+                </div>
             </div>
-        </div>
-
-        <div class="scroll-content" id="scroll-container">
-            <div class="dark-section">
-                <h3>General Settings</h3>
-                <div class="settings-grid">
+            <div class="settings-toggle" onclick="toggleSettings()">
+                <span>⚙️ General Settings (Theme, Font, Time...)</span>
+                <span id="settings-arrow">▼</span>
+            </div>
+            <div class="settings-panel" id="settings-panel">
+                <div class="global-settings-grid">
                     <div><label>Time Format</label><select id="set-time" onchange="updateState()"><option value="12">12 Hour</option><option value="24">24 Hour</option></select></div>
                     <div><label>Week Start</label><select id="set-week" onchange="updateState()"><option value="monday">Monday</option><option value="sunday">Sunday</option></select></div>
                     <div><label>Theme</label><select id="set-theme" onchange="updateState()"><option value="standard">Standard</option><option value="minimal">Minimal</option><option value="card">Cards</option></select></div>
@@ -112,7 +124,9 @@
                     <div><label>Padding</label><select id="set-pad" onchange="updateState()"><option value="comfortable">Comfortable</option><option value="compact">Compact</option><option value="spacious">Spacious</option></select></div>
                 </div>
             </div>
-            <div style="border-bottom: 1px solid #e0e0e0; margin: 10px 0;"></div>
+        </div>
+
+        <div class="scroll-content" id="scroll-container">
             <label style="font-size:0.8rem; color:#999; font-weight:bold; letter-spacing:1px;">BLOCKS</label>
             <div id="blocks-area"></div>
             <div style="height: 80px;"></div>
@@ -151,7 +165,7 @@
     let settings = { use24h: false, weekStart: 'monday', theme: 'standard', textSize: 'medium', padding:'comfortable' };
     let blocks = [];
     
-    // CITY DATABASE
+    // CONSTANTS
     const cityDB = [
 {name:"Abidjan",tz:"Africa/Abidjan"},{name:"Abu Dhabi",tz:"Asia/Dubai"},{name:"Abuja",tz:"Africa/Lagos"},{name:"Accra",tz:"Africa/Accra"},{name:"Adak",tz:"America/Adak"},{name:"Addis Ababa",tz:"Africa/Addis_Ababa"},{name:"Adelaide",tz:"Australia/Adelaide"},{name:"Algiers",tz:"Africa/Algiers"},{name:"Alice Springs",tz:"Australia/Darwin"},{name:"Almaty",tz:"Asia/Almaty"},{name:"Amman",tz:"Asia/Amman"},{name:"Amsterdam",tz:"Europe/Amsterdam"},{name:"Anchorage",tz:"America/Anchorage"},{name:"Ankara",tz:"Europe/Istanbul"},{name:"Antananarivo",tz:"Indian/Antananarivo"},{name:"Apia",tz:"Pacific/Apia"},{name:"Athens",tz:"Europe/Athens"},{name:"Atlanta",tz:"America/New_York"},{name:"Auckland",tz:"Pacific/Auckland"},{name:"Austin",tz:"America/Chicago"},{name:"Baghdad",tz:"Asia/Baghdad"},{name:"Baku",tz:"Asia/Baku"},{name:"Bangkok",tz:"Asia/Bangkok"},{name:"Barcelona",tz:"Europe/Madrid"},{name:"Beijing",tz:"Asia/Shanghai"},{name:"Beirut",tz:"Asia/Beirut"},{name:"Belgrade",tz:"Europe/Belgrade"},{name:"Bengaluru",tz:"Asia/Kolkata"},{name:"Berlin",tz:"Europe/Berlin"},{name:"Bogota",tz:"America/Bogota"},{name:"Boston",tz:"America/New_York"},{name:"Brasilia",tz:"America/Sao_Paulo"},{name:"Brisbane",tz:"Australia/Brisbane"},{name:"Brussels",tz:"Europe/Brussels"},{name:"Bucharest",tz:"Europe/Bucharest"},{name:"Budapest",tz:"Europe/Budapest"},{name:"Buenos Aires",tz:"America/Argentina/Buenos_Aires"},{name:"Cairo",tz:"Africa/Cairo"},{name:"Calgary",tz:"America/Edmonton"},{name:"Canberra",tz:"Australia/Sydney"},{name:"Cape Town",tz:"Africa/Johannesburg"},{name:"Caracas",tz:"America/Caracas"},{name:"Casablanca",tz:"Africa/Casablanca"},{name:"Chennai",tz:"Asia/Kolkata"},{name:"Chicago",tz:"America/Chicago"},{name:"Copenhagen",tz:"Europe/Copenhagen"},{name:"Dakar",tz:"Africa/Dakar"},{name:"Dallas",tz:"America/Chicago"},{name:"Dar es Salaam",tz:"Africa/Dar_es_Salaam"},{name:"Darwin",tz:"Australia/Darwin"},{name:"Denver",tz:"America/Denver"},{name:"Detroit",tz:"America/Detroit"},{name:"Dhaka",tz:"Asia/Dhaka"},{name:"Doha",tz:"Asia/Qatar"},{name:"Dubai",tz:"Asia/Dubai"},{name:"Dublin",tz:"Europe/Dublin"},{name:"Edmonton",tz:"America/Edmonton"},{name:"Frankfurt",tz:"Europe/Berlin"},{name:"Guatemala City",tz:"America/Guatemala"},{name:"Halifax",tz:"America/Halifax"},{name:"Hanoi",tz:"Asia/Ho_Chi_Minh"},{name:"Harare",tz:"Africa/Harare"},{name:"Havana",tz:"America/Havana"},{name:"Helsinki",tz:"Europe/Helsinki"},{name:"Hong Kong",tz:"Asia/Hong_Kong"},{name:"Honolulu",tz:"Pacific/Honolulu"},{name:"Houston",tz:"America/Chicago"},{name:"Indianapolis",tz:"America/Indiana/Indianapolis"},{name:"Islamabad",tz:"Asia/Karachi"},{name:"Istanbul",tz:"Europe/Istanbul"},{name:"Jakarta",tz:"Asia/Jakarta"},{name:"Jerusalem",tz:"Asia/Jerusalem"},{name:"Johannesburg",tz:"Africa/Johannesburg"},{name:"Kabul",tz:"Asia/Kabul"},{name:"Kampala",tz:"Africa/Kampala"},{name:"Karachi",tz:"Asia/Karachi"},{name:"Kathmandu",tz:"Asia/Kathmandu"},{name:"Khartoum",tz:"Africa/Khartoum"},{name:"Kingston",tz:"America/Jamaica"},{name:"Kinshasa",tz:"Africa/Kinshasa"},{name:"Kolkata",tz:"Asia/Kolkata"},{name:"Kuala Lumpur",tz:"Asia/Kuala_Lumpur"},{name:"Kuwait City",tz:"Asia/Kuwait"},{name:"Kyiv",tz:"Europe/Kyiv"},{name:"Lagos",tz:"Africa/Lagos"},{name:"Lahore",tz:"Asia/Karachi"},{name:"Las Vegas",tz:"America/Los_Angeles"},{name:"Lima",tz:"America/Lima"},{name:"Lisbon",tz:"Europe/Lisbon"},{name:"London",tz:"Europe/London"},{name:"Los Angeles",tz:"America/Los_Angeles"},{name:"Luanda",tz:"Africa/Luanda"},{name:"Madrid",tz:"Europe/Madrid"},{name:"Manila",tz:"Asia/Manila"},{name:"Melbourne",tz:"Australia/Melbourne"},{name:"Mexico City",tz:"America/Mexico_City"},{name:"Miami",tz:"America/New_York"},{name:"Minneapolis",tz:"America/Chicago"},{name:"Minsk",tz:"Europe/Minsk"},{name:"Montevideo",tz:"America/Montevideo"},{name:"Montreal",tz:"America/Toronto"},{name:"Moscow",tz:"Europe/Moscow"},{name:"Mumbai",tz:"Asia/Kolkata"},{name:"Muscat",tz:"Asia/Muscat"},{name:"Nairobi",tz:"Africa/Nairobi"},{name:"New Delhi",tz:"Asia/Kolkata"},{name:"New Orleans",tz:"America/Chicago"},{name:"New York",tz:"America/New_York"},{name:"Oslo",tz:"Europe/Oslo"},{name:"Ottawa",tz:"America/Toronto"},{name:"Paris",tz:"Europe/Paris"},{name:"Perth",tz:"Australia/Perth"},{name:"Philadelphia",tz:"America/New_York"},{name:"Phoenix",tz:"America/Phoenix"},{name:"Prague",tz:"Europe/Prague"},{name:"Pune",tz:"Asia/Kolkata"},{name:"Pyongyang",tz:"Asia/Pyongyang"},{name:"Quito",tz:"America/Guayaquil"},{name:"Reykjavik",tz:"Atlantic/Reykjavik"},{name:"Rio de Janeiro",tz:"America/Sao_Paulo"},{name:"Riyadh",tz:"Asia/Riyadh"},{name:"Rome",tz:"Europe/Rome"},{name:"Salt Lake City",tz:"America/Denver"},{name:"San Francisco",tz:"America/Los_Angeles"},{name:"San Juan",tz:"America/Puerto_Rico"},{name:"Santiago",tz:"America/Santiago"},{name:"Sao Paulo",tz:"America/Sao_Paulo"},{name:"Seattle",tz:"America/Los_Angeles"},{name:"Seoul",tz:"Asia/Seoul"},{name:"Shanghai",tz:"Asia/Shanghai"},{name:"Singapore",tz:"Asia/Singapore"},{name:"Sofia",tz:"Europe/Sofia"},{name:"Stockholm",tz:"Europe/Stockholm"},{name:"Sydney",tz:"Australia/Sydney"},{name:"Taipei",tz:"Asia/Taipei"},{name:"Tallinn",tz:"Europe/Tallinn"},{name:"Tashkent",tz:"Asia/Tashkent"},{name:"Tehran",tz:"Asia/Tehran"},{name:"Tel Aviv",tz:"Asia/Jerusalem"},{name:"Tokyo",tz:"Asia/Tokyo"},{name:"Toronto",tz:"America/Toronto"},{name:"Tunis",tz:"Africa/Tunis"},{name:"Vancouver",tz:"America/Vancouver"},{name:"Vienna",tz:"Europe/Vienna"},{name:"Vladivostok",tz:"Asia/Vladivostok"},{name:"Warsaw",tz:"Europe/Warsaw"},{name:"Washington DC",tz:"America/New_York"},{name:"Wellington",tz:"Pacific/Auckland"},{name:"Winnipeg",tz:"America/Winnipeg"},{name:"Yangon",tz:"Asia/Yangon"},{name:"Yerevan",tz:"Asia/Yerevan"},{name:"Zagreb",tz:"Europe/Zagreb"},{name:"Zurich",tz:"Europe/Zurich"}
     ];
@@ -165,7 +179,7 @@
         {val: 'separator', txt: 'Separator (|)'}, {val: 'space', txt: 'Space'}, {val: 'slash', txt: '/'}
     ];
     
-    // UPDATED COLOR PALETTE (V33)
+    // UPDATED COLOR PALETTE
     const colorPalette = [
         {val:'default', hex:'#000000', name:'Default'},
         {val:'dark-grey', hex:'#5b5b5b', name:'Dark Grey'}, {val:'light-grey', hex:'#bcbcbc', name:'Light Grey'},
@@ -219,16 +233,47 @@
         refreshPreview();
     };
 
+    // COLLAPSIBLE LOGIC
+    window.toggleSettings = () => {
+        const panel = document.getElementById('settings-panel');
+        const arrow = document.getElementById('settings-arrow');
+        if(panel.classList.contains('active')) {
+            panel.classList.remove('active');
+            arrow.innerHTML = '▼';
+        } else {
+            panel.classList.add('active');
+            arrow.innerHTML = '▲';
+        }
+    };
+
+    // SMART UPDATE BLOCK LOGIC
     window.updateBlock = (i, k, v) => { 
+        // 1. Update Value
         blocks[i][k] = v; 
+        
+        // 2. Handle Text Updates
         if(k === 'label' || k === 'text') {
             const headerTitle = document.querySelector(`.block-card[data-index="${i}"] .block-label-preview`);
             if(headerTitle) headerTitle.innerText = v;
         }
+        
+        // 3. Handle Grid Re-renders
         if(k === 'gridType') { renderBlocks(true, i); }
-        if(k === 'color' || k === 'textColor') {
-            renderBlocks(true, i); 
+        
+        // 4. SMART COLOR CASCADING
+        if(k === 'color') {
+            // Accent changed. If Text is not locked (customized), update Text too.
+            if(!blocks[i].textLocked) {
+                blocks[i].textColor = v;
+            }
+            renderBlocks(true, i); // Refresh UI
         }
+        if(k === 'textColor') {
+            // Text manually changed. Lock it so Accent doesn't override it anymore.
+            blocks[i].textLocked = true;
+            renderBlocks(true, i); // Refresh UI
+        }
+        
         updateState(); 
     };
     
@@ -241,6 +286,7 @@
 
     window.addBlock = (t) => {
         let b = { type: t, width: '100' };
+        // DEFAULT VALUES
         if(t=='header') b.text='Title';
         if(t=='world_clock') b.locations=[{label:'London',timezone:'Europe/London', _searchVal:'London'}];
         if(t=='date_display') { b.line1=['day_name_full', 'space', 'date_num']; b.line2=['month_full', 'space', 'year']; }
@@ -355,7 +401,31 @@
     // ... (Helpers identical to V31) ...
     function renderCityList(bIdx, array) { const container = document.getElementById(`sub-list-${bIdx}`); if(!container) return; container.innerHTML = ''; array.forEach((item, iIdx) => { const row = document.createElement('div'); row.className = 'sub-item'; const wrapper = document.createElement('div'); wrapper.style.cssText = 'display:flex;width:100%;gap:8px;align-items:flex-start;'; const searchWrap = document.createElement('div'); searchWrap.className = 'city-search-wrapper'; searchWrap.style.flex = '1'; const input = document.createElement('input'); input.placeholder = "🔍 Search..."; input.value = item._searchVal || ''; if(item.label && !item._searchVal) input.placeholder = item.label; input.oninput = (e) => showCitySuggestions(e.target, bIdx, iIdx); const results = document.createElement('div'); results.className = 'city-results'; searchWrap.append(input, results); const lbl = document.createElement('input'); lbl.style.flex = '1'; lbl.value = item.label || ''; lbl.oninput = (e) => { blocks[bIdx].locations[iIdx].label = e.target.value; updateState(); }; const up = `<button class="sub-btn-mov" onclick="moveItem(${bIdx}, 'locations', ${iIdx}, -1)">↑</button>`; const down = `<button class="sub-btn-mov" onclick="moveItem(${bIdx}, 'locations', ${iIdx}, 1)">↓</button>`; const del = `<button class="sub-btn-rem" onclick="removeSubItem(${bIdx}, 'locations', ${iIdx})">×</button>`; wrapper.append(searchWrap, lbl); wrapper.insertAdjacentHTML('beforeend', up+down+del); row.appendChild(wrapper); container.appendChild(row); }); }
     function showCitySuggestions(input, bIdx, iIdx) { const val = input.value.toLowerCase(); const results = input.nextElementSibling; results.innerHTML = ''; if(val.length < 2) { results.style.display = 'none'; return; } const matches = cityDB.filter(c => c.name.toLowerCase().includes(val)).slice(0, 5); if(matches.length === 0) { results.style.display = 'none'; return; } matches.forEach(city => { const div = document.createElement('div'); div.className = 'city-result-item'; div.innerText = city.name; div.onclick = () => { blocks[bIdx].locations[iIdx]._searchVal = city.name; blocks[bIdx].locations[iIdx].label = city.name.split(',')[0]; blocks[bIdx].locations[iIdx].timezone = city.tz; updateState(); renderBlocks(true, bIdx); }; results.appendChild(div); }); results.style.display = 'block'; document.addEventListener('click', function close(e) { if(!input.contains(e.target)) { results.style.display = 'none'; document.removeEventListener('click', close); }}); }
-    function renderAutoProgressList(bIdx, array) { const container = document.getElementById(`sub-list-${bIdx}`); if(!container) return; container.innerHTML = ''; array.forEach((item, iIdx) => { const row = document.createElement('div'); row.className = 'sub-item'; const mainRow = document.createElement('div'); mainRow.style.cssText = 'display:flex;width:100%;align-items:center;gap:8px; flex-wrap:wrap;'; const check = document.createElement('input'); check.type = 'checkbox'; check.style.width='auto'; check.margin='0'; check.checked = item.visible !== false; check.onchange = (e) => { blocks[bIdx].items[iIdx].visible = e.target.checked; updateState(); }; const lbl = document.createElement('input'); lbl.style.flex='1'; lbl.value = item.label; lbl.oninput = (e) => { blocks[bIdx].items[iIdx].label = e.target.value; updateState(); }; const up = `<button class="sub-btn-mov" onclick="moveItem(${bIdx}, 'items', ${iIdx}, -1)">↑</button>`; const down = `<button class="sub-btn-mov" onclick="moveItem(${bIdx}, 'items', ${iIdx}, 1)">↓</button>`; mainRow.append(check, lbl); if(item.type === 'life') { mainRow.insertAdjacentHTML('beforeend', `<input type="date" value="${item.dob||'1990-01-01'}" oninput="updateSubItem(${bIdx}, 'items', ${iIdx}, 'dob', this.value)" style="width:100px;font-size:0.7em"><input type="number" value="${item.expectancy||80}" oninput="updateSubItem(${bIdx}, 'items', ${iIdx}, 'expectancy', this.value)" style="width:40px;font-size:0.7em">`); } mainRow.insertAdjacentHTML('beforeend', up+down); row.appendChild(mainRow); container.appendChild(row); }); }
+    
+    // REORDERED AUTO PROGRESS LIST (Checkbox -> Label -> DOB -> Exp -> Arrows)
+    function renderAutoProgressList(bIdx, array) {
+        const container = document.getElementById(`sub-list-${bIdx}`); if(!container) return; container.innerHTML = '';
+        array.forEach((item, iIdx) => {
+            const row = document.createElement('div'); row.className = 'sub-item';
+            const mainRow = document.createElement('div'); mainRow.style.cssText = 'display:flex;width:100%;align-items:center;gap:8px; flex-wrap:wrap;';
+            const check = document.createElement('input'); check.type = 'checkbox'; check.style.width='auto'; check.margin='0'; check.checked = item.visible !== false; check.onchange = (e) => { blocks[bIdx].items[iIdx].visible = e.target.checked; updateState(); };
+            const lbl = document.createElement('input'); lbl.style.flex='1'; lbl.value = item.label; lbl.oninput = (e) => { blocks[bIdx].items[iIdx].label = e.target.value; updateState(); };
+            const up = `<button class="sub-btn-mov" onclick="moveItem(${bIdx}, 'items', ${iIdx}, -1)">↑</button>`;
+            const down = `<button class="sub-btn-mov" onclick="moveItem(${bIdx}, 'items', ${iIdx}, 1)">↓</button>`;
+            
+            mainRow.append(check, lbl);
+            
+            // Inline Life Inputs if applicable
+            if(item.type === 'life') {
+                mainRow.insertAdjacentHTML('beforeend', `<input type="date" value="${item.dob||'1990-01-01'}" oninput="updateSubItem(${bIdx}, 'items', ${iIdx}, 'dob', this.value)" style="width:100px;font-size:0.7em"><input type="number" value="${item.expectancy||80}" oninput="updateSubItem(${bIdx}, 'items', ${iIdx}, 'expectancy', this.value)" style="width:40px;font-size:0.7em">`);
+            }
+            
+            mainRow.insertAdjacentHTML('beforeend', up+down);
+            row.appendChild(mainRow);
+            container.appendChild(row);
+        });
+    }
+
     function renderSequenceList(bIdx, array) { const container = document.getElementById(`sub-list-${bIdx}`); if(!container) return; container.innerHTML = ''; array.forEach((item, iIdx) => { const row = document.createElement('div'); row.className = 'sub-item'; const up = `<button class="sub-btn-mov" onclick="moveItem(${bIdx}, 'steps', ${iIdx}, -1)">↑</button>`; const down = `<button class="sub-btn-mov" onclick="moveItem(${bIdx}, 'steps', ${iIdx}, 1)">↓</button>`; row.innerHTML = `<input value="${item.label}" oninput="updateSubItem(${bIdx}, 'steps', ${iIdx}, 'label', this.value)" style="flex:2" placeholder="Task"><input type="number" value="${item.duration}" oninput="updateSubItem(${bIdx}, 'steps', ${iIdx}, 'duration', this.value)" style="width:60px" placeholder="Min">${up}${down}<button class="sub-btn-rem" onclick="removeSubItem(${bIdx}, 'steps', ${iIdx})">×</button>`; container.appendChild(row); }); }
     function renderDateList(bIdx, key, array) { const container = document.getElementById(`sub-list-${key==='line1'?'l1':'l2'}-${bIdx}`); if(!container) return; container.innerHTML = ''; array.forEach((item, iIdx) => { const row = document.createElement('div'); row.className = 'sub-item'; const sel = document.createElement('select'); dateTokens.forEach(t => { sel.innerHTML += `<option value="${t.val}" ${((typeof item==='string'?item:item.type)==t.val)?'selected':''}>${t.txt}</option>`; }); sel.onchange = (e) => { blocks[bIdx][key][iIdx] = e.target.value; updateState(); }; const up = `<button class="sub-btn-mov" onclick="moveItem(${bIdx}, '${key}', ${iIdx}, -1)">↑</button>`; const down = `<button class="sub-btn-mov" onclick="moveItem(${bIdx}, '${key}', ${iIdx}, 1)">↓</button>`; const del = `<button class="sub-btn-rem" onclick="removeSubItem(${bIdx}, '${key}', ${iIdx})">×</button>`; row.append(sel); row.insertAdjacentHTML('beforeend', up+down+del); container.appendChild(row); }); }
     
