@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Widget V38</title>
+    <title>Notion Widget V46</title>
     <style>
         :root {
             --bg-color: #FFFFFF; --text-color: #37352F; --accent-color: #E3E2E0;
@@ -22,12 +22,11 @@
         .theme-card .widget-block { border-color: var(--accent-color); padding: var(--pad); }
         .theme-minimal .progress-bg { height: 4px; }
         
-        /* COLOR LOGIC V38: DEFAULT TO NOTION BLACK IF NO COLOR SET */
+        /* COLOR LOGIC V46 */
         .widget-header { font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-color, inherit); }
         
         /* GRID 3.0 */
         .grid-container { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 5px; }
-        /* Explicit fallback to #37352F (Notion Black) if var is missing */
         .grid-cell { background: var(--block-color, #37352F); border-radius: 1px; flex-shrink: 0; opacity: 0.2; } 
         .grid-cell.filled { opacity: 1; }
         .grid-subline { font-size:0.6em; opacity:0.5; margin-bottom:2px; color: var(--text-color, inherit); }
@@ -37,8 +36,9 @@
         /* COMPONENTS */
         .progress-wrapper { margin-bottom: 0.5rem; }
         .progress-meta { display: flex; justify-content: space-between; font-size: 0.85em; margin-bottom: 2px; color: var(--text-color, inherit); }
-        .progress-bg { height: 8px; background: var(--block-color, #37352F); border-radius: 4px; overflow: hidden; opacity: 0.3; } 
-        .progress-fill { height: 100%; background: var(--block-color, #37352F); width: 0%; opacity: 1; } 
+        
+        .progress-bg { height: 8px; background: rgba(128,128,128, 0.2); border-radius: 4px; overflow: hidden; } 
+        .progress-fill { height: 100%; width: 0%; transition: width 0.5s ease-in-out; } 
         
         .clock-row { display: flex; justify-content: space-between; border-bottom: 1px solid var(--block-color, #37352F); padding: 4px 0; }
         .clock-row:last-child { border: none; }
@@ -54,7 +54,7 @@
         .moon-icon { font-size: 2.5em; line-height: 1; color: var(--block-color, #37352F); }
         .moon-details { font-size: 0.9em; line-height: 1.4; color: var(--text-color, inherit); }
         
-        /* TIMERS & CARDS - DEFAULT TO LIGHT GREY BG / BLACK TEXT */
+        /* TIMERS & CARDS */
         .timer-bubble { background: var(--block-color, #e0e0e0); color: var(--text-color, #37352F); padding: 15px; border-radius: var(--radius); text-align: center; } 
         .timer-display { font-size: 2.5em; font-weight: 700; font-family: monospace; margin: 10px 0;}
         .timer-btn { background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 0.8em; font-weight:600; color:inherit; }
@@ -74,7 +74,7 @@
         .spacer-line { width: 100%; border-bottom-color: var(--block-color, #37352F); opacity: 0.5; }
         .spacer-dashed { border-bottom-style: dashed; } .spacer-dotted { border-bottom-style: dotted; } .spacer-solid { border-bottom-style: solid; }
         
-        /* RESET BUTTON */
+        /* RESET BUTTON - V46: ALWAYS VISIBLE (Inline Block) */
         .cycle-reset-btn { 
             background: rgba(255,255,255,0.9); 
             border: 1px solid #ccc; 
@@ -89,31 +89,97 @@
             z-index: 100; 
             position: relative; 
             box-shadow: 0 1px 2px rgba(0,0,0,0.2); 
+            display: inline-block; 
         }
     </style>
 </head>
 <body>
     <div id="dashboard"></div>
     <script>
-        function getConfig() { try { return JSON.parse(atob(window.location.hash.substring(1))); } catch(e) { return null; } }
+        function getConfig() { 
+            try { 
+                const config = JSON.parse(atob(window.location.hash.substring(1))); 
+                // V46: Safety backfill IDs for rendering old links
+                if(config.blocks) {
+                    config.blocks.forEach((b, i) => {
+                        if(!b.id) b.id = 'blk_legacy_' + i; 
+                    });
+                }
+                return config;
+            } catch(e) { return null; } 
+        }
         const container = document.getElementById('dashboard');
 
         // --- GLOBAL HELPER (Must be first) ---
-        function createBarElement(label, start, end, isCycle) {
+        function createBarElement(label, start, end, isCycle, cycleId, daysForCycle, resetMode) {
             let pct = 0;
+            let isDone = false;
+            let valText = "0.0%";
+
+            // Standard Progress
             if(!isCycle && start && end) { 
                 const now = new Date(); 
-                if(now > end) pct = 100; else if(now > start) {
-                    pct = Math.max(0, ((now - start) / (end - start)) * 100); 
+                if(now > end) pct = 100; else if(now > start) pct = Math.max(0, ((now - start) / (end - start)) * 100); 
+                valText = `${pct.toFixed(1)}%`;
+            }
+            
+            // Cycle Calculation
+            if(isCycle && start && daysForCycle) {
+                const now = new Date();
+                const duration = parseFloat(daysForCycle) * 86400000;
+                const elapsed = now - start;
+                
+                if(elapsed >= duration) {
+                    pct = 100;
+                    isDone = true;
+                    if(resetMode === 'manual') valText = "Done";
+                    else valText = "100.0%";
+                } else if(elapsed > 0) {
+                    pct = (elapsed / duration) * 100;
+                    valText = `${pct.toFixed(1)}%`;
+                }
+                
+                if(resetMode === 'auto' && elapsed > 0) {
+                    pct = ((elapsed % duration) / duration) * 100;
+                    valText = `${pct.toFixed(1)}%`;
+                    isDone = false; 
                 }
             }
-            if(isNaN(pct)) pct = 0; // Safety check
+
+            if(isNaN(pct)) pct = 0;
+
             const wrapper = document.createElement('div'); wrapper.className = 'progress-wrapper';
-            // V38 FIX: Inject style directly for fail-safe rendering
             const safeColor = 'var(--block-color, #37352F)';
-            wrapper.innerHTML = `<div class="progress-meta"><span>${label || 'Progress'}</span><span>${pct.toFixed(1)}%</span></div><div class="progress-bg" style="background-color:${safeColor}"><div class="progress-fill" style="width: ${pct}%; background-color:${safeColor}"></div></div>`;
+            
+            let resetBtn = '';
+            let btnStyle = 'display:none'; 
+
+            if(isCycle) {
+                if(resetMode === 'manual') {
+                    btnStyle = 'display:inline-block';
+                }
+                // V46: USE UUID FOR RESET
+                resetBtn = `<button id="reset-btn-${cycleId}" class="cycle-reset-btn" style="${btnStyle}" onclick="window.resetCycle('${cycleId}')">↻</button>`;
+            }
+
+            wrapper.innerHTML = `
+                <div class="progress-meta">
+                    <span>${label || 'Progress'}</span>
+                    <span><span id="pct-${cycleId || Math.random().toString(36).substr(2, 5)}">${valText}</span>${resetBtn}</span>
+                </div>
+                <div class="progress-bg">
+                    <div class="progress-fill" style="width: ${pct}%; background-color:${safeColor}"></div>
+                </div>`;
             return wrapper;
         }
+
+        // V46: USE UUID FOR RESET
+        window.resetCycle = (id) => { 
+            if(id) {
+                localStorage.setItem(`cycle_reset_${id}`, new Date().getTime()); 
+                location.reload(); 
+            }
+        };
 
         function render() {
             const data = getConfig();
@@ -140,36 +206,41 @@
                 if (block.width === '50') div.classList.add('half-width');
                 if (block.width === '33') div.classList.add('third-width');
                 
-                // Color Logic V38:
                 if (block.color && block.color !== 'default') {
                     const val = block.color.startsWith('#') ? block.color : `var(--c-${block.color})`;
                     div.style.setProperty('--block-color', val);
-                } else {
-                    div.style.removeProperty('--block-color');
-                }
+                } else { div.style.removeProperty('--block-color'); }
                 
                 if (block.textColor && block.textColor !== 'default') {
                     const tVal = block.textColor.startsWith('#') ? block.textColor : `var(--c-${block.textColor})`;
                     div.style.setProperty('--text-color', tVal);
-                } else {
-                    div.style.removeProperty('--text-color');
-                }
+                } else { div.style.removeProperty('--text-color'); }
 
                 if(block.type === 'header') div.innerHTML = `<div class="widget-header" style="font-size:1.2em; opacity:1;">${block.text}</div>`;
                 else if(block.type === 'empty') div.innerHTML = `&nbsp;`;
                 else if(block.type === 'spacer') div.innerHTML = `<div class="spacer-line spacer-${block.style||'solid'}" style="margin-top:10px; margin-bottom:10px; border-bottom-width:${block.thickness||'1px'}"></div>`;
                 else if(block.type === 'visual_grid') renderGridBlock(block, div, s);
                 else if(block.type === 'moon_phase') renderMoonBlock(block, div);
-                else if(block.type === 'counter') renderCounterBlock(block, div, index);
-                else if(block.type === 'sequence') renderSequenceBlock(block, div, index);
-                else if(block.type === 'progress_group') renderProgress(block, div, s);
+                else if(block.type === 'counter') renderCounterBlock(block, div, block.id);
+                else if(block.type === 'sequence') renderSequenceBlock(block, div, block.id);
+                else if(block.type === 'progress_group') renderProgress(block, div, s, index);
                 else if(block.type === 'progress_custom') {
                     const s = new Date(block.start); const e = new Date(block.end);
-                    if(!isNaN(s) && !isNaN(e)) div.appendChild(createBarElement(block.label, s, e, false));
+                    if(!isNaN(s) && !isNaN(e)) div.appendChild(createBarElement(block.label, s, e, false, `custom-${index}`));
                 }
                 else if(block.type === 'progress_cycle') { 
-                    const wrap = createBarElement(block.label, null, null, true); 
-                    wrap.id=`cycle-${index}`; 
+                    // V46: State Logic via UUID
+                    let anchor = new Date(block.anchor);
+                    if (block.resetMode === 'manual') {
+                        // Look up by ID, not index
+                        const restartTs = localStorage.getItem(`cycle_reset_${block.id}`);
+                        if(restartTs) anchor = new Date(parseInt(restartTs));
+                    }
+                    if(isNaN(anchor.getTime())) anchor = new Date();
+
+                    // PASS UUID
+                    const wrap = createBarElement(block.label, anchor, null, true, block.id, block.days, block.resetMode); 
+                    wrap.id=`cycle-wrap-${block.id}`; 
                     div.appendChild(wrap); 
                 }
                 else if (block.type === 'world_clock') {
@@ -186,8 +257,9 @@
                     div.innerHTML = `<div class="countdown-line"><span>${block.label}</span><span class="countdown-val" id="cnt-${index}">--</span></div>`; 
                 }
                 else if (block.type === 'timer') {
+                    // V46: USE UUID
                     const hrs = parseInt(block.hours)||0; const mins = parseInt(block.minutes)||0; const total = (hrs*60)+mins; const label = hrs>0 ? `${hrs}h ${mins}m` : `${mins}m`;
-                    div.innerHTML = `<div class="timer-bubble"><div style="font-size:0.8em; opacity:0.8; text-transform:uppercase; letter-spacing:1px;">${block.label||'TIMER'}</div><div class="timer-display" id="timer-display-${index}">00:00</div><div class="timer-controls"><button class="timer-btn" onclick="startTimer(${index}, ${total})">Start</button><button class="timer-btn" onclick="stopTimer(${index})">Stop</button></div></div>`;
+                    div.innerHTML = `<div class="timer-bubble"><div style="font-size:0.8em; opacity:0.8; text-transform:uppercase; letter-spacing:1px;">${block.label||'TIMER'}</div><div class="timer-display" id="timer-display-${block.id}">00:00</div><div class="timer-controls"><button class="timer-btn" onclick="startTimer('${block.id}', ${total})">Start</button><button class="timer-btn" onclick="stopTimer('${block.id}')">Stop</button></div></div>`;
                 }
                 
                 container.appendChild(div);
@@ -211,17 +283,6 @@
                     html += `<div class="grid-cell ${i<=currentWeek?'filled':''}" style="width:${w}; height:${h}"></div>`;
                 }
                 parent.innerHTML = html + `</div>`; return;
-            }
-            else if(b.gridType === 'quarter') {
-               const m = now.getMonth(); const q = Math.floor(m/3); const mInQ = (m % 3) + 1;
-               const currentWeek = getWeekNumber(now); const wInQ = Math.max(1, Math.min(12, currentWeek - (q * 13)));
-               html += `<div class="grid-subline">M ${mInQ}/3 | W ${wInQ}/12</div><div class="grid-container">`;
-               for(let i=0; i<12; i++) {
-                   if(i>0 && i%4===0) html += `<div class="break"></div>`;
-                   const filled = i < wInQ; 
-                   html += `<div class="grid-cell ${filled?'filled':''}" style="width:${w}; height:${h}"></div>`;
-               }
-               parent.innerHTML = html + `</div>`; return;
             }
             else if(b.gridType === 'month') {
                 const dim = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate(); const day = now.getDate();
@@ -262,7 +323,6 @@
             parent.innerHTML = html;
         }
 
-        // --- RESTORED LOGIC ---
         function renderMoonBlock(b, parent) { 
             const now = new Date(); const newMoon = new Date(2000, 0, 6, 18, 14); const cycle = 29.53058867;
             const diffDays = (now - newMoon) / 86400000; const age = diffDays % cycle; 
@@ -279,10 +339,11 @@
         }
 
         function renderSequenceBlock(b, parent, id) {
+            // V46: Use UUID key
             let state = JSON.parse(localStorage.getItem(`seq_${id}`) || '{"step":0, "active":false, "endTime":0, "loop":false}');
             const now = Date.now();
             let currentLabel = "Ready", timeLeft = "00:00";
-            const toggleLoop = `onclick="toggleSeqLoop(${id})"`;
+            const toggleLoop = `onclick="toggleSeqLoop('${id}')"`;
             const loopState = state.loop ? 'checked' : '';
 
             if(state.active) {
@@ -317,7 +378,8 @@
                 html += `<tr class="${cls}"><td>${status}</td><td>${s.label}</td><td style="text-align:right">${s.duration}m</td></tr>`;
             });
             html += `</table>`;
-            html += `<div class="timer-controls"><button class="timer-btn" onclick="seqAction(${id}, 'start')">▶</button><button class="timer-btn" onclick="seqAction(${id}, 'pause')">⏸</button><button class="timer-btn" onclick="seqAction(${id}, 'reset')">↻</button></div>`;
+            // V46: USE UUID ACTIONS
+            html += `<div class="timer-controls"><button class="timer-btn" onclick="seqAction('${id}', 'start')">▶</button><button class="timer-btn" onclick="seqAction('${id}', 'pause')">⏸</button><button class="timer-btn" onclick="seqAction('${id}', 'reset')">↻</button></div>`;
             html += `<div style="margin-top:8px; font-size:0.75em;"><label style="cursor:pointer"><input type="checkbox" ${loopState} ${toggleLoop}> Loop</label></div></div>`;
             parent.innerHTML = html;
         }
@@ -330,7 +392,7 @@
 
         window.seqAction = (id, action) => {
             let state = JSON.parse(localStorage.getItem(`seq_${id}`) || '{"step":0, "active":false}');
-            const data = getConfig().blocks[id];
+            const data = getConfig().blocks.find(b => b.id === id); // V46: Find by ID
             if(action === 'reset') { state.step = 0; state.active = false; }
             if(action === 'start' && !state.active && state.step < data.steps.length) {
                 state.active = true; state.endTime = Date.now() + (data.steps[state.step].duration * 60000);
@@ -341,13 +403,13 @@
 
         function renderCounterBlock(b, parent, id) {
             const count = parseInt(localStorage.getItem(`cnt_${id}`) || '0');
-            parent.innerHTML = `<div class="widget-header">${b.label}</div><div class="counter-wrap"><button class="counter-btn" onclick="updateCounter(${id}, -1)">-</button><span class="counter-val">${count}</span><button class="counter-btn" onclick="updateCounter(${id}, 1)">+</button><button class="counter-btn" style="font-size:0.8em; opacity:0.5" onclick="resetCounter(${id})">↻</button></div>`;
+            parent.innerHTML = `<div class="widget-header">${b.label}</div><div class="counter-wrap"><button class="counter-btn" onclick="updateCounter('${id}', -1)">-</button><span class="counter-val">${count}</span><button class="counter-btn" onclick="updateCounter('${id}', 1)">+</button><button class="counter-btn" style="font-size:0.8em; opacity:0.5" onclick="resetCounter('${id}')">↻</button></div>`;
         }
         window.updateCounter = (id, d) => { localStorage.setItem(`cnt_${id}`, parseInt(localStorage.getItem(`cnt_${id}`)||0)+d); render(); };
         window.resetCounter = (id) => { localStorage.setItem(`cnt_${id}`, 0); render(); };
 
-        function renderProgress(b, parent, s) {
-            b.items.forEach(item => {
+        function renderProgress(b, parent, s, bIdx) {
+            b.items.forEach((item, iIdx) => {
                 if(item.visible !== false) {
                     let dates;
                     if(item.type === 'life') {
@@ -356,7 +418,11 @@
                         end.setFullYear(end.getFullYear() + parseInt(item.expectancy || 80));
                         dates = { start, end };
                     } else { dates = getDatesForType(item.type, s.weekStart); }
-                    if(dates) parent.appendChild(createBarElement(item.label, dates.start, dates.end, false)); 
+                    
+                    if(dates) {
+                        const uniqueId = `prog-${bIdx}-${iIdx}`;
+                        parent.appendChild(createBarElement(item.label, dates.start, dates.end, false, uniqueId)); 
+                    }
                 }
             });
         }
@@ -373,6 +439,72 @@
         function updateDynamics(blocks, settings) {
             const now = new Date(); const use24h = settings.use24h === true;
             blocks.forEach((block, bIdx) => {
+                // V46: Logic for Cycle Updates (Use UUID)
+                if (block.type === 'progress_cycle') {
+                    const resetMode = block.resetMode || 'manual'; 
+                    let anchor = new Date(block.anchor);
+                    
+                    if (resetMode === 'manual') {
+                        // V46: UUID Key
+                        const restartTs = localStorage.getItem(`cycle_reset_${block.id}`);
+                        if(restartTs) anchor = new Date(parseInt(restartTs));
+                    }
+                    if(isNaN(anchor.getTime())) anchor = new Date();
+
+                    const days = parseFloat(block.days) || 1; 
+                    const duration = days * 86400000;
+                    const elapsed = now - anchor;
+                    let pct = 0; let isDone = false;
+                    
+                    if(elapsed < 0) pct = 0;
+                    else {
+                        if (resetMode === 'auto') pct = ((elapsed % duration) / duration) * 100;
+                        else { 
+                            if (elapsed >= duration) { pct = 100; isDone = true; } 
+                            else { pct = (elapsed / duration) * 100; } 
+                        }
+                    }
+                    
+                    const bar = document.querySelector(`#cycle-wrap-${block.id} .progress-fill`);
+                    const txtSpan = document.querySelector(`#cycle-wrap-${block.id} .progress-meta span:last-child span`); 
+                    
+                    if(bar && txtSpan) { 
+                        bar.style.width = `${pct}%`; 
+                        if(isDone) {
+                            txtSpan.innerText = "Done";
+                        } else {
+                            txtSpan.innerText = `${pct.toFixed(1)}%`;
+                        }
+                    }
+                }
+                
+                // V46: Logic for Auto Progress Updates
+                if (block.type === 'progress_group') {
+                    block.items.forEach((item, iIdx) => {
+                        const uniqueId = `prog-${bIdx}-${iIdx}`;
+                        const bar = document.querySelector(`#${uniqueId} .progress-fill`);
+                        const txt = document.querySelector(`#${uniqueId} .progress-meta span:last-child span`);
+                        if(bar && txt) {
+                            let dates;
+                            if(item.type === 'life') {
+                                const s = new Date(item.dob || '1990-01-01');
+                                const e = new Date(s); e.setFullYear(e.getFullYear() + parseInt(item.expectancy||80));
+                                dates = { start: s, end: e };
+                            } else { dates = getDatesForType(item.type, settings.weekStart); }
+                            
+                            if(dates) {
+                                let pct = 0;
+                                if(now > dates.end) pct = 100;
+                                else if(now > dates.start) pct = ((now - dates.start) / (dates.end - dates.start)) * 100;
+                                
+                                bar.style.width = `${pct}%`;
+                                txt.innerText = `${pct.toFixed(1)}%`;
+                            }
+                        }
+                    });
+                }
+
+                // ... (Other blocks V45 logic preserved)
                 if (block.type === 'world_clock') {
                     block.locations.forEach((loc, lIdx) => {
                         const timeEl = document.getElementById(`clock-${bIdx}-${lIdx}`);
@@ -407,37 +539,8 @@
                         sEl.innerText = buildDateString(l2, now);
                     }
                 }
-                if (block.type === 'progress_cycle') {
-                    const resetMode = block.resetMode || 'auto';
-                    let anchor = new Date(block.anchor);
-                    if (resetMode === 'manual') {
-                        const restartTs = localStorage.getItem(`cycle_reset_block-${bIdx}`);
-                        if(restartTs) anchor = new Date(parseInt(restartTs));
-                    }
-                    const days = parseFloat(block.days) || 1; 
-                    const duration = days * 86400000;
-                    const elapsed = now - anchor;
-                    let pct = 0; let isDone = false;
-                    if(elapsed < 0) pct = 0;
-                    else {
-                        if (resetMode === 'auto') pct = ((elapsed % duration) / duration) * 100;
-                        else { if (elapsed >= duration) { pct = 100; isDone = true; } else { pct = (elapsed / duration) * 100; } }
-                    }
-                    const bar = document.querySelector(`#cycle-${bIdx} .progress-fill`);
-                    const txt = document.querySelector(`#cycle-${bIdx} .progress-meta span:last-child`);
-                    if(bar && txt) { 
-                        bar.style.width = `${pct}%`; 
-                        if(isDone) {
-                            if(!txt.innerHTML.includes('cycle-reset-btn')) {
-                                // V38 FIX: STRING ID FOR RESET
-                                txt.innerHTML = `Done <button class="cycle-reset-btn" onclick="resetCycle('${bIdx}')">↻</button>`;
-                            }
-                        }
-                        else txt.innerText = `${pct.toFixed(1)}%`; 
-                    }
-                }
-                if (block.type === 'sequence') { const div = document.getElementById(`block-${bIdx}`); if(div) renderSequenceBlock(block, div, bIdx); }
-                if (block.type === 'timer') updateTimerDisplay(bIdx);
+                if (block.type === 'sequence') { const div = document.getElementById(`block-${bIdx}`); if(div) renderSequenceBlock(block, div, block.id); }
+                if (block.type === 'timer') updateTimerDisplay(block.id);
                 
                 if (block.type === 'countdown') {
                     const el = document.getElementById(`cnt-${bIdx}`);
@@ -459,52 +562,6 @@
                     }
                 }
             });
-        }
-        
-        // V38 FIX: Convert to string to avoid 0 being falsy
-        window.resetCycle = (idx) => { 
-            const sIdx = String(idx);
-            if(sIdx && sIdx !== 'undefined' && sIdx !== 'null') {
-                localStorage.setItem(`cycle_reset_block-${sIdx}`, new Date().getTime()); 
-            }
-        };
-        
-        function buildDateString(tokens, now) {
-            if(!tokens || !Array.isArray(tokens)) return '';
-            return tokens.map(t => {
-                const type = (typeof t === 'string') ? t : t.type;
-                switch(type) {
-                    case 'day_name_full': return now.toLocaleDateString([], {weekday:'long'});
-                    case 'day_name_short': return now.toLocaleDateString([], {weekday:'short'});
-                    case 'month_full': return now.toLocaleDateString([], {month:'long'});
-                    case 'month_short': return now.toLocaleDateString([], {month:'short'});
-                    case 'month_num': return (now.getMonth() + 1).toString().padStart(2, '0');
-                    case 'date_num': return now.getDate().toString().padStart(2,'0');
-                    case 'year': return now.getFullYear();
-                    case 'week_num': return `Week ${getWeekNumber(now)}`;
-                    case 'day_year': const start = new Date(now.getFullYear(), 0, 0); const diff = now - start; return `Day ${Math.floor(diff / 86400000)}`;
-                    case 'quarter': return `Q${Math.floor((now.getMonth() + 3) / 3)}`;
-                    case 'separator': return '|';
-                    case 'space': return ' ';
-                    case 'slash': return '/';
-                    default: return '';
-                }
-            }).join('');
-        }
-        function getWeekNumber(d) { d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7)); const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1)); return Math.ceil((((d - yearStart) / 86400000) + 1)/7); }
-        function renderMoonBlock(b, parent) { 
-            const now = new Date(); const newMoon = new Date(2000, 0, 6, 18, 14); const cycle = 29.53058867;
-            const diffDays = (now - newMoon) / 86400000; const age = diffDays % cycle; 
-            let phaseIdx = 0;
-            if (age > 28.5 || age < 1) phaseIdx = 0; else if (age < 6.4) phaseIdx = 1; else if (age < 8.4) phaseIdx = 2; else if (age < 13.8) phaseIdx = 3; else if (age < 15.8) phaseIdx = 4; else if (age < 21.1) phaseIdx = 5; else if (age < 23.1) phaseIdx = 6; else phaseIdx = 7;
-            if (age > 14.26 && age < 15.26) phaseIdx = 4; 
-            const icons = ['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'];
-            const names = ['New Moon','Waxing Crescent','First Quarter','Waxing Gibbous','Full Moon','Waning Gibbous','Last Quarter','Waning Crescent'];
-            const monthNames = ["Wolf","Snow","Worm","Pink","Flower","Strawberry","Buck","Sturgeon","Harvest","Hunter","Beaver","Cold"];
-            let html = `<div class="moon-display"><span class="moon-icon">${icons[phaseIdx]}</span><div class="moon-details"><div style="font-weight:bold">${names[phaseIdx]}</div>`;
-            if(phaseIdx===4) html += `<div style="color:var(--block-color, var(--text-color))">${monthNames[now.getMonth()]} Moon</div>`;
-            html += `<div style="opacity:0.6">${Math.floor(age)} days old</div></div></div>`;
-            parent.innerHTML = html;
         }
         
         window.startTimer = (id, m) => { localStorage.setItem(`notion_timer_${id}`, new Date().getTime() + (m * 60000)); updateTimerDisplay(id); };
