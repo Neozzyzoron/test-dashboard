@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Widget V36</title>
+    <title>Notion Widget V37</title>
     <style>
         :root {
             --bg-color: #FFFFFF; --text-color: #37352F; --accent-color: #E3E2E0;
@@ -22,7 +22,7 @@
         .theme-card .widget-block { border-color: var(--accent-color); padding: var(--pad); }
         .theme-minimal .progress-bg { height: 4px; }
         
-        /* COLOR LOGIC V36: FALLBACKS */
+        /* COLOR LOGIC V37: SMART CONTRAST & FALLBACKS */
         .widget-header { font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-color, inherit); }
         
         /* GRID 3.0 */
@@ -54,8 +54,8 @@
         .moon-icon { font-size: 2.5em; line-height: 1; color: var(--block-color, #37352F); }
         .moon-details { font-size: 0.9em; line-height: 1.4; color: var(--text-color, inherit); }
         
-        /* BUBBLES: Use Text Color if set, else Contrast */
-        .timer-bubble { background: var(--block-color, #37352F); color: var(--text-color, #ffffff); padding: 15px; border-radius: var(--radius); text-align: center; } 
+        /* BUBBLES: Use Text Color if set, else Smart Contrast */
+        .timer-bubble { background: var(--block-color, #37352F); color: var(--text-color, var(--contrast-color)); padding: 15px; border-radius: var(--radius); text-align: center; } 
         .timer-display { font-size: 2.5em; font-weight: 700; font-family: monospace; margin: 10px 0;}
         .timer-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 0.8em; font-weight:600; color:inherit; }
         
@@ -63,7 +63,7 @@
         .seq-table td { padding: 2px 0; }
         .seq-table .active-row { font-weight: bold; opacity: 1; }
         
-        .counter-wrap { display: flex; align-items: center; justify-content: space-between; background: var(--block-color, #37352F); padding: 5px 10px; border-radius: var(--radius); color: var(--text-color, #ffffff); }
+        .counter-wrap { display: flex; align-items: center; justify-content: space-between; background: var(--block-color, #37352F); padding: 5px 10px; border-radius: var(--radius); color: var(--text-color, var(--contrast-color)); }
         .counter-btn { border: none; background: transparent; cursor: pointer; font-size: 1.2em; color: inherit; }
         .counter-val { font-weight: bold; font-family: monospace; font-size: 1.2em; color: inherit; }
         
@@ -97,7 +97,7 @@
         function getConfig() { try { return JSON.parse(atob(window.location.hash.substring(1))); } catch(e) { return null; } }
         const container = document.getElementById('dashboard');
 
-        // --- GLOBAL HELPER ---
+        // --- GLOBAL HELPERS ---
         function createBarElement(label, start, end, isCycle) {
             let pct = 0;
             if(!isCycle && start && end) { 
@@ -107,6 +107,18 @@
             const wrapper = document.createElement('div'); wrapper.className = 'progress-wrapper';
             wrapper.innerHTML = `<div class="progress-meta"><span>${label || 'Progress'}</span><span>${pct.toFixed(1)}%</span></div><div class="progress-bg"><div class="progress-fill" style="width: ${pct}%"></div></div>`;
             return wrapper;
+        }
+
+        // YIQ Contrast Calculator (Hex -> Black/White)
+        function getContrastColor(hex) {
+            if (!hex || hex === 'default') return '#ffffff'; // Default to white text on unknown
+            if(hex.startsWith('#')) hex = hex.slice(1);
+            if(hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+            const r = parseInt(hex.substr(0,2),16);
+            const g = parseInt(hex.substr(2,2),16);
+            const b = parseInt(hex.substr(4,2),16);
+            const yiq = ((r*299)+(g*587)+(b*114))/1000;
+            return (yiq >= 128) ? '#000000' : '#ffffff';
         }
 
         function render() {
@@ -134,12 +146,20 @@
                 if (block.width === '50') div.classList.add('half-width');
                 if (block.width === '33') div.classList.add('third-width');
                 
-                // Color Logic V36:
+                // Color Logic V37: Explicit Strategy
                 if (block.color && block.color !== 'default') {
                     const val = block.color.startsWith('#') ? block.color : `var(--c-${block.color})`;
                     div.style.setProperty('--block-color', val);
+                    // Calculate smart contrast if using Hex
+                    if(val.startsWith('#')) {
+                        div.style.setProperty('--contrast-color', getContrastColor(val));
+                    } else {
+                        div.style.setProperty('--contrast-color', '#ffffff'); // Fallback white
+                    }
                 } else {
-                    div.style.removeProperty('--block-color');
+                    // Default Case: Set Notion Black explicitly
+                    div.style.setProperty('--block-color', '#37352F');
+                    div.style.setProperty('--contrast-color', '#ffffff');
                 }
                 
                 if (block.textColor && block.textColor !== 'default') {
@@ -207,11 +227,8 @@
                 parent.innerHTML = html + `</div>`; return;
             }
             else if(b.gridType === 'quarter') {
-               const m = now.getMonth();
-               const q = Math.floor(m/3);
-               const mInQ = (m % 3) + 1;
-               const currentWeek = getWeekNumber(now);
-               const wInQ = Math.max(1, Math.min(12, currentWeek - (q * 13)));
+               const m = now.getMonth(); const q = Math.floor(m/3); const mInQ = (m % 3) + 1;
+               const currentWeek = getWeekNumber(now); const wInQ = Math.max(1, Math.min(12, currentWeek - (q * 13)));
                html += `<div class="grid-subline">M ${mInQ}/3 | W ${wInQ}/12</div><div class="grid-container">`;
                for(let i=0; i<12; i++) {
                    if(i>0 && i%4===0) html += `<div class="break"></div>`;
@@ -221,8 +238,7 @@
                parent.innerHTML = html + `</div>`; return;
             }
             else if(b.gridType === 'month') {
-                const dim = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
-                const day = now.getDate();
+                const dim = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate(); const day = now.getDate();
                 html += `<div class="grid-subline">Day ${day}/${dim}</div><div class="grid-container">`;
                 for(let i=1; i<=dim; i++) {
                     if((i-1)%7===0 && i>1) html += `<div class="break"></div>`;
@@ -249,9 +265,7 @@
                 parent.innerHTML = html + `</div>`; return;
             }
             else if(b.gridType === 'life') {
-                const dob = new Date(b.dob || '1990-01-01');
-                const age = now.getFullYear() - dob.getFullYear();
-                const total = parseInt(b.expectancy||80);
+                const dob = new Date(b.dob || '1990-01-01'); const age = now.getFullYear() - dob.getFullYear(); const total = parseInt(b.expectancy||80);
                 html += `<div class="grid-subline">Year ${age} of ${total}</div><div class="grid-container">`;
                 for(let i=0; i<total; i++) {
                     if(i>0 && i%20===0) html += `<div class="break"></div>`;
@@ -262,6 +276,7 @@
             parent.innerHTML = html;
         }
 
+        // --- RESTORED LOGIC ---
         function renderMoonBlock(b, parent) { 
             const now = new Date(); const newMoon = new Date(2000, 0, 6, 18, 14); const cycle = 29.53058867;
             const diffDays = (now - newMoon) / 86400000; const age = diffDays % cycle; 
@@ -428,7 +443,7 @@
                         bar.style.width = `${pct}%`; 
                         if(isDone) {
                             if(!txt.innerHTML.includes('cycle-reset-btn')) {
-                                // V36 FIX: STRING ID
+                                // V37 FIX: STRING ID FOR RESET
                                 txt.innerHTML = `Done <button class="cycle-reset-btn" onclick="resetCycle('${bIdx}')">↻</button>`;
                             }
                         }
@@ -460,7 +475,7 @@
             });
         }
         
-        // V36 FIX: Convert to string to avoid 0 being falsy
+        // V37 FIX: Convert to string to avoid 0 being falsy
         window.resetCycle = (idx) => { 
             const sIdx = String(idx);
             if(sIdx && sIdx !== 'undefined' && sIdx !== 'null') {
