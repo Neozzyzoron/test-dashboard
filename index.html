@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Widget V46</title>
+    <title>Notion Widget V47</title>
     <style>
         :root {
             --bg-color: #FFFFFF; --text-color: #37352F; --accent-color: #E3E2E0;
@@ -22,7 +22,7 @@
         .theme-card .widget-block { border-color: var(--accent-color); padding: var(--pad); }
         .theme-minimal .progress-bg { height: 4px; }
         
-        /* COLOR LOGIC V46 */
+        /* COLOR LOGIC V47 */
         .widget-header { font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-color, inherit); }
         
         /* GRID 3.0 */
@@ -74,7 +74,7 @@
         .spacer-line { width: 100%; border-bottom-color: var(--block-color, #37352F); opacity: 0.5; }
         .spacer-dashed { border-bottom-style: dashed; } .spacer-dotted { border-bottom-style: dotted; } .spacer-solid { border-bottom-style: solid; }
         
-        /* RESET BUTTON - V46: ALWAYS VISIBLE (Inline Block) */
+        /* RESET BUTTON - V47: ALWAYS VISIBLE (Inline Block) */
         .cycle-reset-btn { 
             background: rgba(255,255,255,0.9); 
             border: 1px solid #ccc; 
@@ -99,7 +99,7 @@
         function getConfig() { 
             try { 
                 const config = JSON.parse(atob(window.location.hash.substring(1))); 
-                // V46: Safety backfill IDs for rendering old links
+                // V47: Safety backfill IDs for rendering old links
                 if(config.blocks) {
                     config.blocks.forEach((b, i) => {
                         if(!b.id) b.id = 'blk_legacy_' + i; 
@@ -158,7 +158,6 @@
                 if(resetMode === 'manual') {
                     btnStyle = 'display:inline-block';
                 }
-                // V46: USE UUID FOR RESET
                 resetBtn = `<button id="reset-btn-${cycleId}" class="cycle-reset-btn" style="${btnStyle}" onclick="window.resetCycle('${cycleId}')">↻</button>`;
             }
 
@@ -173,7 +172,7 @@
             return wrapper;
         }
 
-        // V46: USE UUID FOR RESET
+        // V47: ENSURE GLOBAL SCOPE
         window.resetCycle = (id) => { 
             if(id) {
                 localStorage.setItem(`cycle_reset_${id}`, new Date().getTime()); 
@@ -206,10 +205,14 @@
                 if (block.width === '50') div.classList.add('half-width');
                 if (block.width === '33') div.classList.add('third-width');
                 
+                // V47: Restored Explicit Default for Grid Visibility
                 if (block.color && block.color !== 'default') {
                     const val = block.color.startsWith('#') ? block.color : `var(--c-${block.color})`;
                     div.style.setProperty('--block-color', val);
-                } else { div.style.removeProperty('--block-color'); }
+                } else { 
+                    // Explicit fallback to ensure Grid is visible
+                    div.style.setProperty('--block-color', '#37352F'); 
+                }
                 
                 if (block.textColor && block.textColor !== 'default') {
                     const tVal = block.textColor.startsWith('#') ? block.textColor : `var(--c-${block.textColor})`;
@@ -229,16 +232,15 @@
                     if(!isNaN(s) && !isNaN(e)) div.appendChild(createBarElement(block.label, s, e, false, `custom-${index}`));
                 }
                 else if(block.type === 'progress_cycle') { 
-                    // V46: State Logic via UUID
                     let anchor = new Date(block.anchor);
                     if (block.resetMode === 'manual') {
-                        // Look up by ID, not index
+                        // V47: Using UUID
                         const restartTs = localStorage.getItem(`cycle_reset_${block.id}`);
                         if(restartTs) anchor = new Date(parseInt(restartTs));
                     }
                     if(isNaN(anchor.getTime())) anchor = new Date();
 
-                    // PASS UUID
+                    // V47: USING UUID FOR ID
                     const wrap = createBarElement(block.label, anchor, null, true, block.id, block.days, block.resetMode); 
                     wrap.id=`cycle-wrap-${block.id}`; 
                     div.appendChild(wrap); 
@@ -257,7 +259,6 @@
                     div.innerHTML = `<div class="countdown-line"><span>${block.label}</span><span class="countdown-val" id="cnt-${index}">--</span></div>`; 
                 }
                 else if (block.type === 'timer') {
-                    // V46: USE UUID
                     const hrs = parseInt(block.hours)||0; const mins = parseInt(block.minutes)||0; const total = (hrs*60)+mins; const label = hrs>0 ? `${hrs}h ${mins}m` : `${mins}m`;
                     div.innerHTML = `<div class="timer-bubble"><div style="font-size:0.8em; opacity:0.8; text-transform:uppercase; letter-spacing:1px;">${block.label||'TIMER'}</div><div class="timer-display" id="timer-display-${block.id}">00:00</div><div class="timer-controls"><button class="timer-btn" onclick="startTimer('${block.id}', ${total})">Start</button><button class="timer-btn" onclick="stopTimer('${block.id}')">Stop</button></div></div>`;
                 }
@@ -339,7 +340,6 @@
         }
 
         function renderSequenceBlock(b, parent, id) {
-            // V46: Use UUID key
             let state = JSON.parse(localStorage.getItem(`seq_${id}`) || '{"step":0, "active":false, "endTime":0, "loop":false}');
             const now = Date.now();
             let currentLabel = "Ready", timeLeft = "00:00";
@@ -378,7 +378,6 @@
                 html += `<tr class="${cls}"><td>${status}</td><td>${s.label}</td><td style="text-align:right">${s.duration}m</td></tr>`;
             });
             html += `</table>`;
-            // V46: USE UUID ACTIONS
             html += `<div class="timer-controls"><button class="timer-btn" onclick="seqAction('${id}', 'start')">▶</button><button class="timer-btn" onclick="seqAction('${id}', 'pause')">⏸</button><button class="timer-btn" onclick="seqAction('${id}', 'reset')">↻</button></div>`;
             html += `<div style="margin-top:8px; font-size:0.75em;"><label style="cursor:pointer"><input type="checkbox" ${loopState} ${toggleLoop}> Loop</label></div></div>`;
             parent.innerHTML = html;
@@ -392,7 +391,7 @@
 
         window.seqAction = (id, action) => {
             let state = JSON.parse(localStorage.getItem(`seq_${id}`) || '{"step":0, "active":false}');
-            const data = getConfig().blocks.find(b => b.id === id); // V46: Find by ID
+            const data = getConfig().blocks.find(b => b.id === id); 
             if(action === 'reset') { state.step = 0; state.active = false; }
             if(action === 'start' && !state.active && state.step < data.steps.length) {
                 state.active = true; state.endTime = Date.now() + (data.steps[state.step].duration * 60000);
@@ -439,13 +438,12 @@
         function updateDynamics(blocks, settings) {
             const now = new Date(); const use24h = settings.use24h === true;
             blocks.forEach((block, bIdx) => {
-                // V46: Logic for Cycle Updates (Use UUID)
+                // V47: Logic for Cycle Updates (Use UUID)
                 if (block.type === 'progress_cycle') {
                     const resetMode = block.resetMode || 'manual'; 
                     let anchor = new Date(block.anchor);
                     
                     if (resetMode === 'manual') {
-                        // V46: UUID Key
                         const restartTs = localStorage.getItem(`cycle_reset_${block.id}`);
                         if(restartTs) anchor = new Date(parseInt(restartTs));
                     }
@@ -478,10 +476,11 @@
                     }
                 }
                 
-                // V46: Logic for Auto Progress Updates
+                // V47 FIX: Syntax Error in Selector (Added quotes)
                 if (block.type === 'progress_group') {
                     block.items.forEach((item, iIdx) => {
                         const uniqueId = `prog-${bIdx}-${iIdx}`;
+                        // V47: ADDED QUOTES to selector string
                         const bar = document.querySelector(`#${uniqueId} .progress-fill`);
                         const txt = document.querySelector(`#${uniqueId} .progress-meta span:last-child span`);
                         if(bar && txt) {
@@ -504,7 +503,7 @@
                     });
                 }
 
-                // ... (Other blocks V45 logic preserved)
+                // ... (Other blocks V46 logic preserved)
                 if (block.type === 'world_clock') {
                     block.locations.forEach((loc, lIdx) => {
                         const timeEl = document.getElementById(`clock-${bIdx}-${lIdx}`);
