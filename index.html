@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Widget V52</title>
+    <title>Notion Widget V53</title>
     <style>
         :root {
             --bg-color: #FFFFFF; --text-color: #37352F; --accent-color: #E3E2E0;
@@ -22,7 +22,6 @@
         .theme-card .widget-block { border-color: var(--accent-color); padding: var(--pad); }
         .theme-minimal .progress-bg { height: 4px; }
         
-        /* COLOR LOGIC V52 */
         .widget-header { font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-color, inherit); }
         
         /* GRID 3.0 */
@@ -76,20 +75,7 @@
         
         /* RESET BUTTON */
         .cycle-reset-btn { 
-            background: rgba(255,255,255,0.9); 
-            border: 1px solid #ccc; 
-            color: #333; 
-            font-size: 0.75em; 
-            padding: 2px 8px; 
-            border-radius: 4px; 
-            cursor: pointer; 
-            margin-left: 8px; 
-            pointer-events: auto; 
-            font-weight: bold; 
-            z-index: 100; 
-            position: relative; 
-            box-shadow: 0 1px 2px rgba(0,0,0,0.2); 
-            display: inline-block; 
+            background: rgba(255,255,255,0.9); border: 1px solid #ccc; color: #333; font-size: 0.75em; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px; pointer-events: auto; font-weight: bold; z-index: 100; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.2); display: inline-block; 
         }
 
         /* EDIT BUTTON */
@@ -111,7 +97,6 @@
 
     <div id="dashboard"></div>
     <script>
-        // V52: UTF8 DECODER
         function b64_to_utf8(str) { try { return decodeURIComponent(escape(window.atob(str))); } catch(e) { return window.atob(str); } }
 
         function getConfig() { 
@@ -411,7 +396,8 @@
                 html += `<tr class="${cls}"><td>${status}</td><td>${s.label}</td><td style="text-align:right">${s.duration}m</td></tr>`;
             });
             html += `</table>`;
-            html += `<div class="timer-controls"><button class="timer-btn" onclick="seqAction('${id}', 'start')">▶</button><button class="timer-btn" onclick="seqAction('${id}', 'pause')">⏸</button><button class="timer-btn" onclick="seqAction('${id}', 'reset')">↻</button></div>`;
+            // V53: Stop icon
+            html += `<div class="timer-controls"><button class="timer-btn" onclick="seqAction('${id}', 'start')">▶</button><button class="timer-btn" onclick="seqAction('${id}', 'pause')">⏹</button><button class="timer-btn" onclick="seqAction('${id}', 'reset')">↻</button></div>`;
             html += `<div style="margin-top:8px; font-size:0.75em;"><label style="cursor:pointer"><input type="checkbox" ${loopState} ${toggleLoop}> Loop</label></div></div>`;
             parent.innerHTML = html;
         }
