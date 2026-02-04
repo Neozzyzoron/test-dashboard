@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Widget V48</title>
+    <title>Notion Widget V52</title>
     <style>
         :root {
             --bg-color: #FFFFFF; --text-color: #37352F; --accent-color: #E3E2E0;
@@ -22,10 +22,10 @@
         .theme-card .widget-block { border-color: var(--accent-color); padding: var(--pad); }
         .theme-minimal .progress-bg { height: 4px; }
         
-        /* COLOR LOGIC V48: CSS FALLBACKS */
+        /* COLOR LOGIC V52 */
         .widget-header { font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-color, inherit); }
         
-        /* GRID 3.0: Falls back to BLACK if var undefined */
+        /* GRID 3.0 */
         .grid-container { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 5px; }
         .grid-cell { background: var(--block-color, #37352F); border-radius: 1px; flex-shrink: 0; opacity: 0.2; } 
         .grid-cell.filled { opacity: 1; }
@@ -38,7 +38,6 @@
         .progress-meta { display: flex; justify-content: space-between; font-size: 0.85em; margin-bottom: 2px; color: var(--text-color, inherit); }
         
         .progress-bg { height: 8px; background: rgba(128,128,128, 0.2); border-radius: 4px; overflow: hidden; } 
-        /* V48: Progress Fill Falls back to BLACK */
         .progress-fill { height: 100%; width: 0%; transition: width 0.5s ease-in-out; background-color: var(--block-color, #37352F); } 
         
         .clock-row { display: flex; justify-content: space-between; border-bottom: 1px solid var(--block-color, #37352F); padding: 4px 0; }
@@ -55,7 +54,7 @@
         .moon-icon { font-size: 2.5em; line-height: 1; color: var(--block-color, #37352F); }
         .moon-details { font-size: 0.9em; line-height: 1.4; color: var(--text-color, inherit); }
         
-        /* TIMERS & CARDS: Falls back to GREY BG / BLACK TEXT if var undefined */
+        /* TIMERS & CARDS */
         .timer-bubble { background: var(--block-color, #e0e0e0); color: var(--text-color, #37352F); padding: 15px; border-radius: var(--radius); text-align: center; } 
         .timer-display { font-size: 2.5em; font-weight: 700; font-family: monospace; margin: 10px 0;}
         .timer-btn { background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 0.8em; font-weight:600; color:inherit; }
@@ -92,14 +91,32 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.2); 
             display: inline-block; 
         }
+
+        /* EDIT BUTTON */
+        .edit-btn {
+            position: fixed; top: 10px; right: 10px;
+            width: 30px; height: 30px;
+            background: rgba(255,255,255,0.9); border: 1px solid #ccc;
+            border-radius: 50%; text-align: center; line-height: 28px;
+            color: #555; text-decoration: none; font-size: 16px;
+            opacity: 0; transition: opacity 0.3s; z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        body:hover .edit-btn { opacity: 1; }
+        .edit-btn:hover { background: #fff; transform: scale(1.1); }
     </style>
 </head>
 <body>
+    <a id="edit-btn" class="edit-btn" href="#" title="Edit Widget">✎</a>
+
     <div id="dashboard"></div>
     <script>
+        // V52: UTF8 DECODER
+        function b64_to_utf8(str) { try { return decodeURIComponent(escape(window.atob(str))); } catch(e) { return window.atob(str); } }
+
         function getConfig() { 
             try { 
-                const config = JSON.parse(atob(window.location.hash.substring(1))); 
+                const config = JSON.parse(b64_to_utf8(window.location.hash.substring(1))); 
                 if(config.blocks) {
                     config.blocks.forEach((b, i) => {
                         if(!b.id) b.id = 'blk_legacy_' + i; 
@@ -108,6 +125,21 @@
                 return config;
             } catch(e) { return null; } 
         }
+        
+        function setupEditLink() {
+            const btn = document.getElementById('edit-btn');
+            if(btn) {
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    let path = window.location.pathname;
+                    if(path.endsWith('index.html')) path = path.replace('index.html', 'admin.html');
+                    else if(path.endsWith('/')) path += 'admin.html';
+                    else path += '/admin.html';
+                    window.location.href = path + window.location.hash;
+                };
+            }
+        }
+
         const container = document.getElementById('dashboard');
 
         // --- GLOBAL HELPER ---
@@ -147,7 +179,6 @@
             if(isNaN(pct)) pct = 0;
 
             const wrapper = document.createElement('div'); wrapper.className = 'progress-wrapper';
-            // V48: Rely on CSS fallback for variable
             const safeColor = 'var(--block-color, #37352F)';
             
             let resetBtn = '';
@@ -179,6 +210,7 @@
         };
 
         function render() {
+            setupEditLink(); 
             const data = getConfig();
             if (!data) return;
             
@@ -203,7 +235,6 @@
                 if (block.width === '50') div.classList.add('half-width');
                 if (block.width === '33') div.classList.add('third-width');
                 
-                // V48: Remove forced defaults. Let CSS handle it.
                 if (block.color && block.color !== 'default') {
                     const val = block.color.startsWith('#') ? block.color : `var(--c-${block.color})`;
                     div.style.setProperty('--block-color', val);
@@ -218,7 +249,6 @@
                 else if(block.type === 'empty') div.innerHTML = `&nbsp;`;
                 else if(block.type === 'spacer') div.innerHTML = `<div class="spacer-line spacer-${block.style||'solid'}" style="margin-top:10px; margin-bottom:10px; border-bottom-width:${block.thickness||'1px'}"></div>`;
                 else if(block.type === 'visual_grid') {
-                    // V48: TRY-CATCH for Grid Safety
                     try { renderGridBlock(block, div, s); } catch(e) { console.error("Grid Error", e); div.innerHTML = "Grid Error"; }
                 }
                 else if(block.type === 'moon_phase') renderMoonBlock(block, div);
@@ -247,7 +277,6 @@
                         div.appendChild(row);
                     });
                 }
-                // V48: Logic to ensure Date Display renders
                 else if (block.type === 'date_display') { 
                     div.innerHTML = `<div class="date-display" id="date-main-${index}"></div><div class="date-sub" id="date-sub-${index}"></div>`; 
                 }
@@ -272,7 +301,6 @@
             let wMult = b.shape==='wide'?2 : b.shape==='ultrawide'?3 : 1;
             let w = `${px*wMult}px`; let h = `${px}px`;
             
-            // V48: Standard ISO Week Calculation
             const getWeek = (date) => {
                 const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
                 const dayNum = d.getUTCDay() || 7;
@@ -290,7 +318,6 @@
                 }
                 parent.innerHTML = html + `</div>`; return;
             }
-            // ... (Rest of Grid Types identical to V47) ...
             else if(b.gridType === 'month') {
                 const dim = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate(); const day = now.getDate();
                 html += `<div class="grid-subline">Day ${day}/${dim}</div><div class="grid-container">`;
@@ -432,7 +459,6 @@
             });
         }
         
-        // V48: Standard ISO Week Calculation inside loop
         function getDatesForType(type, weekStart = 'monday') {
             const now = new Date(); const y = now.getFullYear(), m = now.getMonth();
             if (type === 'day') return { start: new Date(y, m, now.getDate()), end: new Date(y, m, now.getDate(), 23, 59, 59) };
@@ -579,7 +605,13 @@
                     case 'date_num': return now.getDate().toString().padStart(2,'0');
                     case 'year': return now.getFullYear();
                     case 'week_num': return `Week ${getWeekNumber(now)}`;
-                    case 'day_year': const start = new Date(now.getFullYear(), 0, 0); const diff = now - start; return `Day ${Math.floor(diff / 86400000)}`;
+                    case 'day_year': 
+                        const start = new Date(now.getFullYear(), 0, 0); 
+                        const diff = now - start; 
+                        const dayNum = Math.floor(diff / 86400000);
+                        const isLeap = (now.getFullYear() % 400 === 0) || (now.getFullYear() % 100 !== 0 && now.getFullYear() % 4 === 0);
+                        const totalDays = isLeap ? 366 : 365;
+                        return `Day ${dayNum} of ${totalDays}`;
                     case 'quarter': return `Q${Math.floor((now.getMonth() + 3) / 3)}`;
                     case 'separator': return '|';
                     case 'space': return ' ';
@@ -588,9 +620,7 @@
                 }
             }).join('');
         }
-        // V48: Standard ISO Week Calc
         function getWeekNumber(d) { d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7)); const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1)); return Math.ceil((((d - yearStart) / 86400000) + 1)/7); }
-        
         function renderMoonBlock(b, parent) { 
             const now = new Date(); const newMoon = new Date(2000, 0, 6, 18, 14); const cycle = 29.53058867;
             const diffDays = (now - newMoon) / 86400000; const age = diffDays % cycle; 
