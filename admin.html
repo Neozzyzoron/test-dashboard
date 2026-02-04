@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Widget Admin V52</title>
+    <title>Widget Admin V53</title>
     <style>
         /* CORE */
         * { box-sizing: border-box; }
@@ -46,24 +46,24 @@
         .btn-action { padding: 6px 10px; font-size: 0.75rem; color: white; border-radius: 4px; border:none; cursor: pointer; font-weight: 600; white-space: nowrap; flex-shrink: 0;}
         .btn-refresh { background: #3498db; } .btn-copy { background: #27ae60; } .btn-open { background: #7f8c8d; }
         
-        /* V52: UPDATED FOOTER COLORS */
+        /* V53: UPDATED FOOTER COLORS - ALL WHITE TEXT */
         .btn-row { display: flex; gap: 6px; flex-wrap: wrap; }
-        button.menu-btn { padding: 8px 10px; border: none; border-radius: 4px; font-weight: 600; font-size: 0.75rem; cursor: pointer; flex-grow: 1; text-align: center; color: #fff; transition: transform 0.1s; }
+        button.menu-btn { padding: 8px 10px; border: none; border-radius: 4px; font-weight: 600; font-size: 0.75rem; cursor: pointer; flex-grow: 1; text-align: center; color: white !important; transition: transform 0.1s; }
         button.menu-btn:hover { transform: translateY(-1px); opacity: 0.9; }
         
-        .btn-header { background: #5b5b5b; } 
-        .btn-date { background: #59b631; } 
-        .btn-time { background: #a4ec01; color: #37352f !important; } /* Lime needs dark text */
-        .btn-grid { background: #915901; } 
-        .btn-auto { background: #ff7a21; } 
-        .btn-custom { background: #fca159; color: #37352f !important; } 
-        .btn-cycle { background: #ffd072; color: #37352f !important; } 
-        .btn-count { background: #7dc1ff; color: #37352f !important; } 
-        .btn-timer { background: #cf0e00; } 
-        .btn-seq { background: #ff5549; } 
-        .btn-cnt { background: #e540c3; } 
-        .btn-moon { background: #16537e; } 
-        .btn-util { background: #bcbcbc; }
+        .btn-header { background: #7f8c8d; } 
+        .btn-date { background: #16a085; } 
+        .btn-time { background: #27ae60; } 
+        .btn-grid { background: #6aa84f; } 
+        .btn-auto { background: #c0392b; } 
+        .btn-custom { background: #d35400; } 
+        .btn-cycle { background: #e67e22; } 
+        .btn-count { background: #f39c12; } 
+        .btn-timer { background: #8e44ad; } 
+        .btn-seq { background: #9b59b6; } 
+        .btn-cnt { background: #c90076; } 
+        .btn-moon { background: #34495e; } 
+        .btn-util { background: #95a5a6; } 
 
         .block-card { background: white; border: 1px solid #e0e0e0; border-radius: 6px; margin-bottom: 0; border-left: 4px solid #999; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .block-header { padding: 10px 15px; cursor: pointer; display: flex; align-items: center; gap: 10px; background: #fbfbfa; user-select: none; border-bottom: 1px solid transparent; }
@@ -91,30 +91,30 @@
         .city-result-item { padding: 8px; cursor: pointer; font-size: 0.8rem; border-bottom: 1px solid #f0f0f0; }
         .city-result-item:hover { background: #f0f0f0; }
         
-        /* V52: MATCHING BORDERS FOR CARD TYPES */
-        .type-header { border-left-color: #5b5b5b; } 
-        .type-date_display { border-left-color: #59b631; }
-        .type-world_clock { border-left-color: #a4ec01; } 
-        .type-visual_grid { border-left-color: #915901; }
-        .type-progress_group { border-left-color: #ff7a21; } 
-        .type-progress_custom { border-left-color: #fca159; }
-        .type-progress_cycle { border-left-color: #ffd072; } 
-        .type-countdown { border-left-color: #7dc1ff; }
-        .type-timer { border-left-color: #cf0e00; } 
-        .type-sequence { border-left-color: #ff5549; }
-        .type-counter { border-left-color: #e540c3; } 
-        .type-moon_phase { border-left-color: #16537e; }
-        .type-spacer { border-left-color: #bcbcbc; } 
-        .type-empty { border-left-color: #bcbcbc; }
+        /* V53: MATCHING BORDERS */
+        .type-header { border-left-color: #7f8c8d; } 
+        .type-date_display { border-left-color: #16a085; }
+        .type-world_clock { border-left-color: #27ae60; } 
+        .type-visual_grid { border-left-color: #6aa84f; }
+        .type-progress_group { border-left-color: #c0392b; } 
+        .type-progress_custom { border-left-color: #d35400; }
+        .type-progress_cycle { border-left-color: #e67e22; } 
+        .type-countdown { border-left-color: #f39c12; }
+        .type-timer { border-left-color: #8e44ad; } 
+        .type-sequence { border-left-color: #9b59b6; }
+        .type-counter { border-left-color: #c90076; } 
+        .type-moon_phase { border-left-color: #34495e; }
+        .type-spacer { border-left-color: #95a5a6; } 
+        .type-empty { border-left-color: #95a5a6; }
 
-        /* V52: EMOJI PICKER */
-        .input-group-emoji { display: flex; gap: 5px; align-items: center; width: 100%; position: relative; }
-        .emoji-btn { padding: 6px; cursor: pointer; background: #eee; border: 1px solid #ddd; border-radius: 4px; font-size: 1.1rem; line-height: 1; user-select: none; }
+        /* V53: EMOJI PICKER FIX */
+        .input-group-emoji { display: flex; gap: 5px; align-items: center; width: 100%; position: relative; flex-grow: 1; }
+        .emoji-btn { padding: 6px; cursor: pointer; background: #eee; border: 1px solid #ddd; border-radius: 4px; font-size: 1.1rem; line-height: 1; user-select: none; flex-shrink: 0;}
         .emoji-btn:hover { background: #e0e0e0; }
         .emoji-picker { 
             position: absolute; top: 100%; right: 0; width: 220px; background: white; 
             border: 1px solid #ccc; box-shadow: 0 4px 15px rgba(0,0,0,0.15); 
-            border-radius: 6px; padding: 8px; display: none; z-index: 1000; 
+            border-radius: 6px; padding: 8px; display: none; z-index: 10000; 
             flex-wrap: wrap; gap: 4px; justify-content: center;
         }
         .emoji-picker.active { display: flex; }
@@ -200,7 +200,7 @@
     
     // CITY DATABASE (Full List)
     const cityDB = [
-{name:"Abidjan",tz:"Africa/Abidjan"},{name:"Abu Dhabi",tz:"Asia/Dubai"},{name:"Abuja",tz:"Africa/Lagos"},{name:"Accra",tz:"Africa/Accra"},{name:"Adak",tz:"America/Adak"},{name:"Adamstown",tz:"Pacific/Pitcairn"},{name:"Addis Ababa",tz:"Africa/Addis_Ababa"},{name:"Adelaide",tz:"Australia/Adelaide"},{name:"Alert",tz:"America/Iqaluit"},{name:"Algiers",tz:"Africa/Algiers"},{name:"Alice Springs",tz:"Australia/Darwin"},{name:"Almaty",tz:"Asia/Almaty"},{name:"Alofi",tz:"Pacific/Niue"},{name:"Amman",tz:"Asia/Amman"},{name:"Amsterdam",tz:"Europe/Amsterdam"},{name:"Amsterdam Island",tz:"Indian/Kerguelen"},{name:"Anadyr",tz:"Asia/Anadyr"},{name:"Anchorage",tz:"America/Anchorage"},{name:"Ankara",tz:"Europe/Istanbul"},{name:"Antananarivo",tz:"Indian/Antananarivo"},{name:"Apia",tz:"Pacific/Apia"},{name:"Ashgabat",tz:"Asia/Ashgabat"},{name:"Asmara",tz:"Africa/Asmara"},{name:"Astana",tz:"Asia/Almaty"},{name:"Asuncion",tz:"America/Asuncion"},{name:"Athens",tz:"Europe/Athens"},{name:"Atlanta",tz:"America/New_York"},{name:"Auckland",tz:"Pacific/Auckland"},{name:"Austin",tz:"America/Chicago"},{name:"Baghdad",tz:"Asia/Baghdad"},{name:"Baker Island",tz:"Etc/GMT+12"},{name:"Baker Lake",tz:"America/Rankin_Inlet"},{name:"Baku",tz:"Asia/Baku"},{name:"Bamako",tz:"Africa/Bamako"},{name:"Bandar Seri Begawan",tz:"Asia/Brunei"},{name:"Bangkok",tz:"Asia/Bangkok"},{name:"Bangui",tz:"Africa/Bangui"},{name:"Banjul",tz:"Africa/Banjul"},{name:"Barcelona",tz:"Europe/Madrid"},{name:"Basse-Terre",tz:"America/Guadeloupe"},{name:"Beijing",tz:"Asia/Shanghai"},{name:"Beirut",tz:"Asia/Beirut"},{name:"Belém",tz:"America/Belem"},{name:"Belgrade",tz:"Europe/Belgrade"},{name:"Belfast",tz:"Europe/Belfast"},{name:"Belmopan",tz:"America/Belize"},{name:"Belushya Guba",tz:"Europe/Moscow"},{name:"Bengaluru",tz:"Asia/Kolkata"},{name:"Berlin",tz:"Europe/Berlin"},{name:"Bern",tz:"Europe/Zurich"},{name:"Bishkek",tz:"Asia/Bishkek"},{name:"Bissau",tz:"Africa/Bissau"},{name:"Bogota",tz:"America/Bogota"},{name:"Boston",tz:"America/New_York"},{name:"Brasilia",tz:"America/Sao_Paulo"},{name:"Bratislava",tz:"Europe/Bratislava"},{name:"Brazzaville",tz:"Africa/Brazzaville"},{name:"Bridgetown",tz:"America/Barbados"},{name:"Brisbane",tz:"Australia/Brisbane"},{name:"Brussels",tz:"Europe/Brussels"},{name:"Bucharest",tz:"Europe/Bucharest"},{name:"Budapest",tz:"Europe/Budapest"},{name:"Buenos Aires",tz:"America/Argentina/Buenos_Aires"},{name:"Bujumbura",tz:"Africa/Bujumbura"},{name:"Cairns",tz:"Australia/Brisbane"},{name:"Cairo",tz:"Africa/Cairo"},{name:"Calgary",tz:"America/Edmonton"},{name:"Canberra",tz:"Australia/Sydney"},{name:"Cancún",tz:"America/Cancun"},{name:"Cape Town",tz:"Africa/Johannesburg"},{name:"Caracas",tz:"America/Caracas"},{name:"Cardiff",tz:"Europe/London"},{name:"Casablanca",tz:"Africa/Casablanca"},{name:"Cayenne",tz:"America/Cayenne"},{name:"Chatham Islands",tz:"Pacific/Chatham"},{name:"Chennai",tz:"Asia/Kolkata"},{name:"Chibougamau",tz:"America/Toronto"},{name:"Chicago",tz:"America/Chicago"},{name:"Chișinău",tz:"Europe/Chisinau"},{name:"Chita",tz:"Asia/Chita"},{name:"Chongqing",tz:"Asia/Chongqing"},{name:"Ciudad de la Paz",tz:"Africa/Malabo"},{name:"Conakry",tz:"Africa/Conakry"},{name:"Copenhagen",tz:"Europe/Copenhagen"},{name:"Coral Harbour",tz:"America/Atikokan"},{name:"Córdoba",tz:"America/Argentina/Cordoba"},{name:"Dakar",tz:"Africa/Dakar"},{name:"Dallas",tz:"America/Chicago"},{name:"Damascus",tz:"Asia/Damascus"},{name:"Danmarkshavn",tz:"America/Danmarkshavn"},{name:"Dar es Salaam",tz:"Africa/Dar_es_Salaam"},{name:"Darwin",tz:"Australia/Darwin"},{name:"Denpasar",tz:"Asia/Makassar"},{name:"Denver",tz:"America/Denver"},{name:"Detroit",tz:"America/Detroit"},{name:"Dhaka",tz:"Asia/Dhaka"},{name:"Diego Garcia",tz:"Indian/Chagos"},{name:"Dili",tz:"Asia/Dili"},{name:"Djibouti",tz:"Africa/Djibouti"},{name:"Dnipro",tz:"Europe/Kyiv"},{name:"Dodoma",tz:"Africa/Dar_es_Salaam"},{name:"Doha",tz:"Asia/Qatar"},{name:"Douglas",tz:"Europe/Isle_of_Man"},{name:"Dubai",tz:"Asia/Dubai"},{name:"Dublin",tz:"Europe/Dublin"},{name:"Dushanbe",tz:"Asia/Dushanbe"},{name:"Easter Island",tz:"Pacific/Easter"},{name:"Edinburgh",tz:"Europe/London"},{name:"Edmonton",tz:"America/Edmonton"},{name:"El Aaiún",tz:"Africa/El_Aaiun"},{name:"Eucla",tz:"Australia/Eucla"},{name:"Eureka",tz:"America/Winnipeg"},{name:"Fairbanks",tz:"America/Anchorage"},{name:"Fakaofo",tz:"Pacific/Fakaofo"},{name:"Fortaleza",tz:"America/Fortaleza"},{name:"Frankfurt",tz:"Europe/Berlin"},{name:"Freetown",tz:"Africa/Freetown"},{name:"Funafuti",tz:"Pacific/Funafuti"},{name:"Gaborone",tz:"Africa/Gaborone"},{name:"Galapagos Islands",tz:"Pacific/Galapagos"},{name:"Georgetown",tz:"America/Guyana"},{name:"Gibraltar",tz:"Europe/Gibraltar"},{name:"Gitega",tz:"Africa/Bujumbura"},{name:"Glasgow",tz:"Europe/London"},{name:"Grise Fiord",tz:"America/Iqaluit"},{name:"Guatemala City",tz:"America/Guatemala"},{name:"Hagåtña",tz:"Pacific/Guam"},{name:"Halifax",tz:"America/Halifax"},{name:"Hamilton",tz:"America/Toronto"},{name:"Hanoi",tz:"Asia/Ho_Chi_Minh"},{name:"Happy Valley-Goose Bay",tz:"America/Goose_Bay"},{name:"Harare",tz:"Africa/Harare"},{name:"Havana",tz:"America/Havana"},{name:"Helsinki",tz:"Europe/Helsinki"},{name:"Hermosillo",tz:"America/Hermosillo"},{name:"Hobart",tz:"Australia/Hobart"},{name:"Hong Kong",tz:"Asia/Hong_Kong"},{name:"Honiara",tz:"Pacific/Guadalcanal"},{name:"Honolulu",tz:"Pacific/Honolulu"},{name:"Houston",tz:"America/Chicago"},{name:"Hovd",tz:"Asia/Hovd"},{name:"Indianapolis",tz:"America/Indiana/Indianapolis"},{name:"Inuvik",tz:"America/Inuvik"},{name:"Irkutsk",tz:"Asia/Irkutsk"},{name:"Islamabad",tz:"Asia/Karachi"},{name:"Istanbul",tz:"Europe/Istanbul"},{name:"Ittoqqortoormiit",tz:"America/Scoresbysund"},{name:"Izhevsk",tz:"Europe/Samara"},{name:"Jakarta",tz:"Asia/Jakarta"},{name:"Jamestown",tz:"Atlantic/St_Helena"},{name:"Jerusalem",tz:"Asia/Jerusalem"},{name:"Johannesburg",tz:"Africa/Johannesburg"},{name:"Juba",tz:"Africa/Juba"},{name:"Juneau",tz:"America/Juneau"},{name:"Kabul",tz:"Asia/Kabul"},{name:"Kaliningrad",tz:"Europe/Kaliningrad"},{name:"Kampala",tz:"Africa/Kampala"},{name:"Kangerlussuaq",tz:"America/Nuuk"},{name:"Kansas City",tz:"America/Chicago"},{name:"Karachi",tz:"Asia/Karachi"},{name:"Kathmandu",tz:"Asia/Kathmandu"},{name:"Kemi",tz:"Europe/Helsinki"},{name:"Khartoum",tz:"Africa/Khartoum"},{name:"Khatanga",tz:"Asia/Krasnoyarsk"},{name:"Kigali",tz:"Africa/Kigali"},{name:"King Edward Point",tz:"Atlantic/South_Georgia"},{name:"Kingston",tz:"America/Jamaica"},{name:"Kinshasa",tz:"Africa/Kinshasa"},{name:"Kiritimati",tz:"Pacific/Kiritimati"},{name:"Kolkata",tz:"Asia/Kolkata"},{name:"Komsomolsk-on-Amur",tz:"Asia/Vladivostok"},{name:"Krasnoyarsk",tz:"Asia/Krasnoyarsk"},{name:"Kuala Lumpur",tz:"Asia/Kuala_Lumpur"},{name:"Kuujjuaq",tz:"America/Iqaluit"},{name:"Kuwait City",tz:"Asia/Kuwait"},{name:"Kyiv",tz:"Europe/Kyiv"},{name:"La Paz",tz:"America/La_Paz"},{name:"Lagos",tz:"Africa/Lagos"},{name:"Lahore",tz:"Asia/Karachi"},{name:"Las Vegas",tz:"America/Los_Angeles"},{name:"Lhasa",tz:"Asia/Shanghai"},{name:"Libreville",tz:"Africa/Libreville"},{name:"Lilongwe",tz:"Africa/Blantyre"},{name:"Lima",tz:"America/Lima"},{name:"Lisbon",tz:"Europe/Lisbon"},{name:"Ljubljana",tz:"Europe/Ljubljana"},{name:"Lomé",tz:"Africa/Lome"},{name:"London",tz:"Europe/London"},{name:"Longyearbyen",tz:"Arctic/Longyearbyen"},{name:"Los Angeles",tz:"America/Los_Angeles"},{name:"Luanda",tz:"Africa/Luanda"},{name:"Lubumbashi",tz:"Africa/Lubumbashi"},{name:"Lusaka",tz:"Africa/Lusaka"},{name:"Luxembourg",tz:"Europe/Luxembourg"},{name:"Madrid",tz:"Europe/Madrid"},{name:"Magadan",tz:"Asia/Magadan"},{name:"Majuro",tz:"Pacific/Majuro"},{name:"Makassar",tz:"Asia/Makassar"},{name:"Malabo",tz:"Africa/Malabo"},{name:"Male",tz:"Indian/Maldives"},{name:"Managua",tz:"America/Managua"},{name:"Manama",tz:"Asia/Bahrain"},{name:"Manaus",tz:"America/Manaus"},{name:"Manila",tz:"Asia/Manila"},{name:"Manokwari",tz:"Asia/Jayapura"},{name:"Maputo",tz:"Africa/Maputo"},{name:"Marion Island",tz:"Indian/Antananarivo"},{name:"Mary's Harbour",tz:"America/St_Johns"},{name:"Maseru",tz:"Africa/Maseru"},{name:"Mbabane",tz:"Africa/Mbabane"},{name:"Melbourne",tz:"Australia/Melbourne"},{name:"Mexico City",tz:"America/Mexico_City"},{name:"Miami",tz:"America/New_York"},{name:"Minneapolis",tz:"America/Chicago"},{name:"Minsk",tz:"Europe/Minsk"},{name:"Mogadishu",tz:"Africa/Mogadishu"},{name:"Monaco",tz:"Europe/Monaco"},{name:"Monrovia",tz:"Africa/Monrovia"},{name:"Montevideo",tz:"America/Montevideo"},{name:"Montréal",tz:"America/Toronto"},{name:"Moroni",tz:"Indian/Comoro"},{name:"Moscow",tz:"Europe/Moscow"},{name:"Mumbai",tz:"Asia/Kolkata"},{name:"Muscat",tz:"Asia/Muscat"},{name:"Nairobi",tz:"Africa/Nairobi"},{name:"Nassau",tz:"America/Nassau"},{name:"Naypyidaw",tz:"Asia/Yangon"},{name:"N'Djamena",tz:"Africa/Ndjamena"},{name:"New Delhi",tz:"Asia/Kolkata"},{name:"New Orleans",tz:"America/Chicago"},{name:"New York",tz:"America/New_York"},{name:"Ngerulmud",tz:"Pacific/Palau"},{name:"Niamey",tz:"Africa/Niamey"},{name:"Nicosia",tz:"Asia/Nicosia"},{name:"Norilsk",tz:"Asia/Krasnoyarsk"},{name:"Nouakchott",tz:"Africa/Nouakchott"},{name:"Novosibirsk",tz:"Asia/Novosibirsk"},{name:"Nuku'alofa",tz:"Pacific/Tongatapu"},{name:"Nusantara",tz:"Asia/Makassar"},{name:"Nuuk",tz:"America/Nuuk"},{name:"Oklahoma City",tz:"America/Chicago"},{name:"Omsk",tz:"Asia/Omsk"},{name:"Oral",tz:"Asia/Oral"},{name:"Oslo",tz:"Europe/Oslo"},{name:"Ottawa",tz:"America/Toronto"},{name:"Ouagadougou",tz:"Africa/Ouagadougou"},{name:"Palikir",tz:"Pacific/Pohnpei"},{name:"Panama",tz:"America/Panama"},{name:"Papeete",tz:"Pacific/Tahiti"},{name:"Paramaribo",tz:"America/Paramaribo"},{name:"Paris",tz:"Europe/Paris"},{name:"Perth",tz:"Australia/Perth"},{name:"Petropavlovsk-Kamchatsky",tz:"Asia/Kamchatka"},{name:"Pevek",tz:"Asia/Srednekolymsk"},{name:"Philadelphia",tz:"America/New_York"},{name:"Phnom Penh",tz:"Asia/Phnom_Penh"},{name:"Phoenix",tz:"America/Phoenix"},{name:"Pituffik",tz:"America/Thule"},{name:"Podgorica",tz:"Europe/Podgorica"},{name:"Pond Inlet",tz:"America/Iqaluit"},{name:"Ponta Delgada",tz:"Atlantic/Azores"},{name:"Pontianak",tz:"Asia/Pontianak"},{name:"Port Louis",tz:"Indian/Mauritius"},{name:"Port Moresby",tz:"Pacific/Port_Moresby"},{name:"Port of Spain",tz:"America/Port_of_Spain"},{name:"Port Vila",tz:"Pacific/Efate"},{name:"Port-au-Prince",tz:"America/Port-au-Prince"},{name:"Port-aux-Francais",tz:"Indian/Kerguelen"},{name:"Porto Novo",tz:"Africa/Porto-Novo"},{name:"Prague",tz:"Europe/Prague"},{name:"Praia",tz:"Atlantic/Cape_Verde"},{name:"Pretoria",tz:"Africa/Johannesburg"},{name:"Pune",tz:"Asia/Kolkata"},{name:"Punta Arenas",tz:"America/Punta_Arenas"},{name:"Pyongyang",tz:"Asia/Pyongyang"},{name:"Qaanaaq",tz:"America/Thule"},{name:"Quito",tz:"America/Guayaquil"},{name:"Rabat",tz:"Africa/Casablanca"},{name:"Rarotonga",tz:"Pacific/Rarotonga"},{name:"Regina",tz:"America/Regina"},{name:"Resolute Bay",tz:"America/Resolute"},{name:"Reykjavik",tz:"Atlantic/Reykjavik"},{name:"Riga",tz:"Europe/Riga"},{name:"Rio Branco",tz:"America/Rio_Branco"},{name:"Rio de Janeiro",tz:"America/Sao_Paulo"},{name:"Riyadh",tz:"Asia/Riyadh"},{name:"Rome",tz:"Europe/Rome"},{name:"Rovaniemi",tz:"Europe/Helsinki"},{name:"Saint-Denis",tz:"Indian/Reunion"},{name:"Salt Lake City",tz:"America/Denver"},{name:"Samara",tz:"Europe/Samara"},{name:"San Francisco",tz:"America/Los_Angeles"},{name:"San Jose",tz:"America/Los_Angeles"},{name:"San Juan",tz:"America/Puerto_Rico"},{name:"San Salvador",tz:"America/El_Salvador"},{name:"Sana",tz:"Asia/Aden"},{name:"Santiago",tz:"America/Santiago"},{name:"Santo Domingo",tz:"America/Santo_Domingo"},{name:"São Paulo",tz:"America/Sao_Paulo"},{name:"São Tomé",tz:"Africa/Sao_Tome"},{name:"Sarajevo",tz:"Europe/Sarajevo"},{name:"Seattle",tz:"America/Los_Angeles"},{name:"Seoul",tz:"Asia/Seoul"},{name:"Shanghai",tz:"Asia/Shanghai"},{name:"Singapore",tz:"Asia/Singapore"},{name:"Skopje",tz:"Europe/Skopje"},{name:"Sofia",tz:"Europe/Sofia"},{name:"Srednekolymsk",tz:"Asia/Srednekolymsk"},{name:"Sri Jayawardenepura Kotte",tz:"Asia/Colombo"},{name:"St. John's",tz:"America/St_Johns"},{name:"Stanley",tz:"Atlantic/Stanley"},{name:"Stockholm",tz:"Europe/Stockholm"},{name:"Sucre",tz:"America/La_Paz"},{name:"Suva",tz:"Pacific/Fiji"},{name:"Sydney",tz:"Australia/Sydney"},{name:"Taipei",tz:"Asia/Taipei"},{name:"Tallinn",tz:"Europe/Tallinn"},{name:"Tarawa",tz:"Pacific/Tarawa"},{name:"Tashkent",tz:"Asia/Tashkent"},{name:"Tbilisi",tz:"Asia/Tbilisi"},{name:"Tegucigalpa",tz:"America/Tegucigalpa"},{name:"Tehran",tz:"Asia/Tehran"},{name:"Tel Aviv",tz:"Asia/Jerusalem"},{name:"Thimphu",tz:"Asia/Thimphu"},{name:"Tiksi",tz:"Asia/Yakutsk"},{name:"Timbuktu",tz:"Africa/Bamako"},{name:"Tirana",tz:"Europe/Tirana"},{name:"Tokyo",tz:"Asia/Tokyo"},{name:"Toronto",tz:"America/Toronto"},{name:"Tórshavn",tz:"Atlantic/Faroe"},{name:"Tripoli",tz:"Africa/Tripoli"},{name:"Tromsø",tz:"Europe/Oslo"},{name:"Tunis",tz:"Africa/Tunis"},{name:"Ulaanbaatar",tz:"Asia/Ulaanbaatar"},{name:"Unalaska",tz:"America/Adak"},{name:"Ürümqi",tz:"Asia/Urumqi"},{name:"Valletta",tz:"Europe/Malta"},{name:"Vancouver",tz:"America/Vancouver"},{name:"Vatican City",tz:"Europe/Vatican"},{name:"Verkhoyansk",tz:"Asia/Vladivostok"},{name:"Victoria",tz:"Indian/Mahe"},{name:"Vienna",tz:"Europe/Vienna"},{name:"Vientiane",tz:"Asia/Vientiane"},{name:"Vilnius",tz:"Europe/Vilnius"},{name:"Vladivostok",tz:"Asia/Vladivostok"},{name:"Wake Island",tz:"Pacific/Wake"},{name:"Warsaw",tz:"Europe/Warsaw"},{name:"Washington DC",tz:"America/New_York"},{name:"Wellington",tz:"Pacific/Auckland"},{name:"Whitehorse",tz:"America/Whitehorse"},{name:"Windhoek",tz:"Africa/Windhoek"},{name:"Winnipeg",tz:"America/Winnipeg"},{name:"Yakutsk",tz:"Asia/Yakutsk"},{name:"Yamoussoukro",tz:"Africa/Abidjan"},{name:"Yangon",tz:"Asia/Yangon"},{name:"Yaoundé",tz:"Africa/Douala"},{name:"Yaren",tz:"Pacific/Nauru"},{name:"Yekaterinburg",tz:"Asia/Yekaterinburg"},{name:"Yerevan",tz:"Asia/Yerevan"},{name:"Yuzhno-Sakhalinsk",tz:"Asia/Sakhalin"},{name:"Zagreb",tz:"Europe/Zagreb"},{name:"Zürich",tz:"Europe/Zurich"}
+{name:"Abidjan",tz:"Africa/Abidjan"},{name:"Abu Dhabi",tz:"Asia/Dubai"},{name:"Abuja",tz:"Africa/Lagos"},{name:"Accra",tz:"Africa/Accra"},{name:"Adak",tz:"America/Adak"},{name:"Adamstown",tz:"Pacific/Pitcairn"},{name:"Addis Ababa",tz:"Africa/Addis_Ababa"},{name:"Adelaide",tz:"Australia/Adelaide"},{name:"Alert",tz:"America/Iqaluit"},{name:"Algiers",tz:"Africa/Algiers"},{name:"Alice Springs",tz:"Australia/Darwin"},{name:"Almaty",tz:"Asia/Almaty"},{name:"Alofi",tz:"Pacific/Niue"},{name:"Amman",tz:"Asia/Amman"},{name:"Amsterdam",tz:"Europe/Amsterdam"},{name:"Amsterdam Island",tz:"Indian/Kerguelen"},{name:"Anadyr",tz:"Asia/Anadyr"},{name:"Anchorage",tz:"America/Anchorage"},{name:"Ankara",tz:"Europe/Istanbul"},{name:"Antananarivo",tz:"Indian/Antananarivo"},{name:"Apia",tz:"Pacific/Apia"},{name:"Ashgabat",tz:"Asia/Ashgabat"},{name:"Asmara",tz:"Africa/Asmara"},{name:"Astana",tz:"Asia/Almaty"},{name:"Asuncion",tz:"America/Asuncion"},{name:"Athens",tz:"Europe/Athens"},{name:"Atlanta",tz:"America/New_York"},{name:"Auckland",tz:"Pacific/Auckland"},{name:"Austin",tz:"America/Chicago"},{name:"Baghdad",tz:"Asia/Baghdad"},{name:"Baker Island",tz:"Etc/GMT+12"},{name:"Baker Lake",tz:"America/Rankin_Inlet"},{name:"Baku",tz:"Asia/Baku"},{name:"Bamako",tz:"Africa/Bamako"},{name:"Bandar Seri Begawan",tz:"Asia/Brunei"},{name:"Bangkok",tz:"Asia/Bangkok"},{name:"Bangui",tz:"Africa/Bangui"},{name:"Banjul",tz:"Africa/Banjul"},{name:"Barcelona",tz:"Europe/Madrid"},{name:"Basse-Terre",tz:"America/Guadeloupe"},{name:"Beijing",tz:"Asia/Shanghai"},{name:"Beirut",tz:"Asia/Beirut"},{name:"Belém",tz:"America/Belem"},{name:"Belgrade",tz:"Europe/Belgrade"},{name:"Belfast",tz:"Europe/Belfast"},{name:"Belmopan",tz:"America/Belize"},{name:"Belushya Guba",tz:"Europe/Moscow"},{name:"Bengaluru",tz:"Asia/Kolkata"},{name:"Berlin",tz:"Europe/Berlin"},{name:"Bern",tz:"Europe/Zurich"},{name:"Bishkek",tz:"Asia/Bishkek"},{name:"Bissau",tz:"Africa/Bissau"},{name:"Bogota",tz:"America/Bogota"},{name:"Boston",tz:"America/New_York"},{name:"Brasilia",tz:"America/Sao_Paulo"},{name:"Bratislava",tz:"Europe/Bratislava"},{name:"Brazzaville",tz:"Africa/Brazzaville"},{name:"Bridgetown",tz:"America/Barbados"},{name:"Brisbane",tz:"Australia/Brisbane"},{name:"Brussels",tz:"Europe/Brussels"},{name:"Bucharest",tz:"Europe/Bucharest"},{name:"Budapest",tz:"Europe/Budapest"},{name:"Buenos Aires",tz:"America/Argentina/Buenos_Aires"},{name:"Bujumbura",tz:"Africa/Bujumbura"},{name:"Cairns",tz:"Australia/Brisbane"},{name:"Cairo",tz:"Africa/Cairo"},{name:"Calgary",tz:"America/Edmonton"},{name:"Canberra",tz:"Australia/Sydney"},{name:"Cancún",tz:"America/Cancun"},{name:"Cape Town",tz:"Africa/Johannesburg"},{name:"Caracas",tz:"America/Caracas"},{name:"Cardiff",tz:"Europe/London"},{name:"Casablanca",tz:"Africa/Casablanca"},{name:"Cayenne",tz:"America/Cayenne"},{name:"Chatham Islands",tz:"Pacific/Chatham"},{name:"Chennai",tz:"Asia/Kolkata"},{name:"Chibougamau",tz:"America/Toronto"},{name:"Chicago",tz:"America/Chicago"},{name:"Chișinău",tz:"Europe/Chisinau"},{name:"Chita",tz:"Asia/Chita"},{name:"Chongqing",tz:"Asia/Chongqing"},{name:"Ciudad de la Paz",tz:"Africa/Malabo"},{name:"Conakry",tz:"Africa/Conakry"},{name:"Copenhagen",tz:"Europe/Copenhagen"},{name:"Coral Harbour",tz:"America/Atikokan"},{name:"Córdoba",tz:"America/Argentina/Cordoba"},{name:"Dakar",tz:"Africa/Dakar"},{name:"Dallas",tz:"America/Chicago"},{name:"Damascus",tz:"Asia/Damascus"},{name:"Danmarkshavn",tz:"America/Danmarkshavn"},{name:"Dar es Salaam",tz:"Africa/Dar_es_Salaam"},{name:"Darwin",tz:"Australia/Darwin"},{name:"Denpasar",tz:"Asia/Makassar"},{name:"Denver",tz:"America/Denver"},{name:"Detroit",tz:"America/Detroit"},{name:"Dhaka",tz:"Asia/Dhaka"},{name:"Diego Garcia",tz:"Indian/Chagos"},{name:"Dili",tz:"Asia/Dili"},{name:"Djibouti",tz:"Africa/Djibouti"},{name:"Dnipro",tz:"Europe/Kyiv"},{name:"Dodoma",tz:"Africa/Dar_es_Salaam"},{name:"Doha",tz:"Asia/Qatar"},{name:"Douglas",tz:"Europe/Isle_of_Man"},{name:"Dubai",tz:"Asia/Dubai"},{name:"Dublin",tz:"Europe/Dublin"},{name:"Dushanbe",tz:"Asia/Dushanbe"},{name:"Easter Island",tz:"Pacific/Easter"},{name:"Edinburgh",tz:"Europe/London"},{name:"Edmonton",tz:"America/Edmonton"},{name:"El Aaiún",tz:"Africa/El_Aaiun"},{name:"Eucla",tz:"Australia/Eucla"},{name:"Eureka",tz:"America/Winnipeg"},{name:"Fairbanks",tz:"America/Anchorage"},{name:"Fakaofo",tz:"Pacific/Fakaofo"},{name:"Fortaleza",tz:"America/Fortaleza"},{name:"Frankfurt",tz:"Europe/Berlin"},{name:"Freetown",tz:"Africa/Freetown"},{name:"Funafuti",tz:"Pacific/Funafuti"},{name:"Gaborone",tz:"Africa/Gaborone"},{name:"Galapagos Islands",tz:"Pacific/Galapagos"},{name:"Georgetown",tz:"America/Guyana"},{name:"Gibraltar",tz:"Europe/Gibraltar"},{name:"Gitega",tz:"Africa/Bujumbura"},{name:"Glasgow",tz:"Europe/London"},{name:"Grise Fiord",tz:"America/Iqaluit"},{name:"Guatemala City",tz:"America/Guatemala"},{name:"Hagåtña",tz:"Pacific/Guam"},{name:"Halifax",tz:"America/Halifax"},{name:"Hamilton",tz:"America/Toronto"},{name:"Hanoi",tz:"Asia/Ho_Chi_Minh"},{name:"Happy Valley-Goose Bay",tz:"America/Goose_Bay"},{name:"Harare",tz:"Africa/Harare"},{name:"Havana",tz:"America/Havana"},{name:"Helsinki",tz:"Europe/Helsinki"},{name:"Hermosillo",tz:"America/Hermosillo"},{name:"Hobart",tz:"Australia/Hobart"},{name:"Hong Kong",tz:"Asia/Hong_Kong"},{name:"Honiara",tz:"Pacific/Guadalcanal"},{name:"Honolulu",tz:"Pacific/Honolulu"},{name:"Houston",tz:"America/Chicago"},{name:"Hovd",tz:"Asia/Hovd"},{name:"Indianapolis",tz:"America/Indiana/Indianapolis"},{name:"Inuvik",tz:"America/Inuvik"},{name:"Irkutsk",tz:"Asia/Irkutsk"},{name:"Islamabad",tz:"Asia/Karachi"},{name:"Istanbul",tz:"Europe/Istanbul"},{name:"Ittoqqortoormiit",tz:"America/Scoresbysund"},{name:"Izhevsk",tz:"Europe/Samara"},{name:"Jakarta",tz:"Asia/Jakarta"},{name:"Jamestown",tz:"Atlantic/St_Helena"},{name:"Jerusalem",tz:"Asia/Jerusalem"},{name:"Johannesburg",tz:"Africa/Johannesburg"},{name:"Juba",tz:"Africa/Juba"},{name:"Juneau",tz:"America/Juneau"},{name:"Kabul",tz:"Asia/Kabul"},{name:"Kaliningrad",tz:"Europe/Kaliningrad"},{name:"Kampala",tz:"Africa/Kampala"},{name:"Kangerlussuaq",tz:"America/Nuuk"},{name:"Kansas City",tz:"America/Chicago"},{name:"Karachi",tz:"Asia/Karachi"},{name:"Kathmandu",tz:"Asia/Kathmandu"},{name:"Kemi",tz:"Europe/Helsinki"},{name:"Khartoum",tz:"Africa/Khartoum"},{name:"Khatanga",tz:"Asia/Krasnoyarsk"},{name:"Kigali",tz:"Africa/Kigali"},{name:"King Edward Point",tz:"Atlantic/South_Georgia"},{name:"Kingston",tz:"America/Jamaica"},{name:"Kinshasa",tz:"Africa/Kinshasa"},{name:"Kiritimati",tz:"Pacific/Kiritimati"},{name:"Kolkata",tz:"Asia/Kolkata"},{name:"Komsomolsk-on-Amur",tz:"Asia/Vladivostok"},{name:"Krasnoyarsk",tz:"Asia/Krasnoyarsk"},{name:"Kuala Lumpur",tz:"Asia/Kuala_Lumpur"},{name:"Kuujjuaq",tz:"America/Iqaluit"},{name:"Kuwait City",tz:"Asia/Kuwait"},{name:"Kyiv",tz:"Europe/Kyiv"},{name:"La Paz",tz:"America/La_Paz"},{name:"Lagos",tz:"Africa/Lagos"},{name:"Lahore",tz:"Asia/Karachi"},{name:"Las Vegas",tz:"America/Los_Angeles"},{name:"Lhasa",tz:"Asia/Shanghai"},{name:"Libreville",tz:"Africa/Libreville"},{name:"Lilongwe",tz:"Africa/Blantyre"},{name:"Lima",tz:"America/Lima"},{name:"Lisbon",tz:"Europe/Lisbon"},{name:"Ljubljana",tz:"Europe/Ljubljana"},{name:"Lomé",tz:"Africa/Lome"},{name:"London",tz:"Europe/London"},{name:"Longyearbyen",tz:"Arctic/Longyearbyen"},{name:"Los Angeles",tz:"America/Los_Angeles"},{name:"Luanda",tz:"Africa/Luanda"},{name:"Lubumbashi",tz:"Africa/Lubumbashi"},{name:"Lusaka",tz:"Africa/Lusaka"},{name:"Luxembourg",tz:"Europe/Luxembourg"},{name:"Madrid",tz:"Europe/Madrid"},{name:"Magadan",tz:"Asia/Magadan"},{name:"Majuro",tz:"Pacific/Majuro"},{name:"Makassar",tz:"Asia/Makassar"},{name:"Malabo",tz:"Africa/Malabo"},{name:"Male",tz:"Indian/Maldives"},{name:"Managua",tz:"America/Managua"},{name:"Manama",tz:"Asia/Bahrain"},{name:"Manaus",tz:"America/Manaus"},{name:"Manila",tz:"Asia/Manila"},{name:"Manokwari",tz:"Asia/Jayapura"},{name:"Maputo",tz:"Africa/Maputo"},{name:"Marion Island",tz:"Indian/Antananarivo"},{name:"Mary's Harbour",tz:"America/St_Johns"},{name:"Maseru",tz:"Africa/Maseru"},{name:"Mbabane",tz:"Africa/Mbabane"},{name:"Melbourne",tz:"Australia/Melbourne"},{name:"Mexico City",tz:"America/Mexico_City"},{name:"Miami",tz:"America/New_York"},{name:"Midway",tz:"Pacific/Midway"},{name:"Minneapolis",tz:"America/Chicago"},{name:"Minsk",tz:"Europe/Minsk"},{name:"Mogadishu",tz:"Africa/Mogadishu"},{name:"Monaco",tz:"Europe/Monaco"},{name:"Monrovia",tz:"Africa/Monrovia"},{name:"Montevideo",tz:"America/Montevideo"},{name:"Montréal",tz:"America/Toronto"},{name:"Moroni",tz:"Indian/Comoro"},{name:"Moscow",tz:"Europe/Moscow"},{name:"Mumbai",tz:"Asia/Kolkata"},{name:"Muscat",tz:"Asia/Muscat"},{name:"Nairobi",tz:"Africa/Nairobi"},{name:"Nassau",tz:"America/Nassau"},{name:"Naypyidaw",tz:"Asia/Yangon"},{name:"N'Djamena",tz:"Africa/Ndjamena"},{name:"New Delhi",tz:"Asia/Kolkata"},{name:"New Orleans",tz:"America/Chicago"},{name:"New York",tz:"America/New_York"},{name:"Ngerulmud",tz:"Pacific/Palau"},{name:"Niamey",tz:"Africa/Niamey"},{name:"Nicosia",tz:"Asia/Nicosia"},{name:"Norilsk",tz:"Asia/Krasnoyarsk"},{name:"Nouakchott",tz:"Africa/Nouakchott"},{name:"Novosibirsk",tz:"Asia/Novosibirsk"},{name:"Nuku'alofa",tz:"Pacific/Tongatapu"},{name:"Nusantara",tz:"Asia/Makassar"},{name:"Nuuk",tz:"America/Nuuk"},{name:"Oklahoma City",tz:"America/Chicago"},{name:"Omsk",tz:"Asia/Omsk"},{name:"Oral",tz:"Asia/Oral"},{name:"Oslo",tz:"Europe/Oslo"},{name:"Ottawa",tz:"America/Toronto"},{name:"Ouagadougou",tz:"Africa/Ouagadougou"},{name:"Palikir",tz:"Pacific/Pohnpei"},{name:"Panama",tz:"America/Panama"},{name:"Papeete",tz:"Pacific/Tahiti"},{name:"Paramaribo",tz:"America/Paramaribo"},{name:"Paris",tz:"Europe/Paris"},{name:"Perth",tz:"Australia/Perth"},{name:"Petropavlovsk-Kamchatsky",tz:"Asia/Kamchatka"},{name:"Pevek",tz:"Asia/Srednekolymsk"},{name:"Philadelphia",tz:"America/New_York"},{name:"Phnom Penh",tz:"Asia/Phnom_Penh"},{name:"Phoenix",tz:"America/Phoenix"},{name:"Pituffik",tz:"America/Thule"},{name:"Podgorica",tz:"Europe/Podgorica"},{name:"Pond Inlet",tz:"America/Iqaluit"},{name:"Ponta Delgada",tz:"Atlantic/Azores"},{name:"Pontianak",tz:"Asia/Pontianak"},{name:"Port Louis",tz:"Indian/Mauritius"},{name:"Port Moresby",tz:"Pacific/Port_Moresby"},{name:"Port of Spain",tz:"America/Port_of_Spain"},{name:"Port Vila",tz:"Pacific/Efate"},{name:"Port-au-Prince",tz:"America/Port-au-Prince"},{name:"Port-aux-Francais",tz:"Indian/Kerguelen"},{name:"Porto Novo",tz:"Africa/Porto-Novo"},{name:"Prague",tz:"Europe/Prague"},{name:"Praia",tz:"Atlantic/Cape_Verde"},{name:"Pretoria",tz:"Africa/Johannesburg"},{name:"Pune",tz:"Asia/Kolkata"},{name:"Punta Arenas",tz:"America/Punta_Arenas"},{name:"Pyongyang",tz:"Asia/Pyongyang"},{name:"Qaanaaq",tz:"America/Thule"},{name:"Quito",tz:"America/Guayaquil"},{name:"Rabat",tz:"Africa/Casablanca"},{name:"Rarotonga",tz:"Pacific/Rarotonga"},{name:"Regina",tz:"America/Regina"},{name:"Resolute Bay",tz:"America/Resolute"},{name:"Reykjavik",tz:"Atlantic/Reykjavik"},{name:"Riga",tz:"Europe/Riga"},{name:"Rio Branco",tz:"America/Rio_Branco"},{name:"Rio de Janeiro",tz:"America/Sao_Paulo"},{name:"Riyadh",tz:"Asia/Riyadh"},{name:"Rome",tz:"Europe/Rome"},{name:"Rovaniemi",tz:"Europe/Helsinki"},{name:"Saint-Denis",tz:"Indian/Reunion"},{name:"Salt Lake City",tz:"America/Denver"},{name:"Samara",tz:"Europe/Samara"},{name:"San Francisco",tz:"America/Los_Angeles"},{name:"San Jose",tz:"America/Los_Angeles"},{name:"San Juan",tz:"America/Puerto_Rico"},{name:"San Salvador",tz:"America/El_Salvador"},{name:"Sana",tz:"Asia/Aden"},{name:"Santiago",tz:"America/Santiago"},{name:"Santo Domingo",tz:"America/Santo_Domingo"},{name:"São Paulo",tz:"America/Sao_Paulo"},{name:"São Tomé",tz:"Africa/Sao_Tome"},{name:"Sarajevo",tz:"Europe/Sarajevo"},{name:"Seattle",tz:"America/Los_Angeles"},{name:"Seoul",tz:"Asia/Seoul"},{name:"Shanghai",tz:"Asia/Shanghai"},{name:"Singapore",tz:"Asia/Singapore"},{name:"Skopje",tz:"Europe/Skopje"},{name:"Sofia",tz:"Europe/Sofia"},{name:"Srednekolymsk",tz:"Asia/Srednekolymsk"},{name:"Sri Jayawardenepura Kotte",tz:"Asia/Colombo"},{name:"St. John's",tz:"America/St_Johns"},{name:"Stanley",tz:"Atlantic/Stanley"},{name:"Stockholm",tz:"Europe/Stockholm"},{name:"Sucre",tz:"America/La_Paz"},{name:"Suva",tz:"Pacific/Fiji"},{name:"Sydney",tz:"Australia/Sydney"},{name:"Taipei",tz:"Asia/Taipei"},{name:"Tallinn",tz:"Europe/Tallinn"},{name:"Tarawa",tz:"Pacific/Tarawa"},{name:"Tashkent",tz:"Asia/Tashkent"},{name:"Tbilisi",tz:"Asia/Tbilisi"},{name:"Tegucigalpa",tz:"America/Tegucigalpa"},{name:"Tehran",tz:"Asia/Tehran"},{name:"Tel Aviv",tz:"Asia/Jerusalem"},{name:"Thimphu",tz:"Asia/Thimphu"},{name:"Tiksi",tz:"Asia/Yakutsk"},{name:"Timbuktu",tz:"Africa/Bamako"},{name:"Tirana",tz:"Europe/Tirana"},{name:"Tokyo",tz:"Asia/Tokyo"},{name:"Toronto",tz:"America/Toronto"},{name:"Tórshavn",tz:"Atlantic/Faroe"},{name:"Tripoli",tz:"Africa/Tripoli"},{name:"Tromsø",tz:"Europe/Oslo"},{name:"Tunis",tz:"Africa/Tunis"},{name:"Ulaanbaatar",tz:"Asia/Ulaanbaatar"},{name:"Unalaska",tz:"America/Adak"},{name:"Ürümqi",tz:"Asia/Urumqi"},{name:"Valletta",tz:"Europe/Malta"},{name:"Vancouver",tz:"America/Vancouver"},{name:"Vatican City",tz:"Europe/Vatican"},{name:"Verkhoyansk",tz:"Asia/Vladivostok"},{name:"Victoria",tz:"Indian/Mahe"},{name:"Vienna",tz:"Europe/Vienna"},{name:"Vientiane",tz:"Asia/Vientiane"},{name:"Vilnius",tz:"Europe/Vilnius"},{name:"Vladivostok",tz:"Asia/Vladivostok"},{name:"Wake Island",tz:"Pacific/Wake"},{name:"Warsaw",tz:"Europe/Warsaw"},{name:"Washington DC",tz:"America/New_York"},{name:"Wellington",tz:"Pacific/Auckland"},{name:"Whitehorse",tz:"America/Whitehorse"},{name:"Windhoek",tz:"Africa/Windhoek"},{name:"Winnipeg",tz:"America/Winnipeg"},{name:"Yakutsk",tz:"Asia/Yakutsk"},{name:"Yamoussoukro",tz:"Africa/Abidjan"},{name:"Yangon",tz:"Asia/Yangon"},{name:"Yaoundé",tz:"Africa/Douala"},{name:"Yaren",tz:"Pacific/Nauru"},{name:"Yekaterinburg",tz:"Asia/Yekaterinburg"},{name:"Yerevan",tz:"Asia/Yerevan"},{name:"Yuzhno-Sakhalinsk",tz:"Asia/Sakhalin"},{name:"Zagreb",tz:"Europe/Zagreb"},{name:"Zürich",tz:"Europe/Zurich"}
     ];
 
     const dateTokens = [
@@ -224,8 +224,8 @@
         {val:'brown', hex:'#b45f06', name:'Brown'}, {val:'dark-brown', hex:'#783f04', name:'Dark Brown'}
     ];
     
-    // V52: EMOJI LIST
-    const emojiList = ["✅","📅","⏰","🚀","💡","📝","🔔","💤","☕","🏆","🔥","⭐","🏋️","🧘","📚","🎨","✈️","🏠","💰","🛒","🎁","🎉","🍎","💧","☀","🌧","⚠","❓","❗","💪","🎧","💻"];
+    // V53: EMOJI LIST
+    const emojiList = ["✅","❌","📅","⏰","🚀","💡","📝","🔔","💤","☕","🏆","🔥","⭐","🏋️","🧘","📚","🎨","✈️","🏠","💰","🛒","🎁","🎉","🍎","💧","☀","🌧","⚠","❓","❗","💪","🎧","💻"];
 
     function utf8_to_b64(str) { return window.btoa(unescape(encodeURIComponent(str))); }
     function b64_to_utf8(str) { try { return decodeURIComponent(escape(window.atob(str))); } catch(e) { return window.atob(str); } }
@@ -234,7 +234,6 @@
         try {
             const hash = window.location.hash.substring(1);
             if(hash) {
-                // V52: Use UTF8 decode
                 const data = JSON.parse(b64_to_utf8(hash));
                 settings = data.settings || settings;
                 blocks = data.blocks || blocks;
@@ -259,7 +258,6 @@
 
     window.refreshPreview = () => {
         const json = JSON.stringify({ settings, blocks });
-        // V52: Use UTF8 encode
         const encoded = utf8_to_b64(json);
         const parts = window.location.href.split('#');
         let baseUrl = parts[0];
@@ -364,15 +362,7 @@
     
     window.removeBlock = (i) => { blocks.splice(i, 1); renderBlocks(); updateState(); };
 
-    function getColorOptions(selected) {
-        let html = '';
-        colorPalette.forEach(c => {
-            html += `<option value="${c.hex}" ${selected===c.hex?'selected':''}>${c.name}</option>`;
-        });
-        return html;
-    }
-
-    // V52: Emoji Picker Renderer
+    // V53: Emoji Picker Renderer
     function createEmojiPicker(index, field) {
         const btn = document.createElement('div');
         btn.className = 'emoji-btn';
@@ -393,14 +383,12 @@
             item.onclick = () => {
                 const input = btn.previousElementSibling;
                 input.value += e;
-                // Trigger input event manually to update state
                 const event = new Event('input', { bubbles: true });
                 input.dispatchEvent(event);
                 picker.classList.remove('active');
             };
             picker.appendChild(item);
         });
-        // Close on click outside
         document.addEventListener('click', (e) => {
             if (!btn.contains(e.target) && !picker.contains(e.target)) picker.classList.remove('active');
         });
@@ -440,10 +428,10 @@
                 <div class="block-content">
             `;
             
-            // V52: INJECT EMOJI PICKERS
             div.innerHTML = html;
             const contentDiv = div.querySelector('.block-content');
 
+            // V53: DOM CONSTRUCTION TO FIX LISTENERS
             if (block.type === 'header') {
                 const grp = document.createElement('div'); grp.className='input-group-emoji';
                 const lbl = document.createElement('label'); lbl.innerText='Text';
@@ -470,7 +458,10 @@
                 const em = createEmojiPicker(index, 'label');
                 grp.append(inp, em.btn, em.picker);
                 contentDiv.append(lbl, grp);
-                contentDiv.innerHTML += `<div class="sub-list" id="sub-list-${index}"></div><button class="sub-btn-add" onclick="addSubItem(${index}, 'steps')">+ Step</button>`; 
+                // V53: PREPEND so innerHTML doesn't nuke listener
+                const extras = document.createElement('div');
+                extras.innerHTML = `<div class="sub-list" id="sub-list-${index}"></div><button class="sub-btn-add" onclick="addSubItem(${index}, 'steps')">+ Step</button>`;
+                contentDiv.append(extras);
             }
             else if (block.type === 'counter') { 
                 const grp = document.createElement('div'); grp.className='input-group-emoji';
@@ -489,10 +480,12 @@
                 const em = createEmojiPicker(index, 'label');
                 grp.append(inp, em.btn, em.picker);
                 contentDiv.append(lbl, grp);
-                contentDiv.innerHTML += `<label>Target Date</label><input type="date" value="${block.date}" oninput="updateBlock(${index}, 'date', this.value)">
+                const extras = document.createElement('div');
+                extras.innerHTML = `<label>Target Date</label><input type="date" value="${block.date}" oninput="updateBlock(${index}, 'date', this.value)">
                 <div class="row"><div class="col" style="display:flex; align-items:center;"><label><input type="checkbox" style="width:auto" onchange="updateBlock(${index}, 'includeTime', this.checked); renderBlocks(true, ${index});" ${block.includeTime===true?'checked':''}> Specific Time?</label></div>
                 <div class="col"><label>Format</label><select onchange="updateBlock(${index}, 'style', this.value)"><option value="standard" ${block.style=='standard'?'selected':''}>Standard</option><option value="precise" ${block.style=='precise'?'selected':''}>Precise</option><option value="full" ${block.style=='full'?'selected':''}>Full</option></select></div></div>
-                ${block.includeTime ? `<label>Target Time</label><input type="time" value="${block.time||'00:00'}" oninput="updateBlock(${index}, 'time', this.value)">` : ''}`; 
+                ${block.includeTime ? `<label>Target Time</label><input type="time" value="${block.time||'00:00'}" oninput="updateBlock(${index}, 'time', this.value)">` : ''}`;
+                contentDiv.append(extras);
             }
             else if (block.type === 'timer') {
                 const grp = document.createElement('div'); grp.className='input-group-emoji';
@@ -501,7 +494,9 @@
                 const em = createEmojiPicker(index, 'label');
                 grp.append(inp, em.btn, em.picker);
                 contentDiv.append(lbl, grp);
-                contentDiv.innerHTML += `<div class="row"><div class="col"><label>Hours</label><input type="number" value="${block.hours}" oninput="updateBlock(${index}, 'hours', this.value)"></div><div class="col"><label>Minutes</label><input type="number" value="${block.minutes}" oninput="updateBlock(${index}, 'minutes', this.value)"></div></div>`;
+                const extras = document.createElement('div');
+                extras.innerHTML = `<div class="row"><div class="col"><label>Hours</label><input type="number" value="${block.hours}" oninput="updateBlock(${index}, 'hours', this.value)"></div><div class="col"><label>Minutes</label><input type="number" value="${block.minutes}" oninput="updateBlock(${index}, 'minutes', this.value)"></div></div>`;
+                contentDiv.append(extras);
             }
             else if (block.type === 'progress_custom') {
                 const grp = document.createElement('div'); grp.className='input-group-emoji';
@@ -510,7 +505,9 @@
                 const em = createEmojiPicker(index, 'label');
                 grp.append(inp, em.btn, em.picker);
                 contentDiv.append(lbl, grp);
-                contentDiv.innerHTML += `<div class="row"><div class="col"><label>Start Date</label><input type="date" value="${block.start}" oninput="updateBlock(${index}, 'start', this.value)"></div><div class="col"><label>End Date</label><input type="date" value="${block.end}" oninput="updateBlock(${index}, 'end', this.value)"></div></div>`;
+                const extras = document.createElement('div');
+                extras.innerHTML = `<div class="row"><div class="col"><label>Start Date</label><input type="date" value="${block.start}" oninput="updateBlock(${index}, 'start', this.value)"></div><div class="col"><label>End Date</label><input type="date" value="${block.end}" oninput="updateBlock(${index}, 'end', this.value)"></div></div>`;
+                contentDiv.append(extras);
             }
             else if (block.type === 'progress_cycle') {
                 const grp = document.createElement('div'); grp.className='input-group-emoji';
@@ -519,15 +516,20 @@
                 const em = createEmojiPicker(index, 'label');
                 grp.append(inp, em.btn, em.picker);
                 contentDiv.append(lbl, grp);
-                contentDiv.innerHTML += `<div class="row"><div class="col"><label>Start Date</label><input type="date" value="${block.anchor}" oninput="updateBlock(${index}, 'anchor', this.value)"></div><div class="col"><label>Duration (Days)</label><input type="number" value="${block.days}" oninput="updateBlock(${index}, 'days', this.value)"></div></div><label>Mode</label><select onchange="updateBlock(${index}, 'resetMode', this.value)"><option value="manual" ${block.resetMode=='manual'?'selected':''}>Manual Reset</option><option value="auto" ${block.resetMode=='auto'?'selected':''}>Auto Loop</option></select>`;
+                const extras = document.createElement('div');
+                extras.innerHTML = `<div class="row"><div class="col"><label>Start Date</label><input type="date" value="${block.anchor}" oninput="updateBlock(${index}, 'anchor', this.value)"></div><div class="col"><label>Duration (Days)</label><input type="number" value="${block.days}" oninput="updateBlock(${index}, 'days', this.value)"></div></div><label>Mode</label><select onchange="updateBlock(${index}, 'resetMode', this.value)"><option value="manual" ${block.resetMode=='manual'?'selected':''}>Manual Reset</option><option value="auto" ${block.resetMode=='auto'?'selected':''}>Auto Loop</option></select>`;
+                contentDiv.append(extras);
             }
 
-            // COLOR ENGINE
-            contentDiv.innerHTML += `<div class="viz-controls"><div class="viz-row">
+            // COLOR ENGINE - V53: Create as DOM element to avoid nuking inputs
+            const colorDiv = document.createElement('div');
+            colorDiv.className = "viz-controls";
+            colorDiv.innerHTML = `<div class="viz-row">
             <div class="col"><label>Accent Color</label><div style="display:flex;gap:5px;"><select onchange="updateBlock(${index}, 'color', this.value)" style="flex:1">${getColorOptions(block.color)}</select><input type="color" value="${block.color && block.color.startsWith('#')?block.color:'#000000'}" onchange="updateBlock(${index}, 'color', this.value)" style="width:30px;height:32px;cursor:pointer;"></div></div>
             <div class="col"><label>Text Color</label><div style="display:flex;gap:5px;"><select onchange="updateBlock(${index}, 'textColor', this.value)" style="flex:1">${getColorOptions(block.textColor)}</select><input type="color" value="${block.textColor && block.textColor.startsWith('#')?block.textColor:'#37352f'}" onchange="updateBlock(${index}, 'textColor', this.value)" style="width:30px;height:32px;cursor:pointer;"></div></div>
             <div class="col"><label>Width</label><select onchange="updateBlock(${index}, 'width', this.value)"><option value="100">Full</option><option value="50" ${block.width=='50'?'selected':''}>Half</option><option value="33" ${block.width=='33'?'selected':''}>1/3</option></select></div>
-            </div></div>`;
+            </div>`;
+            contentDiv.appendChild(colorDiv);
             
             area.appendChild(div);
 
@@ -539,7 +541,7 @@
         });
     }
     
-    // ... (Helpers identical to V51) ...
+    // ... (Helpers identical to V52) ...
     function renderCityList(bIdx, array) { const container = document.getElementById(`sub-list-${bIdx}`); if(!container) return; container.innerHTML = ''; array.forEach((item, iIdx) => { const row = document.createElement('div'); row.className = 'sub-item'; const wrapper = document.createElement('div'); wrapper.style.cssText = 'display:flex;width:100%;gap:8px;align-items:flex-start;'; const searchWrap = document.createElement('div'); searchWrap.className = 'city-search-wrapper'; searchWrap.style.flex = '1'; const input = document.createElement('input'); input.placeholder = "🔍 Search..."; input.value = item._searchVal || ''; if(item.label && !item._searchVal) input.placeholder = item.label; input.oninput = (e) => showCitySuggestions(e.target, bIdx, iIdx); const results = document.createElement('div'); results.className = 'city-results'; searchWrap.append(input, results); const lbl = document.createElement('input'); lbl.style.flex = '1'; lbl.value = item.label || ''; lbl.oninput = (e) => { blocks[bIdx].locations[iIdx].label = e.target.value; updateState(); }; const up = `<button class="sub-btn-mov" onclick="moveItem(${bIdx}, 'locations', ${iIdx}, -1)">↑</button>`; const down = `<button class="sub-btn-mov" onclick="moveItem(${bIdx}, 'locations', ${iIdx}, 1)">↓</button>`; const del = `<button class="sub-btn-rem" onclick="removeSubItem(${bIdx}, 'locations', ${iIdx})">×</button>`; wrapper.append(searchWrap, lbl); wrapper.insertAdjacentHTML('beforeend', up+down+del); row.appendChild(wrapper); container.appendChild(row); }); }
     function showCitySuggestions(input, bIdx, iIdx) { const val = input.value.toLowerCase(); const results = input.nextElementSibling; results.innerHTML = ''; if(val.length < 2) { results.style.display = 'none'; return; } const matches = cityDB.filter(c => c.name.toLowerCase().includes(val)).slice(0, 5); if(matches.length === 0) { results.style.display = 'none'; return; } matches.forEach(city => { const div = document.createElement('div'); div.className = 'city-result-item'; div.innerText = city.name; div.onclick = () => { blocks[bIdx].locations[iIdx]._searchVal = city.name; blocks[bIdx].locations[iIdx].label = city.name.split(',')[0]; blocks[bIdx].locations[iIdx].timezone = city.tz; updateState(); renderBlocks(true, bIdx); }; results.appendChild(div); }); results.style.display = 'block'; document.addEventListener('click', function close(e) { if(!input.contains(e.target)) { results.style.display = 'none'; document.removeEventListener('click', close); }}); }
     function renderAutoProgressList(bIdx, array) { const container = document.getElementById(`sub-list-${bIdx}`); if(!container) return; container.innerHTML = ''; array.forEach((item, iIdx) => { const row = document.createElement('div'); row.className = 'sub-item'; const mainRow = document.createElement('div'); mainRow.style.cssText = 'display:flex;width:100%;align-items:center;gap:8px; flex-wrap:wrap;'; const check = document.createElement('input'); check.type = 'checkbox'; check.style.width='auto'; check.margin='0'; check.checked = item.visible !== false; check.onchange = (e) => { blocks[bIdx].items[iIdx].visible = e.target.checked; updateState(); }; const lbl = document.createElement('input'); lbl.style.flex='1'; lbl.value = item.label; lbl.oninput = (e) => { blocks[bIdx].items[iIdx].label = e.target.value; updateState(); }; const up = `<button class="sub-btn-mov" onclick="moveItem(${bIdx}, 'items', ${iIdx}, -1)">↑</button>`; const down = `<button class="sub-btn-mov" onclick="moveItem(${bIdx}, 'items', ${iIdx}, 1)">↓</button>`; mainRow.append(check, lbl); if(item.type === 'life') { mainRow.insertAdjacentHTML('beforeend', `<input type="date" value="${item.dob||'1990-01-01'}" oninput="updateSubItem(${bIdx}, 'items', ${iIdx}, 'dob', this.value)" style="width:100px;font-size:0.7em"><input type="number" value="${item.expectancy||80}" oninput="updateSubItem(${bIdx}, 'items', ${iIdx}, 'expectancy', this.value)" style="width:40px;font-size:0.7em">`); } mainRow.insertAdjacentHTML('beforeend', up+down); row.appendChild(mainRow); container.appendChild(row); }); }
