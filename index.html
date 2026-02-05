@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Widget V62</title>
+    <title>Notion Widget V63</title>
     <style>
         :root {
             --bg-color: #FFFFFF; --text-color: #37352F; --accent-color: #E3E2E0;
@@ -67,8 +67,18 @@
         .counter-btn { border: none; background: transparent; cursor: pointer; font-size: 1.2em; color: inherit; }
         .counter-val { font-weight: bold; font-family: monospace; font-size: 1.2em; color: inherit; }
         
-        .countdown-line { display: flex; justify-content: space-between; align-items: baseline; font-size: 1.1em; color: var(--text-color, inherit); }
-        .countdown-val { font-weight: bold; color: var(--block-color, #37352F); } 
+        /* V63: BUBBLE STYLE FOR COUNTDOWN */
+        .countdown-bubble { 
+            background: var(--block-color, #e0e0e0); 
+            color: var(--text-color, #37352F); 
+            padding: 5px 10px; 
+            border-radius: var(--radius); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: baseline; 
+            font-size: 1.1em; 
+        }
+        .countdown-val { font-weight: bold; } 
         
         .spacer-line { width: 100%; border-bottom-color: var(--block-color, #37352F); opacity: 0.5; }
         .spacer-dashed { border-bottom-style: dashed; } .spacer-dotted { border-bottom-style: dotted; } .spacer-solid { border-bottom-style: solid; }
@@ -98,12 +108,12 @@
 
     <div id="dashboard"></div>
     <script>
-        // V62: UTF8 DECODER
-        function b64_to_utf8(str) { try { return decodeURIComponent(escape(window.atob(str))); } catch(e) { return window.atob(str); } }
+        // V63: CLEAN DECODER
+        function decodeConfig(str) { return JSON.parse(decodeURIComponent(str)); }
 
         function getConfig() { 
             try { 
-                const config = JSON.parse(b64_to_utf8(window.location.hash.substring(1))); 
+                const config = decodeConfig(window.location.hash.substring(1)); 
                 if(config.blocks) {
                     config.blocks.forEach((b, i) => {
                         if(!b.id) b.id = 'blk_legacy_' + i; 
@@ -113,9 +123,10 @@
             } catch(e) { return null; } 
         }
         
-        // V62: EDIT BUTTON LOGIC (Self-Awareness)
+        // V63: EDIT BUTTON (Check Query)
         function setupEditLink() {
-            if (window.self === window.top) {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('preview') !== 'true') {
                 const btn = document.getElementById('edit-btn');
                 if(btn) {
                     btn.style.display = 'block';
@@ -272,7 +283,8 @@
                     div.innerHTML = `<div class="date-display" id="date-main-${index}"></div><div class="date-sub" id="date-sub-${index}"></div>`; 
                 }
                 else if (block.type === 'countdown') { 
-                    div.innerHTML = `<div class="countdown-line"><span>${block.label}</span><span class="countdown-val" id="cnt-${index}">--</span></div>`; 
+                    // V63: BUBBLE STYLE
+                    div.innerHTML = `<div class="countdown-bubble"><span>${block.label}</span><span class="countdown-val" id="cnt-${index}">--</span></div>`; 
                 }
                 else if (block.type === 'timer') {
                     const hrs = parseInt(block.hours)||0; const mins = parseInt(block.minutes)||0; const total = (hrs*60)+mins; const label = hrs>0 ? `${hrs}h ${mins}m` : `${mins}m`;
@@ -372,6 +384,36 @@
             if (dist < 0) { if(el) el.innerText = "Done!"; localStorage.removeItem(`notion_timer_${id}`); return; }
             const m = Math.floor(dist / 60000); const s = Math.floor((dist % 60000) / 1000);
             if(el) el.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+
+        // V63: UPDATED DAY OF YEAR
+        function buildDateString(tokens, now) {
+            if(!tokens || !Array.isArray(tokens)) return '';
+            return tokens.map(t => {
+                const type = (typeof t === 'string') ? t : t.type;
+                switch(type) {
+                    case 'day_name_full': return now.toLocaleDateString([], {weekday:'long'});
+                    case 'day_name_short': return now.toLocaleDateString([], {weekday:'short'});
+                    case 'month_full': return now.toLocaleDateString([], {month:'long'});
+                    case 'month_short': return now.toLocaleDateString([], {month:'short'});
+                    case 'month_num': return (now.getMonth() + 1).toString().padStart(2, '0');
+                    case 'date_num': return now.getDate().toString().padStart(2,'0');
+                    case 'year': return now.getFullYear();
+                    case 'week_num': return `Week ${getWeekNumber(now)}`;
+                    case 'day_year': 
+                        const start = new Date(now.getFullYear(), 0, 0); 
+                        const diff = now - start; 
+                        const dayNum = Math.floor(diff / 86400000);
+                        const isLeap = (now.getFullYear() % 400 === 0) || (now.getFullYear() % 100 !== 0 && now.getFullYear() % 4 === 0);
+                        const totalDays = isLeap ? 366 : 365;
+                        return `Day ${dayNum}/${totalDays}`;
+                    case 'quarter': return `Q${Math.floor((now.getMonth() + 3) / 3)}`;
+                    case 'separator': return '|';
+                    case 'space': return ' ';
+                    case 'slash': return '/';
+                    default: return '';
+                }
+            }).join('');
         }
 
         window.addEventListener('hashchange', render);
