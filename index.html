@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Widget V60</title>
+    <title>Notion Widget V59</title>
     <style>
         :root {
             --bg-color: #FFFFFF; --text-color: #37352F; --accent-color: #E3E2E0;
@@ -67,18 +67,8 @@
         .counter-btn { border: none; background: transparent; cursor: pointer; font-size: 1.2em; color: inherit; }
         .counter-val { font-weight: bold; font-family: monospace; font-size: 1.2em; color: inherit; }
         
-        /* V60: Countdown Bubble */
-        .countdown-bubble { 
-            background: var(--block-color, #e0e0e0); 
-            color: var(--text-color, #37352F); 
-            padding: 5px 10px; 
-            border-radius: var(--radius); 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: baseline; 
-            font-size: 1.1em; 
-        }
-        .countdown-val { font-weight: bold; } 
+        .countdown-line { display: flex; justify-content: space-between; align-items: baseline; font-size: 1.1em; color: var(--text-color, inherit); }
+        .countdown-val { font-weight: bold; color: var(--block-color, #37352F); } 
         
         .spacer-line { width: 100%; border-bottom-color: var(--block-color, #37352F); opacity: 0.5; }
         .spacer-dashed { border-bottom-style: dashed; } .spacer-dotted { border-bottom-style: dotted; } .spacer-solid { border-bottom-style: solid; }
@@ -88,7 +78,7 @@
             background: rgba(255,255,255,0.9); border: 1px solid #ccc; color: #333; font-size: 0.75em; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px; pointer-events: auto; font-weight: bold; z-index: 100; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.2); display: inline-block; 
         }
 
-        /* EDIT BUTTON */
+        /* EDIT BUTTON - V59: Check Iframe Logic */
         .edit-btn {
             position: fixed; top: 10px; right: 10px;
             width: 30px; height: 30px;
@@ -108,7 +98,7 @@
 
     <div id="dashboard"></div>
     <script>
-        // V60: UTF8 DECODER
+        // V59: UTF8 DECODER
         function b64_to_utf8(str) { try { return decodeURIComponent(escape(window.atob(str))); } catch(e) { return window.atob(str); } }
 
         function getConfig() { 
@@ -123,8 +113,9 @@
             } catch(e) { return null; } 
         }
         
-        // V60: EDIT BUTTON LOGIC (Self-Awareness)
+        // V59: EDIT BUTTON LOGIC (Self-Awareness)
         function setupEditLink() {
+            // Only show if NOT in an iframe
             if (window.self === window.top) {
                 const btn = document.getElementById('edit-btn');
                 if(btn) {
@@ -282,8 +273,7 @@
                     div.innerHTML = `<div class="date-display" id="date-main-${index}"></div><div class="date-sub" id="date-sub-${index}"></div>`; 
                 }
                 else if (block.type === 'countdown') { 
-                    // V60: UPDATED TO BUBBLE STYLE
-                    div.innerHTML = `<div class="countdown-bubble"><span>${block.label}</span><span class="countdown-val" id="cnt-${index}">--</span></div>`; 
+                    div.innerHTML = `<div class="countdown-line"><span>${block.label}</span><span class="countdown-val" id="cnt-${index}">--</span></div>`; 
                 }
                 else if (block.type === 'timer') {
                     const hrs = parseInt(block.hours)||0; const mins = parseInt(block.minutes)||0; const total = (hrs*60)+mins; const label = hrs>0 ? `${hrs}h ${mins}m` : `${mins}m`;
@@ -413,7 +403,7 @@
                 html += `<tr class="${cls}"><td>${status}</td><td>${s.label}</td><td style="text-align:right">${s.duration}m</td></tr>`;
             });
             html += `</table>`;
-            // V60: STOP ICON
+            // V59: STOP ICON
             html += `<div class="timer-controls"><button class="timer-btn" onclick="seqAction('${id}', 'start')">▶</button><button class="timer-btn" onclick="seqAction('${id}', 'pause')">⏹</button><button class="timer-btn" onclick="seqAction('${id}', 'reset')">↻</button></div>`;
             html += `<div style="margin-top:8px; font-size:0.75em;"><label style="cursor:pointer"><input type="checkbox" ${loopState} ${toggleLoop}> Loop</label></div></div>`;
             parent.innerHTML = html;
@@ -595,7 +585,6 @@
             });
         }
         
-        // V60: UPDATED DAY OF YEAR
         function buildDateString(tokens, now) {
             if(!tokens || !Array.isArray(tokens)) return '';
             return tokens.map(t => {
@@ -615,7 +604,7 @@
                         const dayNum = Math.floor(diff / 86400000);
                         const isLeap = (now.getFullYear() % 400 === 0) || (now.getFullYear() % 100 !== 0 && now.getFullYear() % 4 === 0);
                         const totalDays = isLeap ? 366 : 365;
-                        return `Day ${dayNum}/${totalDays}`;
+                        return `Day ${dayNum} of ${totalDays}`;
                     case 'quarter': return `Q${Math.floor((now.getMonth() + 3) / 3)}`;
                     case 'separator': return '|';
                     case 'space': return ' ';
