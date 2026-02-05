@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Widget V61</title>
+    <title>Notion Widget V62</title>
     <style>
         :root {
             --bg-color: #FFFFFF; --text-color: #37352F; --accent-color: #E3E2E0;
@@ -67,18 +67,8 @@
         .counter-btn { border: none; background: transparent; cursor: pointer; font-size: 1.2em; color: inherit; }
         .counter-val { font-weight: bold; font-family: monospace; font-size: 1.2em; color: inherit; }
         
-        /* V61: Countdown Bubble Style */
-        .countdown-bubble { 
-            background: var(--block-color, #e0e0e0); 
-            color: var(--text-color, #37352F); 
-            padding: 5px 10px; 
-            border-radius: var(--radius); 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: baseline; 
-            font-size: 1.1em; 
-        }
-        .countdown-val { font-weight: bold; } 
+        .countdown-line { display: flex; justify-content: space-between; align-items: baseline; font-size: 1.1em; color: var(--text-color, inherit); }
+        .countdown-val { font-weight: bold; color: var(--block-color, #37352F); } 
         
         .spacer-line { width: 100%; border-bottom-color: var(--block-color, #37352F); opacity: 0.5; }
         .spacer-dashed { border-bottom-style: dashed; } .spacer-dotted { border-bottom-style: dotted; } .spacer-solid { border-bottom-style: solid; }
@@ -108,7 +98,7 @@
 
     <div id="dashboard"></div>
     <script>
-        // V61: UTF8 DECODER
+        // V62: UTF8 DECODER
         function b64_to_utf8(str) { try { return decodeURIComponent(escape(window.atob(str))); } catch(e) { return window.atob(str); } }
 
         function getConfig() { 
@@ -123,10 +113,9 @@
             } catch(e) { return null; } 
         }
         
-        // V61: EDIT BUTTON LOGIC (Check Query Param)
+        // V62: EDIT BUTTON LOGIC (Self-Awareness)
         function setupEditLink() {
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('preview') !== 'true') {
+            if (window.self === window.top) {
                 const btn = document.getElementById('edit-btn');
                 if(btn) {
                     btn.style.display = 'block';
@@ -283,8 +272,7 @@
                     div.innerHTML = `<div class="date-display" id="date-main-${index}"></div><div class="date-sub" id="date-sub-${index}"></div>`; 
                 }
                 else if (block.type === 'countdown') { 
-                    // V61: BUBBLE STYLE
-                    div.innerHTML = `<div class="countdown-bubble"><span>${block.label}</span><span class="countdown-val" id="cnt-${index}">--</span></div>`; 
+                    div.innerHTML = `<div class="countdown-line"><span>${block.label}</span><span class="countdown-val" id="cnt-${index}">--</span></div>`; 
                 }
                 else if (block.type === 'timer') {
                     const hrs = parseInt(block.hours)||0; const mins = parseInt(block.minutes)||0; const total = (hrs*60)+mins; const label = hrs>0 ? `${hrs}h ${mins}m` : `${mins}m`;
