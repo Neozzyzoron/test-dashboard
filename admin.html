@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Widget Admin V58</title>
+    <title>Widget Admin V59</title>
     <style>
         /* CORE */
         * { box-sizing: border-box; }
@@ -46,7 +46,7 @@
         .btn-action { padding: 6px 10px; font-size: 0.75rem; color: white; border-radius: 4px; border:none; cursor: pointer; font-weight: 600; white-space: nowrap; flex-shrink: 0;}
         .btn-refresh { background: #3498db; } .btn-copy { background: #27ae60; } .btn-open { background: #7f8c8d; }
         
-        /* COLORS */
+        /* V59: UPDATED FOOTER COLORS (White Text) */
         .btn-row { display: flex; gap: 6px; flex-wrap: wrap; }
         button.menu-btn { padding: 8px 10px; border: none; border-radius: 4px; font-weight: 600; font-size: 0.75rem; cursor: pointer; flex-grow: 1; text-align: center; color: white !important; transition: transform 0.1s; }
         button.menu-btn:hover { transform: translateY(-1px); opacity: 0.9; }
@@ -91,7 +91,7 @@
         .city-result-item { padding: 8px; cursor: pointer; font-size: 0.8rem; border-bottom: 1px solid #f0f0f0; }
         .city-result-item:hover { background: #f0f0f0; }
         
-        /* BORDERS */
+        /* V59: MATCHING BORDERS */
         .type-header { border-left-color: #7f8c8d; } 
         .type-date_display { border-left-color: #16a085; }
         .type-world_clock { border-left-color: #27ae60; } 
@@ -198,7 +198,7 @@
         {val: 'separator', txt: 'Separator (|)'}, {val: 'space', txt: 'Space'}, {val: 'slash', txt: '/'}
     ];
     
-    // V57: EXTENDED COLOR PALETTE
+    // V59: COLOR PALETTE (Expanded)
     const colorPalette = [
         {val:'default', hex:'#000000', name:'Default (Black)'},
         {val:'5b5b5b', hex:'#5b5b5b', name:'#5b5b5b'},
@@ -230,62 +230,34 @@
         {val:'783f04', hex:'#783f04', name:'#783f04'}
     ];
 
-    // V57: UTF8 HELPERS (Fixed Emoji Encoding)
+    // V59: STABLE ENCODING (Native OS Emoji Support)
     function utf8_to_b64(str) { return window.btoa(unescape(encodeURIComponent(str))); }
     function b64_to_utf8(str) { try { return decodeURIComponent(escape(window.atob(str))); } catch(e) { return window.atob(str); } }
 
-    function generateLink() { 
-        const json = JSON.stringify({ settings, blocks }); 
-        const encoded = utf8_to_b64(json); 
-        let url = window.location.href.split('#')[0].split('?')[0]; 
-        if(url.endsWith('admin.html')) url = url.substring(0, url.lastIndexOf('/')); 
-        if(url.endsWith('/')) url = url.slice(0, -1); 
-        // V57: PREVIEW PARAM (for Edit Button hiding)
-        const final = `${url}/index.html#${encoded}`; 
-        document.getElementById('result-url').value = final; 
-        return final; 
-    }
-
-    // V57: ROBUST INIT (Self-Healing)
     function init() {
         try {
             const hash = window.location.hash.substring(1);
             if(hash) {
-                // Try to parse using new UTF8 method
+                // Try robust decode
                 const data = JSON.parse(b64_to_utf8(hash));
                 settings = data.settings || settings;
                 blocks = data.blocks || blocks;
                 
                 // Backfill IDs
                 let dirty = false;
-                blocks.forEach(b => { 
-                    if(!b.id) { b.id = 'blk_' + Math.random().toString(36).substr(2, 9); dirty = true; }
-                });
-                
-                // If we successfully parsed and backfilled, update preview immediately
+                blocks.forEach(b => { if(!b.id) { b.id = 'blk_' + Math.random().toString(36).substr(2, 9); dirty = true; } });
                 if(dirty) refreshPreview();
-            } else { 
-                // Default Block if no hash
-                blocks = [{ type: 'header', text: 'Welcome', id: 'blk_welcome' }]; 
-            }
-        } catch(e) {
-            // If hash is corrupted (from V54/V56 crash), reset to safe state
-            console.warn("Hash corrupted, resetting.");
-            blocks = [{ type: 'header', text: 'Welcome', id: 'blk_welcome' }];
-            // Clear bad hash
-            window.history.replaceState(null, null, ' ');
-        }
-        
-        // Initial Render
-        document.getElementById('set-time').value = settings.use24h ? '24' : '12';
-        document.getElementById('set-week').value = settings.weekStart || 'monday';
-        document.getElementById('set-theme').value = settings.theme || 'standard';
-        document.getElementById('set-font').value = settings.font || 'sans';
-        document.getElementById('set-size').value = settings.textSize || 'medium';
-        document.getElementById('set-pad').value = settings.padding || 'comfortable';
-        
+
+                document.getElementById('set-time').value = settings.use24h ? '24' : '12';
+                document.getElementById('set-week').value = settings.weekStart || 'monday';
+                document.getElementById('set-theme').value = settings.theme || 'standard';
+                document.getElementById('set-font').value = settings.font || 'sans';
+                document.getElementById('set-size').value = settings.textSize || 'medium';
+                document.getElementById('set-pad').value = settings.padding || 'comfortable';
+            } else { blocks = [{ type: 'header', text: 'Welcome', id: 'blk_welcome' }]; }
+        } catch(e) {}
         renderBlocks();
-        refreshPreview(); // Instant load
+        setTimeout(refreshPreview, 1000);
     }
 
     window.refreshPreview = () => {
@@ -297,14 +269,14 @@
         else if(baseUrl.endsWith('/')) baseUrl += 'index.html';
         else baseUrl += '/index.html';
         
-        // V57: Add preview=true to hide pencil
+        // Pass "preview=true" to hide edit pencil inside Admin
         const url = `${baseUrl}?preview=true&t=${Date.now()}#${encoded}`;
         
+        // Clean URL for user to copy
         document.getElementById('result-url').value = `${baseUrl}#${encoded}`;
-        const iframe = document.getElementById('preview-frame');
-        if(iframe) iframe.src = url;
+        document.getElementById('preview-frame').src = url;
         
-        // Update Admin Hash (Silent)
+        // Update Admin Hash without reloading
         window.history.replaceState(null, null, `#${encoded}`);
     };
 
@@ -358,9 +330,7 @@
             const headerTitle = document.querySelector(`.block-card[data-index="${i}"] .block-label-preview`);
             if(headerTitle) headerTitle.innerText = v;
         }
-        if(k === 'gridType' || k === 'color' || k === 'textColor' || k === 'resetMode' || k === 'includeTime') { 
-            renderBlocks(true, i); 
-        }
+        if(k === 'gridType' || k === 'color' || k === 'textColor') { renderBlocks(true, i); }
         updateState(); 
     };
     
@@ -396,6 +366,14 @@
     
     window.removeBlock = (i) => { blocks.splice(i, 1); renderBlocks(); updateState(); };
 
+    function getColorOptions(selected) {
+        let html = '';
+        colorPalette.forEach(c => {
+            html += `<option value="${c.hex}" ${selected===c.hex?'selected':''}>${c.name}</option>`;
+        });
+        return html;
+    }
+
     function renderBlocks(keepOpen = false, specificIndex = -1) {
         let openIndices = [];
         if(specificIndex >= 0) openIndices = [specificIndex];
@@ -420,7 +398,7 @@
             let title = block.type.toUpperCase().replace('_',' ');
             let label = block.label || block.text || "";
             
-            // V57: STABLE HTML STRING TEMPLATES (V52 Logic)
+            // V59: RESTORED V52 STRING TEMPLATES
             let html = `
                 <div class="block-header" onclick="this.parentElement.classList.toggle('open')">
                     <span style="color:#ccc;">☰</span>
