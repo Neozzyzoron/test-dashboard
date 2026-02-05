@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notion Widget V56</title>
+    <title>Notion Widget V57</title>
     <style>
         :root {
             --bg-color: #FFFFFF; --text-color: #37352F; --accent-color: #E3E2E0;
@@ -78,7 +78,7 @@
             background: rgba(255,255,255,0.9); border: 1px solid #ccc; color: #333; font-size: 0.75em; padding: 2px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px; pointer-events: auto; font-weight: bold; z-index: 100; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.2); display: inline-block; 
         }
 
-        /* V56: EDIT BUTTON - Hidden if preview param */
+        /* V57: EDIT BUTTON - Hidden if preview param */
         .edit-btn {
             position: fixed; top: 10px; right: 10px;
             width: 30px; height: 30px;
@@ -98,7 +98,7 @@
 
     <div id="dashboard"></div>
     <script>
-        // V56: UTF8 DECODER
+        // V57: UTF8 DECODER
         function b64_to_utf8(str) { try { return decodeURIComponent(escape(window.atob(str))); } catch(e) { return window.atob(str); } }
 
         function getConfig() { 
@@ -113,7 +113,7 @@
             } catch(e) { return null; } 
         }
         
-        // V56: EDIT BUTTON LOGIC (Check Query Param)
+        // V57: EDIT BUTTON LOGIC (Check Query Param)
         function setupEditLink() {
             const params = new URLSearchParams(window.location.search);
             if (params.get('preview') !== 'true') {
@@ -227,6 +227,7 @@
                 if (block.width === '50') div.classList.add('half-width');
                 if (block.width === '33') div.classList.add('third-width');
                 
+                // V57: Remove forced defaults. Let CSS handle it.
                 if (block.color && block.color !== 'default') {
                     const val = block.color.startsWith('#') ? block.color : `var(--c-${block.color})`;
                     div.style.setProperty('--block-color', val);
@@ -403,7 +404,7 @@
                 html += `<tr class="${cls}"><td>${status}</td><td>${s.label}</td><td style="text-align:right">${s.duration}m</td></tr>`;
             });
             html += `</table>`;
-            // V56: Stop icon
+            // V57: STOP ICON
             html += `<div class="timer-controls"><button class="timer-btn" onclick="seqAction('${id}', 'start')">▶</button><button class="timer-btn" onclick="seqAction('${id}', 'pause')">⏹</button><button class="timer-btn" onclick="seqAction('${id}', 'reset')">↻</button></div>`;
             html += `<div style="margin-top:8px; font-size:0.75em;"><label style="cursor:pointer"><input type="checkbox" ${loopState} ${toggleLoop}> Loop</label></div></div>`;
             parent.innerHTML = html;
@@ -585,7 +586,7 @@
             });
         }
         
-        // V56: Updated Day of Year formatting
+        // V57: Updated Day of Year formatting
         function buildDateString(tokens, now) {
             if(!tokens || !Array.isArray(tokens)) return '';
             return tokens.map(t => {
