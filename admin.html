@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Widget Admin V56</title>
+    <title>Widget Admin V57</title>
     <style>
         /* CORE */
         * { box-sizing: border-box; }
@@ -46,11 +46,11 @@
         .btn-action { padding: 6px 10px; font-size: 0.75rem; color: white; border-radius: 4px; border:none; cursor: pointer; font-weight: 600; white-space: nowrap; flex-shrink: 0;}
         .btn-refresh { background: #3498db; } .btn-copy { background: #27ae60; } .btn-open { background: #7f8c8d; }
         
+        /* V57: NEW FOOTER COLORS (White Text) */
         .btn-row { display: flex; gap: 6px; flex-wrap: wrap; }
-        button.menu-btn { padding: 8px 10px; border: none; border-radius: 4px; font-weight: 600; font-size: 0.75rem; cursor: pointer; flex-grow: 1; text-align: center; color: #fff !important; transition: transform 0.1s; }
+        button.menu-btn { padding: 8px 10px; border: none; border-radius: 4px; font-weight: 600; font-size: 0.75rem; cursor: pointer; flex-grow: 1; text-align: center; color: white !important; transition: transform 0.1s; }
         button.menu-btn:hover { transform: translateY(-1px); opacity: 0.9; }
         
-        /* V56: UPDATED FOOTER COLORS */
         .btn-header { background: #7f8c8d; } 
         .btn-date { background: #16a085; } 
         .btn-time { background: #27ae60; } 
@@ -91,7 +91,7 @@
         .city-result-item { padding: 8px; cursor: pointer; font-size: 0.8rem; border-bottom: 1px solid #f0f0f0; }
         .city-result-item:hover { background: #f0f0f0; }
         
-        /* MATCHING BORDERS */
+        /* V57: MATCHING BORDERS */
         .type-header { border-left-color: #7f8c8d; } 
         .type-date_display { border-left-color: #16a085; }
         .type-world_clock { border-left-color: #27ae60; } 
@@ -106,20 +106,6 @@
         .type-moon_phase { border-left-color: #34495e; }
         .type-spacer { border-left-color: #95a5a6; } 
         .type-empty { border-left-color: #95a5a6; }
-
-        /* V56: EMOJI PICKER */
-        .input-group-emoji { display: flex; gap: 5px; align-items: center; width: 100%; position: relative; flex-grow: 1; }
-        .emoji-btn { padding: 6px; cursor: pointer; background: #eee; border: 1px solid #ddd; border-radius: 4px; font-size: 1.1rem; line-height: 1; user-select: none; flex-shrink: 0; }
-        .emoji-btn:hover { background: #e0e0e0; }
-        .emoji-picker { 
-            position: absolute; top: 100%; right: 0; width: 220px; background: white; 
-            border: 1px solid #ccc; box-shadow: 0 4px 15px rgba(0,0,0,0.15); 
-            border-radius: 6px; padding: 8px; display: none; z-index: 10000; 
-            flex-wrap: wrap; gap: 4px; justify-content: center;
-        }
-        .emoji-picker.active { display: flex; }
-        .emoji-item { cursor: pointer; font-size: 1.2rem; padding: 4px; border-radius: 4px; transition: background 0.2s; }
-        .emoji-item:hover { background: #f0f0f0; transform: scale(1.2); }
     </style>
 </head>
 <body>
@@ -198,7 +184,7 @@
     let settings = { use24h: false, weekStart: 'monday', theme: 'standard', textSize: 'medium', padding:'comfortable' };
     let blocks = [];
     
-    // CITY DATABASE
+    // CITY DATABASE (300+ Cities)
     const cityDB = [
 {name:"Abidjan",tz:"Africa/Abidjan"},{name:"Abu Dhabi",tz:"Asia/Dubai"},{name:"Abuja",tz:"Africa/Lagos"},{name:"Accra",tz:"Africa/Accra"},{name:"Adak",tz:"America/Adak"},{name:"Adamstown",tz:"Pacific/Pitcairn"},{name:"Addis Ababa",tz:"Africa/Addis_Ababa"},{name:"Adelaide",tz:"Australia/Adelaide"},{name:"Alert",tz:"America/Iqaluit"},{name:"Algiers",tz:"Africa/Algiers"},{name:"Alice Springs",tz:"Australia/Darwin"},{name:"Almaty",tz:"Asia/Almaty"},{name:"Alofi",tz:"Pacific/Niue"},{name:"Amman",tz:"Asia/Amman"},{name:"Amsterdam",tz:"Europe/Amsterdam"},{name:"Amsterdam Island",tz:"Indian/Kerguelen"},{name:"Anadyr",tz:"Asia/Anadyr"},{name:"Anchorage",tz:"America/Anchorage"},{name:"Ankara",tz:"Europe/Istanbul"},{name:"Antananarivo",tz:"Indian/Antananarivo"},{name:"Apia",tz:"Pacific/Apia"},{name:"Ashgabat",tz:"Asia/Ashgabat"},{name:"Asmara",tz:"Africa/Asmara"},{name:"Astana",tz:"Asia/Almaty"},{name:"Asuncion",tz:"America/Asuncion"},{name:"Athens",tz:"Europe/Athens"},{name:"Atlanta",tz:"America/New_York"},{name:"Auckland",tz:"Pacific/Auckland"},{name:"Austin",tz:"America/Chicago"},{name:"Baghdad",tz:"Asia/Baghdad"},{name:"Baker Island",tz:"Etc/GMT+12"},{name:"Baker Lake",tz:"America/Rankin_Inlet"},{name:"Baku",tz:"Asia/Baku"},{name:"Bamako",tz:"Africa/Bamako"},{name:"Bandar Seri Begawan",tz:"Asia/Brunei"},{name:"Bangkok",tz:"Asia/Bangkok"},{name:"Bangui",tz:"Africa/Bangui"},{name:"Banjul",tz:"Africa/Banjul"},{name:"Barcelona",tz:"Europe/Madrid"},{name:"Basse-Terre",tz:"America/Guadeloupe"},{name:"Beijing",tz:"Asia/Shanghai"},{name:"Beirut",tz:"Asia/Beirut"},{name:"Belém",tz:"America/Belem"},{name:"Belgrade",tz:"Europe/Belgrade"},{name:"Belfast",tz:"Europe/Belfast"},{name:"Belmopan",tz:"America/Belize"},{name:"Belushya Guba",tz:"Europe/Moscow"},{name:"Bengaluru",tz:"Asia/Kolkata"},{name:"Berlin",tz:"Europe/Berlin"},{name:"Bern",tz:"Europe/Zurich"},{name:"Bishkek",tz:"Asia/Bishkek"},{name:"Bissau",tz:"Africa/Bissau"},{name:"Bogota",tz:"America/Bogota"},{name:"Boston",tz:"America/New_York"},{name:"Brasilia",tz:"America/Sao_Paulo"},{name:"Bratislava",tz:"Europe/Bratislava"},{name:"Brazzaville",tz:"Africa/Brazzaville"},{name:"Bridgetown",tz:"America/Barbados"},{name:"Brisbane",tz:"Australia/Brisbane"},{name:"Brussels",tz:"Europe/Brussels"},{name:"Bucharest",tz:"Europe/Bucharest"},{name:"Budapest",tz:"Europe/Budapest"},{name:"Buenos Aires",tz:"America/Argentina/Buenos_Aires"},{name:"Bujumbura",tz:"Africa/Bujumbura"},{name:"Cairns",tz:"Australia/Brisbane"},{name:"Cairo",tz:"Africa/Cairo"},{name:"Calgary",tz:"America/Edmonton"},{name:"Canberra",tz:"Australia/Sydney"},{name:"Cancún",tz:"America/Cancun"},{name:"Cape Town",tz:"Africa/Johannesburg"},{name:"Caracas",tz:"America/Caracas"},{name:"Cardiff",tz:"Europe/London"},{name:"Casablanca",tz:"Africa/Casablanca"},{name:"Cayenne",tz:"America/Cayenne"},{name:"Chatham Islands",tz:"Pacific/Chatham"},{name:"Chennai",tz:"Asia/Kolkata"},{name:"Chibougamau",tz:"America/Toronto"},{name:"Chicago",tz:"America/Chicago"},{name:"Chișinău",tz:"Europe/Chisinau"},{name:"Chita",tz:"Asia/Chita"},{name:"Chongqing",tz:"Asia/Chongqing"},{name:"Ciudad de la Paz",tz:"Africa/Malabo"},{name:"Conakry",tz:"Africa/Conakry"},{name:"Copenhagen",tz:"Europe/Copenhagen"},{name:"Coral Harbour",tz:"America/Atikokan"},{name:"Córdoba",tz:"America/Argentina/Cordoba"},{name:"Dakar",tz:"Africa/Dakar"},{name:"Dallas",tz:"America/Chicago"},{name:"Damascus",tz:"Asia/Damascus"},{name:"Danmarkshavn",tz:"America/Danmarkshavn"},{name:"Dar es Salaam",tz:"Africa/Dar_es_Salaam"},{name:"Darwin",tz:"Australia/Darwin"},{name:"Denpasar",tz:"Asia/Makassar"},{name:"Denver",tz:"America/Denver"},{name:"Detroit",tz:"America/Detroit"},{name:"Dhaka",tz:"Asia/Dhaka"},{name:"Diego Garcia",tz:"Indian/Chagos"},{name:"Dili",tz:"Asia/Dili"},{name:"Djibouti",tz:"Africa/Djibouti"},{name:"Dnipro",tz:"Europe/Kyiv"},{name:"Dodoma",tz:"Africa/Dar_es_Salaam"},{name:"Doha",tz:"Asia/Qatar"},{name:"Douglas",tz:"Europe/Isle_of_Man"},{name:"Dubai",tz:"Asia/Dubai"},{name:"Dublin",tz:"Europe/Dublin"},{name:"Dushanbe",tz:"Asia/Dushanbe"},{name:"Easter Island",tz:"Pacific/Easter"},{name:"Edinburgh",tz:"Europe/London"},{name:"Edmonton",tz:"America/Edmonton"},{name:"El Aaiún",tz:"Africa/El_Aaiun"},{name:"Eucla",tz:"Australia/Eucla"},{name:"Eureka",tz:"America/Winnipeg"},{name:"Fairbanks",tz:"America/Anchorage"},{name:"Fakaofo",tz:"Pacific/Fakaofo"},{name:"Fortaleza",tz:"America/Fortaleza"},{name:"Frankfurt",tz:"Europe/Berlin"},{name:"Freetown",tz:"Africa/Freetown"},{name:"Funafuti",tz:"Pacific/Funafuti"},{name:"Gaborone",tz:"Africa/Gaborone"},{name:"Galapagos Islands",tz:"Pacific/Galapagos"},{name:"Georgetown",tz:"America/Guyana"},{name:"Gibraltar",tz:"Europe/Gibraltar"},{name:"Gitega",tz:"Africa/Bujumbura"},{name:"Glasgow",tz:"Europe/London"},{name:"Grise Fiord",tz:"America/Iqaluit"},{name:"Guatemala City",tz:"America/Guatemala"},{name:"Hagåtña",tz:"Pacific/Guam"},{name:"Halifax",tz:"America/Halifax"},{name:"Hamilton",tz:"America/Toronto"},{name:"Hanoi",tz:"Asia/Ho_Chi_Minh"},{name:"Happy Valley-Goose Bay",tz:"America/Goose_Bay"},{name:"Harare",tz:"Africa/Harare"},{name:"Havana",tz:"America/Havana"},{name:"Helsinki",tz:"Europe/Helsinki"},{name:"Hermosillo",tz:"America/Hermosillo"},{name:"Hobart",tz:"Australia/Hobart"},{name:"Hong Kong",tz:"Asia/Hong_Kong"},{name:"Honiara",tz:"Pacific/Guadalcanal"},{name:"Honolulu",tz:"Pacific/Honolulu"},{name:"Houston",tz:"America/Chicago"},{name:"Hovd",tz:"Asia/Hovd"},{name:"Indianapolis",tz:"America/Indiana/Indianapolis"},{name:"Inuvik",tz:"America/Inuvik"},{name:"Irkutsk",tz:"Asia/Irkutsk"},{name:"Islamabad",tz:"Asia/Karachi"},{name:"Istanbul",tz:"Europe/Istanbul"},{name:"Ittoqqortoormiit",tz:"America/Scoresbysund"},{name:"Izhevsk",tz:"Europe/Samara"},{name:"Jakarta",tz:"Asia/Jakarta"},{name:"Jamestown",tz:"Atlantic/St_Helena"},{name:"Jerusalem",tz:"Asia/Jerusalem"},{name:"Johannesburg",tz:"Africa/Johannesburg"},{name:"Juba",tz:"Africa/Juba"},{name:"Juneau",tz:"America/Juneau"},{name:"Kabul",tz:"Asia/Kabul"},{name:"Kaliningrad",tz:"Europe/Kaliningrad"},{name:"Kampala",tz:"Africa/Kampala"},{name:"Kangerlussuaq",tz:"America/Nuuk"},{name:"Kansas City",tz:"America/Chicago"},{name:"Karachi",tz:"Asia/Karachi"},{name:"Kathmandu",tz:"Asia/Kathmandu"},{name:"Kemi",tz:"Europe/Helsinki"},{name:"Khartoum",tz:"Africa/Khartoum"},{name:"Khatanga",tz:"Asia/Krasnoyarsk"},{name:"Kigali",tz:"Africa/Kigali"},{name:"King Edward Point",tz:"Atlantic/South_Georgia"},{name:"Kingston",tz:"America/Jamaica"},{name:"Kinshasa",tz:"Africa/Kinshasa"},{name:"Kiritimati",tz:"Pacific/Kiritimati"},{name:"Kolkata",tz:"Asia/Kolkata"},{name:"Komsomolsk-on-Amur",tz:"Asia/Vladivostok"},{name:"Krasnoyarsk",tz:"Asia/Krasnoyarsk"},{name:"Kuala Lumpur",tz:"Asia/Kuala_Lumpur"},{name:"Kuujjuaq",tz:"America/Iqaluit"},{name:"Kuwait City",tz:"Asia/Kuwait"},{name:"Kyiv",tz:"Europe/Kyiv"},{name:"La Paz",tz:"America/La_Paz"},{name:"Lagos",tz:"Africa/Lagos"},{name:"Lahore",tz:"Asia/Karachi"},{name:"Las Vegas",tz:"America/Los_Angeles"},{name:"Lhasa",tz:"Asia/Shanghai"},{name:"Libreville",tz:"Africa/Libreville"},{name:"Lilongwe",tz:"Africa/Blantyre"},{name:"Lima",tz:"America/Lima"},{name:"Lisbon",tz:"Europe/Lisbon"},{name:"Ljubljana",tz:"Europe/Ljubljana"},{name:"Lomé",tz:"Africa/Lome"},{name:"London",tz:"Europe/London"},{name:"Longyearbyen",tz:"Arctic/Longyearbyen"},{name:"Los Angeles",tz:"America/Los_Angeles"},{name:"Luanda",tz:"Africa/Luanda"},{name:"Lubumbashi",tz:"Africa/Lubumbashi"},{name:"Lusaka",tz:"Africa/Lusaka"},{name:"Luxembourg",tz:"Europe/Luxembourg"},{name:"Madrid",tz:"Europe/Madrid"},{name:"Magadan",tz:"Asia/Magadan"},{name:"Majuro",tz:"Pacific/Majuro"},{name:"Makassar",tz:"Asia/Makassar"},{name:"Malabo",tz:"Africa/Malabo"},{name:"Male",tz:"Indian/Maldives"},{name:"Managua",tz:"America/Managua"},{name:"Manama",tz:"Asia/Bahrain"},{name:"Manaus",tz:"America/Manaus"},{name:"Manila",tz:"Asia/Manila"},{name:"Manokwari",tz:"Asia/Jayapura"},{name:"Maputo",tz:"Africa/Maputo"},{name:"Marion Island",tz:"Indian/Antananarivo"},{name:"Mary's Harbour",tz:"America/St_Johns"},{name:"Maseru",tz:"Africa/Maseru"},{name:"Mbabane",tz:"Africa/Mbabane"},{name:"Melbourne",tz:"Australia/Melbourne"},{name:"Mexico City",tz:"America/Mexico_City"},{name:"Miami",tz:"America/New_York"},{name:"Midway",tz:"Pacific/Midway"},{name:"Minneapolis",tz:"America/Chicago"},{name:"Minsk",tz:"Europe/Minsk"},{name:"Mogadishu",tz:"Africa/Mogadishu"},{name:"Monaco",tz:"Europe/Monaco"},{name:"Monrovia",tz:"Africa/Monrovia"},{name:"Montevideo",tz:"America/Montevideo"},{name:"Montréal",tz:"America/Toronto"},{name:"Moroni",tz:"Indian/Comoro"},{name:"Moscow",tz:"Europe/Moscow"},{name:"Mumbai",tz:"Asia/Kolkata"},{name:"Muscat",tz:"Asia/Muscat"},{name:"Nairobi",tz:"Africa/Nairobi"},{name:"Nassau",tz:"America/Nassau"},{name:"Naypyidaw",tz:"Asia/Yangon"},{name:"N'Djamena",tz:"Africa/Ndjamena"},{name:"New Delhi",tz:"Asia/Kolkata"},{name:"New Orleans",tz:"America/Chicago"},{name:"New York",tz:"America/New_York"},{name:"Ngerulmud",tz:"Pacific/Palau"},{name:"Niamey",tz:"Africa/Niamey"},{name:"Nicosia",tz:"Asia/Nicosia"},{name:"Norilsk",tz:"Asia/Krasnoyarsk"},{name:"Nouakchott",tz:"Africa/Nouakchott"},{name:"Novosibirsk",tz:"Asia/Novosibirsk"},{name:"Nuku'alofa",tz:"Pacific/Tongatapu"},{name:"Nusantara",tz:"Asia/Makassar"},{name:"Nuuk",tz:"America/Nuuk"},{name:"Oklahoma City",tz:"America/Chicago"},{name:"Omsk",tz:"Asia/Omsk"},{name:"Oral",tz:"Asia/Oral"},{name:"Oslo",tz:"Europe/Oslo"},{name:"Ottawa",tz:"America/Toronto"},{name:"Ouagadougou",tz:"Africa/Ouagadougou"},{name:"Palikir",tz:"Pacific/Pohnpei"},{name:"Panama",tz:"America/Panama"},{name:"Papeete",tz:"Pacific/Tahiti"},{name:"Paramaribo",tz:"America/Paramaribo"},{name:"Paris",tz:"Europe/Paris"},{name:"Perth",tz:"Australia/Perth"},{name:"Petropavlovsk-Kamchatsky",tz:"Asia/Kamchatka"},{name:"Pevek",tz:"Asia/Srednekolymsk"},{name:"Philadelphia",tz:"America/New_York"},{name:"Phnom Penh",tz:"Asia/Phnom_Penh"},{name:"Phoenix",tz:"America/Phoenix"},{name:"Pituffik",tz:"America/Thule"},{name:"Podgorica",tz:"Europe/Podgorica"},{name:"Pond Inlet",tz:"America/Iqaluit"},{name:"Ponta Delgada",tz:"Atlantic/Azores"},{name:"Pontianak",tz:"Asia/Pontianak"},{name:"Port Louis",tz:"Indian/Mauritius"},{name:"Port Moresby",tz:"Pacific/Port_Moresby"},{name:"Port of Spain",tz:"America/Port_of_Spain"},{name:"Port Vila",tz:"Pacific/Efate"},{name:"Port-au-Prince",tz:"America/Port-au-Prince"},{name:"Port-aux-Francais",tz:"Indian/Kerguelen"},{name:"Porto Novo",tz:"Africa/Porto-Novo"},{name:"Prague",tz:"Europe/Prague"},{name:"Praia",tz:"Atlantic/Cape_Verde"},{name:"Pretoria",tz:"Africa/Johannesburg"},{name:"Pune",tz:"Asia/Kolkata"},{name:"Punta Arenas",tz:"America/Punta_Arenas"},{name:"Pyongyang",tz:"Asia/Pyongyang"},{name:"Qaanaaq",tz:"America/Thule"},{name:"Quito",tz:"America/Guayaquil"},{name:"Rabat",tz:"Africa/Casablanca"},{name:"Rarotonga",tz:"Pacific/Rarotonga"},{name:"Regina",tz:"America/Regina"},{name:"Resolute Bay",tz:"America/Resolute"},{name:"Reykjavik",tz:"Atlantic/Reykjavik"},{name:"Riga",tz:"Europe/Riga"},{name:"Rio Branco",tz:"America/Rio_Branco"},{name:"Rio de Janeiro",tz:"America/Sao_Paulo"},{name:"Riyadh",tz:"Asia/Riyadh"},{name:"Rome",tz:"Europe/Rome"},{name:"Rovaniemi",tz:"Europe/Helsinki"},{name:"Saint-Denis",tz:"Indian/Reunion"},{name:"Salt Lake City",tz:"America/Denver"},{name:"Samara",tz:"Europe/Samara"},{name:"San Francisco",tz:"America/Los_Angeles"},{name:"San Jose",tz:"America/Los_Angeles"},{name:"San Juan",tz:"America/Puerto_Rico"},{name:"San Salvador",tz:"America/El_Salvador"},{name:"Sana",tz:"Asia/Aden"},{name:"Santiago",tz:"America/Santiago"},{name:"Santo Domingo",tz:"America/Santo_Domingo"},{name:"São Paulo",tz:"America/Sao_Paulo"},{name:"São Tomé",tz:"Africa/Sao_Tome"},{name:"Sarajevo",tz:"Europe/Sarajevo"},{name:"Seattle",tz:"America/Los_Angeles"},{name:"Seoul",tz:"Asia/Seoul"},{name:"Shanghai",tz:"Asia/Shanghai"},{name:"Singapore",tz:"Asia/Singapore"},{name:"Skopje",tz:"Europe/Skopje"},{name:"Sofia",tz:"Europe/Sofia"},{name:"Srednekolymsk",tz:"Asia/Srednekolymsk"},{name:"Sri Jayawardenepura Kotte",tz:"Asia/Colombo"},{name:"St. John's",tz:"America/St_Johns"},{name:"Stanley",tz:"Atlantic/Stanley"},{name:"Stockholm",tz:"Europe/Stockholm"},{name:"Sucre",tz:"America/La_Paz"},{name:"Suva",tz:"Pacific/Fiji"},{name:"Sydney",tz:"Australia/Sydney"},{name:"Taipei",tz:"Asia/Taipei"},{name:"Tallinn",tz:"Europe/Tallinn"},{name:"Tarawa",tz:"Pacific/Tarawa"},{name:"Tashkent",tz:"Asia/Tashkent"},{name:"Tbilisi",tz:"Asia/Tbilisi"},{name:"Tegucigalpa",tz:"America/Tegucigalpa"},{name:"Tehran",tz:"Asia/Tehran"},{name:"Tel Aviv",tz:"Asia/Jerusalem"},{name:"Thimphu",tz:"Asia/Thimphu"},{name:"Tiksi",tz:"Asia/Yakutsk"},{name:"Timbuktu",tz:"Africa/Bamako"},{name:"Tirana",tz:"Europe/Tirana"},{name:"Tokyo",tz:"Asia/Tokyo"},{name:"Toronto",tz:"America/Toronto"},{name:"Tórshavn",tz:"Atlantic/Faroe"},{name:"Tripoli",tz:"Africa/Tripoli"},{name:"Tromsø",tz:"Europe/Oslo"},{name:"Tunis",tz:"Africa/Tunis"},{name:"Ulaanbaatar",tz:"Asia/Ulaanbaatar"},{name:"Unalaska",tz:"America/Adak"},{name:"Ürümqi",tz:"Asia/Urumqi"},{name:"Valletta",tz:"Europe/Malta"},{name:"Vancouver",tz:"America/Vancouver"},{name:"Vatican City",tz:"Europe/Vatican"},{name:"Verkhoyansk",tz:"Asia/Vladivostok"},{name:"Victoria",tz:"Indian/Mahe"},{name:"Vienna",tz:"Europe/Vienna"},{name:"Vientiane",tz:"Asia/Vientiane"},{name:"Vilnius",tz:"Europe/Vilnius"},{name:"Vladivostok",tz:"Asia/Vladivostok"},{name:"Wake Island",tz:"Pacific/Wake"},{name:"Warsaw",tz:"Europe/Warsaw"},{name:"Washington DC",tz:"America/New_York"},{name:"Wellington",tz:"Pacific/Auckland"},{name:"Whitehorse",tz:"America/Whitehorse"},{name:"Windhoek",tz:"Africa/Windhoek"},{name:"Winnipeg",tz:"America/Winnipeg"},{name:"Yakutsk",tz:"Asia/Yakutsk"},{name:"Yamoussoukro",tz:"Africa/Abidjan"},{name:"Yangon",tz:"Asia/Yangon"},{name:"Yaoundé",tz:"Africa/Douala"},{name:"Yaren",tz:"Pacific/Nauru"},{name:"Yekaterinburg",tz:"Asia/Yekaterinburg"},{name:"Yerevan",tz:"Asia/Yerevan"},{name:"Yuzhno-Sakhalinsk",tz:"Asia/Sakhalin"},{name:"Zagreb",tz:"Europe/Zagreb"},{name:"Zürich",tz:"Europe/Zurich"}
     ];
@@ -212,22 +198,39 @@
         {val: 'separator', txt: 'Separator (|)'}, {val: 'space', txt: 'Space'}, {val: 'slash', txt: '/'}
     ];
     
-    // COLOR PALETTE
+    // V57: EXPANDED COLOR PALETTE
     const colorPalette = [
-        {val:'default', hex:'#000000', name:'Default'},
-        {val:'dark-grey', hex:'#5b5b5b', name:'Dark Grey'}, {val:'light-grey', hex:'#bcbcbc', name:'Light Grey'},
-        {val:'pale-yellow', hex:'#fff68f', name:'Pale Yellow'}, {val:'yellow', hex:'#ffff00', name:'Yellow'}, {val:'gold', hex:'#ffd700', name:'Gold'}, {val:'amber', hex:'#ffcc5c', name:'Amber'},
-        {val:'orange', hex:'#f37736', name:'Orange'}, {val:'red', hex:'#fa2c1c', name:'Red'}, {val:'dark-red', hex:'#cc0000', name:'Dark Red'},
-        {val:'lime', hex:'#8fce00', name:'Lime'}, {val:'green', hex:'#6aa84f', name:'Green'}, {val:'dark-green', hex:'#38761d', name:'Dark Green'},
-        {val:'cyan', hex:'#00ffff', name:'Cyan'}, {val:'light-blue', hex:'#6eb8fc', name:'Light Blue'}, {val:'blue', hex:'#2986cc', name:'Blue'}, {val:'dark-blue', hex:'#16537e', name:'Dark Blue'},
-        {val:'pink', hex:'#ffb6c1', name:'Pink'}, {val:'magenta', hex:'#c90076', name:'Magenta'}, {val:'purple', hex:'#800080', name:'Purple'},
-        {val:'brown', hex:'#b45f06', name:'Brown'}, {val:'dark-brown', hex:'#783f04', name:'Dark Brown'}
+        {val:'default', hex:'#000000', name:'Default (Black)'},
+        {val:'5b5b5b', hex:'#5b5b5b', name:'#5b5b5b'},
+        {val:'7f8c8d', hex:'#7f8c8d', name:'#7f8c8d'},
+        {val:'bcbcbc', hex:'#bcbcbc', name:'#bcbcbc'},
+        {val:'cc0000', hex:'#cc0000', name:'#cc0000'},
+        {val:'fa2c1c', hex:'#fa2c1c', name:'#fa2c1c'},
+        {val:'d35400', hex:'#d35400', name:'#d35400'},
+        {val:'e67e22', hex:'#e67e22', name:'#e67e22'},
+        {val:'f37736', hex:'#f37736', name:'#f37736'},
+        {val:'f39c12', hex:'#f39c12', name:'#f39c12'},
+        {val:'ffd700', hex:'#ffd700', name:'#ffd700'},
+        {val:'ffe000', hex:'#ffe000', name:'#ffe000'},
+        {val:'8fce00', hex:'#8fce00', name:'#8fce00'},
+        {val:'6aa84f', hex:'#6aa84f', name:'#6aa84f'},
+        {val:'27ae60', hex:'#27ae60', name:'#27ae60'},
+        {val:'38761d', hex:'#38761d', name:'#38761d'},
+        {val:'16a085', hex:'#16a085', name:'#16a085'},
+        {val:'00ffff', hex:'#00ffff', name:'#00ffff'},
+        {val:'3498db', hex:'#3498db', name:'#3498db'},
+        {val:'2980b9', hex:'#2980b9', name:'#2980b9'},
+        {val:'16537e', hex:'#16537e', name:'#16537e'},
+        {val:'34495e', hex:'#34495e', name:'#34495e'},
+        {val:'8e44ad', hex:'#8e44ad', name:'#8e44ad'},
+        {val:'800080', hex:'#800080', name:'#800080'},
+        {val:'c90076', hex:'#c90076', name:'#c90076'},
+        {val:'ffb6c1', hex:'#ffb6c1', name:'#ffb6c1'},
+        {val:'b45f06', hex:'#b45f06', name:'#b45f06'},
+        {val:'783f04', hex:'#783f04', name:'#783f04'}
     ];
-    
-    // V56: EMOJI LIST (Your Specific Set)
-    const emojiList = ["✅","❌","📅","⏰","🚀","💡","📝","🔔","💤","☕","🏆","🔥","⭐","🏋️","🧘","📚","🎨","✈️","🏠","💰","🛒","🎁","🎉","🍎","💧","🌧","⚠","❓","❗","💪","🎧","💻","❤️","⌚","🎶","☠️","👽","🏊‍♀️","🚴‍♀️","🏃‍➡️","🎭","🎯","🏅","🎵","🎹","🎸","🥁","🎄","🎆","🛠️","💊","🩺","🩸","☎️","💿","🎥","🕯️","📖","📙","📑","🪙","✏️","📈","📉","📊","📋","📌","📍","⌛","⏳","🍺","🍹","🍽️","🚗","🛸","⚓","⛵","🌍","🌋","🏢","♨️","🌈","❄️","⚡","🚨","🚄","🧡","💛","⛔","‼️","⁉️","☢️","☣️","⚠️","♻️","🪄","♟️","🔒","⚙️","⚖️","💣","📦"];
 
-    // V56: UTF8 HELPERS
+    // V57: UTF8 ENCODING (Native OS Emoji Support)
     function utf8_to_b64(str) { return window.btoa(unescape(encodeURIComponent(str))); }
     function b64_to_utf8(str) { try { return decodeURIComponent(escape(window.atob(str))); } catch(e) { return window.atob(str); } }
 
@@ -249,11 +252,9 @@
                 const data = JSON.parse(b64_to_utf8(hash));
                 settings = data.settings || settings;
                 blocks = data.blocks || blocks;
-                
+                // Backfill IDs if needed
                 let dirty = false;
-                blocks.forEach(b => {
-                    if(!b.id) { b.id = 'blk_' + Math.random().toString(36).substr(2, 9); dirty = true; }
-                });
+                blocks.forEach(b => { if(!b.id) { b.id = 'blk_' + Math.random().toString(36).substr(2, 9); dirty = true; }});
                 if(dirty) refreshPreview();
 
                 document.getElementById('set-time').value = settings.use24h ? '24' : '12';
@@ -277,13 +278,11 @@
         else if(baseUrl.endsWith('/')) baseUrl += 'index.html';
         else baseUrl += '/index.html';
         
-        // V56: PREVIEW PARAM TO HIDE PENCIL
+        // Pass "preview=true" to hide edit pencil
         const url = `${baseUrl}?preview=true&t=${Date.now()}#${encoded}`;
         
         document.getElementById('result-url').value = `${baseUrl}#${encoded}`;
-        
-        const iframe = document.getElementById('preview-frame');
-        if(iframe) iframe.src = url;
+        document.getElementById('preview-frame').src = url;
         
         window.history.replaceState(null, null, `#${encoded}`);
     };
@@ -338,13 +337,11 @@
             const headerTitle = document.querySelector(`.block-card[data-index="${i}"] .block-label-preview`);
             if(headerTitle) headerTitle.innerText = v;
         }
-        // V56: Re-render for colors/options to reflect immediately
-        if(k === 'gridType' || k === 'color' || k === 'textColor' || k === 'includeTime' || k === 'resetMode' || k === 'width' || k === 'shape' || k === 'blockSize') { 
-            renderBlocks(true, i); 
-        }
+        if(k === 'gridType' || k === 'color' || k === 'textColor' || k === 'width' || k === 'resetMode' || k === 'shape' || k === 'blockSize') { renderBlocks(true, i); }
         updateState(); 
     };
     
+    // HELPERS
     window.updateSubItem = (bI, k, iI, f, v) => { blocks[bI][k][iI][f] = v; updateState(); };
     window.addSubItem = (bI, k) => { if(k==='locations') blocks[bI][k].push({label:'', timezone:''}); if(k==='items') blocks[bI][k].push({label:'New Bar', type:'month'}); if(k==='steps') blocks[bI][k].push({label:'Step', duration:5}); renderBlocks(true, bI); updateState(); };
     window.addDateItem = (bI, key) => { if(!blocks[bI][key]) blocks[bI][key] = []; blocks[bI][key].push('space'); renderBlocks(true, bI); updateState(); };
@@ -377,40 +374,6 @@
     
     window.removeBlock = (i) => { blocks.splice(i, 1); renderBlocks(); updateState(); };
 
-    // V56: STRING BASED EMOJI HELPERS (STABLE)
-    window.toggleEmojiPicker = (id) => {
-        const picker = document.getElementById(id);
-        const all = document.querySelectorAll('.emoji-picker');
-        all.forEach(p => { if(p !== picker) p.style.display = 'none'; });
-        if(picker.style.display === 'flex') picker.style.display = 'none';
-        else picker.style.display = 'flex';
-    };
-
-    window.insertEmoji = (index, field, char) => {
-        // Update Model
-        blocks[index][field] = (blocks[index][field] || '') + char;
-        // Update View (Re-render string)
-        renderBlocks(true, index);
-        updateState();
-    };
-
-    document.addEventListener('click', (e) => {
-        if(!e.target.classList.contains('emoji-btn') && !e.target.classList.contains('emoji-item')) {
-            document.querySelectorAll('.emoji-picker').forEach(p => p.style.display = 'none');
-        }
-    });
-
-    function getEmojiPickerHtml(index, field) {
-        let html = `<div class="input-group-emoji">
-            <div class="emoji-btn" onclick="toggleEmojiPicker('ep-${index}-${field}')">☺</div>
-            <div id="ep-${index}-${field}" class="emoji-picker">`;
-        emojiList.forEach(e => {
-            html += `<div class="emoji-item" onclick="insertEmoji(${index}, '${field}', '${e}')">${e}</div>`;
-        });
-        html += `</div></div>`;
-        return html;
-    }
-
     function renderBlocks(keepOpen = false, specificIndex = -1) {
         let openIndices = [];
         if(specificIndex >= 0) openIndices = [specificIndex];
@@ -420,14 +383,23 @@
         area.innerHTML = '';
         blocks.forEach((block, index) => {
             if(!block.id) block.id = 'blk_' + Math.random().toString(36).substr(2, 9);
-            
-            const isOpen = openIndices.includes(index) ? 'open' : '';
+
+            const div = document.createElement('div');
+            div.className = `block-card type-${block.type}`;
+            div.id = `card-${index}`;
+            div.dataset.index = index;
+            if(openIndices.includes(index)) div.classList.add('open');
+            div.draggable = true;
+            div.addEventListener('dragstart', function(e) { dragSrc = this; e.dataTransfer.effectAllowed = 'move'; this.classList.add('dragging'); });
+            div.addEventListener('dragover', function(e) { if (e.preventDefault) e.preventDefault(); return false; });
+            div.addEventListener('drop', function() { const s = parseInt(dragSrc.dataset.index); const t = parseInt(this.dataset.index); const item = blocks[s]; blocks.splice(s, 1); blocks.splice(t, 0, item); renderBlocks(false, t); updateState(); });
+            div.addEventListener('dragend', function() { this.classList.remove('dragging'); });
+
             let title = block.type.toUpperCase().replace('_',' ');
             let label = block.label || block.text || "";
             
-            // V56: RESTORED V52 STRING TEMPLATE LOGIC
+            // V57: STABLE HTML STRING TEMPLATE
             let html = `
-            <div class="block-card type-${block.type} ${isOpen}" id="card-${index}" data-index="${index}" draggable="true">
                 <div class="block-header" onclick="this.parentElement.classList.toggle('open')">
                     <span style="color:#ccc;">☰</span>
                     <span class="block-title">${title} <span class="block-label-preview">${label}</span></span>
@@ -436,9 +408,7 @@
                 <div class="block-content">
             `;
 
-            if (block.type === 'header') {
-                html += `<label>Text</label><div style="display:flex; gap:5px;"><input type="text" value="${block.text}" oninput="updateBlock(${index}, 'text', this.value)" style="flex-grow:1">${getEmojiPickerHtml(index, 'text')}</div>`;
-            }
+            if (block.type === 'header') html += `<label>Text</label><input type="text" value="${block.text}" oninput="updateBlock(${index}, 'text', this.value)">`;
             else if (block.type === 'world_clock') { html += `<div class="sub-list" id="sub-list-${index}"></div><button class="sub-btn-add" onclick="addSubItem(${index}, 'locations')">+ Add City</button>`; }
             else if (block.type === 'date_display') { 
                 html += `<label>Line 1 (Bold)</label><div class="sub-list" id="sub-list-l1-${index}"></div><button class="sub-btn-add" onclick="addDateItem(${index}, 'line1')">+ Element</button>
@@ -454,45 +424,29 @@
                 }
             }
             else if (block.type === 'moon_phase') { html += `<div style="font-size:0.8rem; color:#888;">Standard Moon Phase Display</div>`; }
-            else if (block.type === 'sequence') { 
-                html += `<label>Label</label><div style="display:flex; gap:5px;"><input value="${block.label}" oninput="updateBlock(${index}, 'label', this.value)" style="flex-grow:1">${getEmojiPickerHtml(index, 'label')}</div><div class="sub-list" id="sub-list-${index}"></div><button class="sub-btn-add" onclick="addSubItem(${index}, 'steps')">+ Step</button>`; 
-            }
-            else if (block.type === 'counter') { 
-                html += `<label>Label</label><div style="display:flex; gap:5px;"><input value="${block.label}" oninput="updateBlock(${index}, 'label', this.value)" style="flex-grow:1">${getEmojiPickerHtml(index, 'label')}</div>`; 
-            }
+            else if (block.type === 'sequence') { html += `<label>Label</label><input value="${block.label}" oninput="updateBlock(${index}, 'label', this.value)"><div class="sub-list" id="sub-list-${index}"></div><button class="sub-btn-add" onclick="addSubItem(${index}, 'steps')">+ Step</button>`; }
+            else if (block.type === 'counter') { html += `<label>Label</label><input value="${block.label}" oninput="updateBlock(${index}, 'label', this.value)">`; }
             else if (block.type === 'spacer') { html += `<div class="row"><div class="col"><label>Style</label><select onchange="updateBlock(${index}, 'style', this.value)"><option value="solid" ${block.style=='solid'?'selected':''}>Solid</option><option value="dotted" ${block.style=='dotted'?'selected':''}>Dotted</option><option value="dashed" ${block.style=='dashed'?'selected':''}>Dashed</option><option value="none" ${block.style=='none'?'selected':''}>None</option></select></div><div class="col"><label>Thickness</label><select onchange="updateBlock(${index}, 'thickness', this.value)"><option value="1px" ${block.thickness=='1px'?'selected':''}>Thin</option><option value="2px" ${block.thickness=='2px'?'selected':''}>Medium</option><option value="4px" ${block.thickness=='4px'?'selected':''}>Thick</option></select></div></div>`; }
             else if (block.type === 'empty') { html += `<div style="font-size:0.8em; color:#888;">Empty Space</div>`; }
             else if (block.type === 'countdown') {
-                html += `<label>Label</label><div style="display:flex; gap:5px;"><input value="${block.label}" oninput="updateBlock(${index}, 'label', this.value)" style="flex-grow:1">${getEmojiPickerHtml(index, 'label')}</div><label>Target Date</label><input type="date" value="${block.date}" oninput="updateBlock(${index}, 'date', this.value)">
+                html += `<label>Label</label><input value="${block.label}" oninput="updateBlock(${index}, 'label', this.value)"><label>Target Date</label><input type="date" value="${block.date}" oninput="updateBlock(${index}, 'date', this.value)">
                 <div class="row"><div class="col" style="display:flex; align-items:center;"><label><input type="checkbox" style="width:auto" onchange="updateBlock(${index}, 'includeTime', this.checked); renderBlocks(true, ${index});" ${block.includeTime===true?'checked':''}> Specific Time?</label></div>
                 <div class="col"><label>Format</label><select onchange="updateBlock(${index}, 'style', this.value)"><option value="standard" ${block.style=='standard'?'selected':''}>Standard</option><option value="precise" ${block.style=='precise'?'selected':''}>Precise</option><option value="full" ${block.style=='full'?'selected':''}>Full</option></select></div></div>
                 ${block.includeTime ? `<label>Target Time</label><input type="time" value="${block.time||'00:00'}" oninput="updateBlock(${index}, 'time', this.value)">` : ''}`; 
             }
-            else if (block.type === 'timer') {
-                html += `<label>Label</label><div style="display:flex; gap:5px;"><input value="${block.label}" oninput="updateBlock(${index}, 'label', this.value)" style="flex-grow:1">${getEmojiPickerHtml(index, 'label')}</div><div class="row"><div class="col"><label>Hours</label><input type="number" value="${block.hours}" oninput="updateBlock(${index}, 'hours', this.value)"></div><div class="col"><label>Minutes</label><input type="number" value="${block.minutes}" oninput="updateBlock(${index}, 'minutes', this.value)"></div></div>`;
-            }
-            else if (block.type === 'progress_custom') {
-                html += `<label>Label</label><div style="display:flex; gap:5px;"><input value="${block.label}" oninput="updateBlock(${index}, 'label', this.value)" style="flex-grow:1">${getEmojiPickerHtml(index, 'label')}</div><div class="row"><div class="col"><label>Start Date</label><input type="date" value="${block.start}" oninput="updateBlock(${index}, 'start', this.value)"></div><div class="col"><label>End Date</label><input type="date" value="${block.end}" oninput="updateBlock(${index}, 'end', this.value)"></div></div>`;
-            }
-            else if (block.type === 'progress_cycle') {
-                html += `<label>Label</label><div style="display:flex; gap:5px;"><input value="${block.label}" oninput="updateBlock(${index}, 'label', this.value)" style="flex-grow:1">${getEmojiPickerHtml(index, 'label')}</div><div class="row"><div class="col"><label>Start Date</label><input type="date" value="${block.anchor}" oninput="updateBlock(${index}, 'anchor', this.value)"></div><div class="col"><label>Duration (Days)</label><input type="number" value="${block.days}" oninput="updateBlock(${index}, 'days', this.value)"></div></div><label>Mode</label><select onchange="updateBlock(${index}, 'resetMode', this.value)"><option value="manual" ${block.resetMode=='manual'?'selected':''}>Manual Reset</option><option value="auto" ${block.resetMode=='auto'?'selected':''}>Auto Loop</option></select>`;
-            }
+            else if (block.type === 'timer') html += `<label>Label</label><input value="${block.label}" oninput="updateBlock(${index}, 'label', this.value)"><div class="row"><div class="col"><label>Hours</label><input type="number" value="${block.hours}" oninput="updateBlock(${index}, 'hours', this.value)"></div><div class="col"><label>Minutes</label><input type="number" value="${block.minutes}" oninput="updateBlock(${index}, 'minutes', this.value)"></div></div>`;
+            else if (block.type === 'progress_custom') html += `<label>Label</label><input value="${block.label}" oninput="updateBlock(${index}, 'label', this.value)"><div class="row"><div class="col"><label>Start Date</label><input type="date" value="${block.start}" oninput="updateBlock(${index}, 'start', this.value)"></div><div class="col"><label>End Date</label><input type="date" value="${block.end}" oninput="updateBlock(${index}, 'end', this.value)"></div></div>`;
+            else if (block.type === 'progress_cycle') html += `<label>Label</label><input value="${block.label}" oninput="updateBlock(${index}, 'label', this.value)"><div class="row"><div class="col"><label>Start Date</label><input type="date" value="${block.anchor}" oninput="updateBlock(${index}, 'anchor', this.value)"></div><div class="col"><label>Duration (Days)</label><input type="number" value="${block.days}" oninput="updateBlock(${index}, 'days', this.value)"></div></div><label>Mode</label><select onchange="updateBlock(${index}, 'resetMode', this.value)"><option value="manual" ${block.resetMode=='manual'?'selected':''}>Manual Reset</option><option value="auto" ${block.resetMode=='auto'?'selected':''}>Auto Loop</option></select>`;
 
             html += `<div class="viz-controls"><div class="viz-row">
             <div class="col"><label>Accent Color</label><div style="display:flex;gap:5px;"><select onchange="updateBlock(${index}, 'color', this.value)" style="flex:1">${getColorOptions(block.color)}</select><input type="color" value="${block.color && block.color.startsWith('#')?block.color:'#000000'}" onchange="updateBlock(${index}, 'color', this.value)" style="width:30px;height:32px;cursor:pointer;"></div></div>
             <div class="col"><label>Text Color</label><div style="display:flex;gap:5px;"><select onchange="updateBlock(${index}, 'textColor', this.value)" style="flex:1">${getColorOptions(block.textColor)}</select><input type="color" value="${block.textColor && block.textColor.startsWith('#')?block.textColor:'#37352f'}" onchange="updateBlock(${index}, 'textColor', this.value)" style="width:30px;height:32px;cursor:pointer;"></div></div>
             <div class="col"><label>Width</label><select onchange="updateBlock(${index}, 'width', this.value)"><option value="100">Full</option><option value="50" ${block.width=='50'?'selected':''}>Half</option><option value="33" ${block.width=='33'?'selected':''}>1/3</option></select></div>
-            </div></div></div></div>`;
+            </div></div>`;
             
-            area.insertAdjacentHTML('beforeend', html);
+            div.innerHTML = html; area.appendChild(div);
 
-            // Re-Bind (Standard functions from prev versions)
-            const div = document.getElementById(`card-${index}`);
-            div.addEventListener('dragstart', function(e) { dragSrc = this; e.dataTransfer.effectAllowed = 'move'; this.classList.add('dragging'); });
-            div.addEventListener('dragover', function(e) { if (e.preventDefault) e.preventDefault(); return false; });
-            div.addEventListener('drop', function() { const s = parseInt(dragSrc.dataset.index); const t = parseInt(this.dataset.index); const item = blocks[s]; blocks.splice(s, 1); blocks.splice(t, 0, item); renderBlocks(false, t); updateState(); });
-            div.addEventListener('dragend', function() { this.classList.remove('dragging'); });
-
+            // Re-Bind
             if(block.type === 'world_clock') renderCityList(index, block.locations);
             if(block.type === 'progress_group') renderAutoProgressList(index, block.items);
             if(block.type === 'sequence') renderSequenceList(index, block.steps);
@@ -507,8 +461,8 @@
     function renderSequenceList(bIdx, array) { const container = document.getElementById(`sub-list-${bIdx}`); if(!container) return; container.innerHTML = ''; array.forEach((item, iIdx) => { const row = document.createElement('div'); row.className = 'sub-item'; const up = `<button class="sub-btn-mov" onclick="moveItem(${bIdx}, 'steps', ${iIdx}, -1)">↑</button>`; const down = `<button class="sub-btn-mov" onclick="moveItem(${bIdx}, 'steps', ${iIdx}, 1)">↓</button>`; row.innerHTML = `<input value="${item.label}" oninput="updateSubItem(${bIdx}, 'steps', ${iIdx}, 'label', this.value)" style="flex:2" placeholder="Task"><input type="number" value="${item.duration}" oninput="updateSubItem(${bIdx}, 'steps', ${iIdx}, 'duration', this.value)" style="width:60px" placeholder="Min">${up}${down}<button class="sub-btn-rem" onclick="removeSubItem(${bIdx}, 'steps', ${iIdx})">×</button>`; container.appendChild(row); }); }
     function renderDateList(bIdx, key, array) { const container = document.getElementById(`sub-list-${key==='line1'?'l1':'l2'}-${bIdx}`); if(!container) return; container.innerHTML = ''; array.forEach((item, iIdx) => { const row = document.createElement('div'); row.className = 'sub-item'; const sel = document.createElement('select'); dateTokens.forEach(t => { sel.innerHTML += `<option value="${t.val}" ${((typeof item==='string'?item:item.type)==t.val)?'selected':''}>${t.txt}</option>`; }); sel.onchange = (e) => { blocks[bIdx][key][iIdx] = e.target.value; updateState(); }; const up = `<button class="sub-btn-mov" onclick="moveItem(${bIdx}, '${key}', ${iIdx}, -1)">↑</button>`; const down = `<button class="sub-btn-mov" onclick="moveItem(${bIdx}, '${key}', ${iIdx}, 1)">↓</button>`; const del = `<button class="sub-btn-rem" onclick="removeSubItem(${bIdx}, '${key}', ${iIdx})">×</button>`; row.append(sel); row.insertAdjacentHTML('beforeend', up+down+del); container.appendChild(row); }); }
     
-    function generateLink() { const json = JSON.stringify({ settings, blocks }); const encoded = utf8_to_b64(json); let url = window.location.href.split('#')[0].split('?')[0]; if(url.endsWith('admin.html')) url = url.substring(0, url.lastIndexOf('/')); if(url.endsWith('/')) url = url.slice(0, -1); const final = `${url}/index.html#${encoded}`; document.getElementById('result-url').innerText = final; return final; }
-    window.copyLink = () => { navigator.clipboard.writeText(document.getElementById('result-url').innerText).then(() => { const btn = document.getElementById('btn-copy'); btn.innerText = "COPIED!"; setTimeout(() => btn.innerText = "COPY", 1000); }); };
+    function generateLink() { const json = JSON.stringify({ settings, blocks }); const encoded = utf8_to_b64(json); let url = window.location.href.split('#')[0].split('?')[0]; if(url.endsWith('admin.html')) url = url.substring(0, url.lastIndexOf('/')); if(url.endsWith('/')) url = url.slice(0, -1); const final = `${url}/index.html#${encoded}`; document.getElementById('result-url').value = final; return final; }
+    window.copyLink = () => { navigator.clipboard.writeText(document.getElementById('result-url').value).then(() => { const btn = document.getElementById('btn-copy'); btn.innerText = "COPIED!"; setTimeout(() => btn.innerText = "Copy Link", 1000); }); };
     
     init();
 </script>
